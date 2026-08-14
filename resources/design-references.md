@@ -34,7 +34,13 @@
 
 ## C. 组件素材库
 
-### 5. Uiverse Galaxy — 组件/按钮素材库
+### 5. 21st.dev — shadcn/ui 组件市场
+
+- **是什么**：设计工程师社区发布的 shadcn/ui 组件/模板目录（React + Tailwind），含 shadcn 主题、shaders、渐变；组件以 shadcn registry 格式发布，与 shadcn/ui 原语组合
+- **怎么用**：浏览 <https://21st.dev/> 预览组件 → 复制 AI-ready prompt 让 Cursor/Claude Code/v0 等 agent 直接落地，或 `npx shadcn add` 安装；组件是 React 的，不直接装时借范式
+- **典型场景**：项目已用 shadcn/ui 时找现成组件/主题；做 React 界面时参考其组件语言
+
+### 6. Uiverse Galaxy — 组件/按钮素材库
 
 - **是什么**：3800+ 免费 UI 元素（按钮为主，MIT）
 - **怎么用**：
@@ -45,7 +51,7 @@
 
 ## D. 动画引擎
 
-### 6. Motion — Web 动画库（首选）
+### 7. Motion — Web 动画库（首选）
 
 - **是什么**：专业 Web 动画引擎（弹簧物理、滚动、手势），MIT
 - **怎么用**：独立 HTML 直接 CDN 引用，零安装：
@@ -59,7 +65,7 @@
 - **配套**：本机已装 `motion` skill（~/.pi/agent/skills/motion/）——写动画前查它的 best-practices 和 css-spring
 - **典型场景**：做 HTML 动效时用 Motion 而不是手写 CSS 动画
 
-### 7. Anime.js — 全能动画引擎（补充）
+### 8. Anime.js — 全能动画引擎（补充）
 
 - **是什么**：通用 JS/SVG 动画引擎 v4（keyframes、easings、stagger、SVG morph、运动路径、Scroll Observer），`npm i animejs` 或 CDN
 - **怎么用**：<https://animejs.com/> 文档/示例；CDN: `https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.esm.js`
@@ -67,7 +73,7 @@
 
 ## E. 工具发现（非设计资源）
 
-### 8. VibeIndex — AI 编程工具导航
+### 9. VibeIndex — AI 编程工具导航
 
 - **是什么**：285 个 AI 编程工具目录（16 类：AI IDE、构建器、代码审查、测试等）
 - **怎么用**：<https://vibeindex.dev/> 浏览发现工具（注意：这是工具目录，不是设计参考）
@@ -78,5 +84,5 @@
 ## 使用流程（做设计任务时）
 
 1. 判断任务类型 → 对应查 A–E 分组
-2. 优先真实资源（refero 设计系统 / aceternity+beautifului 范式 / galaxy 组件 / motion+animejs 动效 / minimal 灵感）
+2. 优先真实资源（refero 设计系统 / aceternity+beautifului 范式 / 21st.dev+galaxy 组件 / motion+animejs 动效 / minimal 灵感）
 3. 没有匹配资源 → 正常发挥，不要硬凑
