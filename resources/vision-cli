@@ -90,18 +90,37 @@ function toDataUrl(imgPath) {
   return `data:${mime};base64,${fs.readFileSync(imgPath).toString("base64")}`;
 }
 
+// ---------- 参数解析：<图片> [问题] [--context 历史] [--format text|json] ----------
+function parseArgs(args) {
+  let imgPath = null;
+  const question = [];
+  let context = null;
+  let format = "text";
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--context") { context = args[++i] || null; continue; }
+    if (args[i] === "--format") { format = args[++i] || "text"; continue; }
+    if (!imgPath) imgPath = args[i];
+    else question.push(args[i]);
+  }
+  return { imgPath, question: question.join(" "), context, format };
+}
+
 // ---------- 调视觉模型（openai-completions 兼容） ----------
-async function askVision(m, imgPath, question) {
+async function askVision(m, imgPath, question, context, format) {
   const url = `${m.baseUrl}/chat/completions`;
+  const content = [];
+  // 多轮会话：带上之前的问答历史（明确是同一张图的追问，防止模型困惑）
+  if (context && context.trim()) {
+    content.push({ type: "text", text: `这是对同一张图片的连续提问，图片没有改变。你之前对该图内容的回答是：\n${context.trim()}\n现在用户有新问题，请基于你之前对这张图的观察直接回答新问题（不要质疑图片是否一致，不要重复已答内容，只需补充新问题的信息）。` });
+  }
+  content.push({ type: "text", text: question });
+  content.push({ type: "image_url", image_url: { url: toDataUrl(imgPath) } });
+  if (format === "json") {
+    content.push({ type: "text", text: "\n请以 JSON 格式输出（不要 Markdown 代码块）。适合提取清单时参考：{\"summary\":\"总述\",\"items\":[{\"text\":\"...\"}]}" });
+  }
   const body = {
     model: m.model,
-    messages: [{
-      role: "user",
-      content: [
-        { type: "text", text: question },
-        { type: "image_url", image_url: { url: toDataUrl(imgPath) } },
-      ],
-    }],
+    messages: [{ role: "user", content }],
     max_tokens: 1500,
   };
   const resp = await fetch(url, {
@@ -121,13 +140,12 @@ async function askVision(m, imgPath, question) {
 
 // ---------- 主流程 ----------
 async function main() {
-  const args = process.argv.slice(2);
-  if (args.length < 1) {
-    console.error("用法: vision-cli <图片路径> [问题]");
+  const { imgPath, question, context, format } = parseArgs(process.argv.slice(2));
+  if (!imgPath) {
+    console.error("用法: vision-cli <图片路径> [问题] [--context 历史问答] [--format text|json]");
     process.exit(1);
   }
-  const imgPath = path.resolve(args[0]);
-  const question = args.slice(1).join(" ") || DEFAULT_QUESTION;
+  const q = question || DEFAULT_QUESTION;
 
   if (!fs.existsSync(imgPath)) {
     console.error(`图片不存在: ${imgPath}`);
@@ -158,7 +176,7 @@ async function main() {
   for (const m of models) {
     used.push(`${m.provider}/${m.model}`);
     try {
-      const text = await askVision(m, usePath, question);
+      const text = await askVision(m, usePath, q, context, format);
       if (used.length > 1) console.log(`[vision-cli 用 ${m.provider}/${m.model}]\n${text}`);
       else console.log(text);
       return;
