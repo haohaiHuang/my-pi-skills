@@ -9,7 +9,7 @@
 ### 1. Refero Styles — 真实产品设计系统库
 
 - **是什么**：2000+ 真实产品（Linear、ElevenLabs、Factory、Raycast…）的设计系统，AI 可读（DESIGN.md / Tailwind / CSS Variables / Tokens）
-- **怎么用**：浏览器 <https://styles.refero.design/> 搜索；或走 MCP（`refero_search` / `refero_get` / `refero_design_md`，pi 已配置 npx 免费版）
+- **怎么用**：浏览器 <https://styles.refero.design/> 搜索；或走 MCP（`refero_search` / `refero_get` / `refero_design_md`，pi 已配置 `https://api.refero.design/mcp`）——深度用法见 `refero-design` skill（styles/screens/flows 三层研究）
 - **典型场景**：用户说"用 XX 的风格" → refero 搜该产品 → 拿 DESIGN.md（调色板/字体/间距/准则）→ 照着实现
 
 ### 2. Aceternity UI — 落地页组件范式
@@ -62,7 +62,7 @@
   </script>
   ```
 
-- **配套**：本机已装 `motion` skill（~/.pi/agent/skills/motion/）——写动画前查它的 best-practices 和 css-spring
+- **配套**：本机已装 `motion-dev-animations` skill（~/.pi/agent/skills/motion-dev-animations/）——写动画前查它的 best-practices、spring 物理与可访问性指南
 - **典型场景**：做 HTML 动效时用 Motion 而不是手写 CSS 动画
 
 ### 8. Anime.js — 全能动画引擎（补充）
@@ -70,6 +70,49 @@
 - **是什么**：通用 JS/SVG 动画引擎 v4（keyframes、easings、stagger、SVG morph、运动路径、Scroll Observer），`npm i animejs` 或 CDN
 - **怎么用**：<https://animejs.com/> 文档/示例；CDN: `https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.esm.js`
 - **典型场景**：Motion 不擅长的地方——SVG 形状变形（morph）、沿路径运动、复杂 stagger 序列
+
+## F. 图标 / 字体 / 纹理（高频素材，直接引用）
+
+### 10. Lucide — 图标库（首选）
+
+- **是什么**：1000+ 线性图标，MIT，SVG 可直接引用
+- **怎么用**：CDN 或复制 SVG：`https://unpkg.com/lucide-static@latest/icons/<name>.svg`；或 <https://lucide.dev/> 预览
+- **典型场景**：按钮/导航/空状态/特性列表图标
+
+### 11. Heroicons — 图标库（补充）
+
+- **是什么**：Tailwind 官方图标（outline/solid 两套），MIT
+- **怎么用**：<https://heroicons.com/> 复制 SVG；或 `https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg`
+- **典型场景**：需要 outline/solid 两种权重时
+
+### 12. Google Fonts — 字体源
+
+- **是什么**：免费 web 字体（含中文：思源黑体 Noto Sans SC / 思源宋体 Noto Serif SC）
+- **怎么用**：<https://fonts.google.com/> 挑字体 → 复制 <link> 或 @import 到 HTML
+- **典型场景**：中英文排版字体；中文优先 Noto/思源系（免费可商用）
+
+### 13. Hero Patterns — SVG 背景纹理
+
+- **是什么**：免费 SVG 平铺纹理（dots/grid/waves 等），CC0
+- **怎么用**：<https://heropatterns.com/> 选图案 → 复制 CSS background（内联 SVG data URI）
+- **典型场景**：hero 区/卡片背景的低调纹理
+
+### 14. CSS 渐变工具
+
+- **是什么**：渐变背景生成器（mesh gradient 等）
+- **怎么用**：<https://cssgradient.io/> 生成 CSS；或手写 `background: radial-gradient(...)` 叠加做 mesh 效果
+- **典型场景**：hero 背景、卡片强调色
+
+## G. 本机协同技能（设计任务组合）
+
+| 技能 | 定位 | 何时用 |
+| --- | --- | --- |
+| `refero-design` | research-first 设计方法论（MCP 已配置） | 任何设计任务的首选研究入口 |
+| `motion-dev-animations` | Motion.dev 动画（spring/120fps） | 网页/PPT 动效 |
+| `kami` | 专业排版（文档/PPT/落地页 HTML） | 排版输出 |
+| `guizang-ppt-skill` | 横向翻页网页 PPT | PPT 演示 |
+| `hyperframes` | HTML 渲染视频/动画 | 视频/动画合成 |
+| `gpt-image-2` | 图像生成/编辑 | 配图、插画、视觉探索 |
 
 ## E. 工具发现（非设计资源）
 
@@ -83,6 +126,8 @@
 
 ## 使用流程（做设计任务时）
 
-1. 判断任务类型 → 对应查 A–E 分组
-2. 优先真实资源（refero 设计系统 / aceternity+beautifului 范式 / 21st.dev+galaxy 组件 / motion+animejs 动效 / minimal 灵感）
-3. 没有匹配资源 → 正常发挥，不要硬凑
+1. 判断任务类型 → 对应查 A–G 分组
+2. 深度设计任务优先走 `refero-design` skill（research-first：styles/screens/flows，MCP 已配置）；轻量任务直接查素材库
+3. 优先真实资源（refero 设计系统 / aceternity+beautifului 范式 / 21st.dev+galaxy 组件 / motion+animejs 动效 / minimal 灵感 / lucide+fonts+patterns 高频素材）
+4. 落地时按需组合协同技能（G 组：kami / guizang / hyperframes / gpt-image-2 / motion-dev-animations）
+5. 没有匹配资源 → 正常发挥，不要硬凑
