@@ -1,91 +1,99 @@
 # my-pi-skills
 
-自研的 **Agent Skills** 集合（遵循 [Agent Skills 标准](https://agentskills.io/specification)），无上游仓库，通过本仓库分发与同步。
+A collection of original **Agent Skills** (following the [Agent Skills standard](https://agentskills.io/specification)) with no upstream repository, distributed and synced through this repo.
 
-## 包含技能
+## Skills
 
-| 技能 | 说明 |
+| Skill | Description |
 | --- | --- |
-| `design-references` | 设计参考索引：动手前先查 `~/resources/design-references.md` 素材台账（设计系统 / AI 范式 / 组件 / 动效 / 图标字体纹理） |
-| `skill-router` | 技能咨询台 + 台账管理器：运行时扫描本机各平台技能，支持 scan / report / check / platforms / drift / sync 子命令 |
-| `vision` | 读图转文字：当前模型无视觉能力时，自动发现本机视觉模型（preferredModels 顺序，失败回退）读取图片 |
+| `design-references` | Design reference index: consult `~/resources/design-references.md` before design work (design systems / AI UI patterns / components / motion / icons-fonts-textures) |
+| `skill-router` | Skill advisor + inventory manager: scans local skills across platforms at runtime; subcommands scan / report / check / platforms / drift / sync |
+| `vision` | Image-to-text: when the current model has no vision, automatically discovers local vision models (preferredModels order, fallback on failure) to read images |
 
-## 结构
+## Structure
 
 ```
-skills/                    自研 skill 文件夹（每个含 SKILL.md）
-  design-references/       设计参考索引
-  skill-router/            技能咨询台 + 台账（scripts/catalog.sh）
-  vision/                  读图转文字
-resources/                 外部素材 / 配套工具
-  design-references.md     design-references 的素材台账（SKILL.md 只是入口）
-  vision-cli               vision 的跨平台 CLI（放 PATH 如 ~/.local/bin）
-docs/                      通用文档
-  skill-sync-map.md        多平台技能分发方法论（模板，复制到本机填实际数据）
-  inventory.example.md     per-machine 技能清单模板（实际清单存私有仓库）
+skills/                    Original skills (each with SKILL.md)
+  design-references/       Design reference index
+  skill-router/            Skill advisor + inventory (scripts/catalog.sh)
+  vision/                  Image-to-text
+resources/                 External assets / companion tools
+  design-references.md     Asset catalog for design-references (SKILL.md is just the entry)
+  vision-cli               Cross-platform CLI for vision (put on PATH, e.g. ~/.local/bin)
+docs/                      Generic docs
+  skill-sync-map.md        Multi-platform skill distribution methodology (template)
+  inventory.example.md     Per-machine inventory template (actual inventories live in a private repo)
 ```
 
-> 有 GitHub 上游的技能（mattpocock、lark-* 等）从各自上游安装，不进本仓库。
+> Skills with a GitHub upstream (mattpocock, lark-*, etc.) install from their own upstream, not this repo.
 
-## 使用
+## Usage
 
-### design-references — 设计参考
+### design-references — Design references
 
-**何时用**：做 UI / 界面 / 视觉 / 风格 / 动效任务（落地页、AI 面板、PPT、组件、风格化）。
+**When**: UI / visual / style / motion tasks (landing pages, AI panels, PPT, components, styling).
 
-**怎么用**：对 agent 说“用 XX 的风格做落地页”“参考 beautifului 的 AI 面板范式”等，agent 会先查 `~/resources/design-references.md` 素材台账（设计系统 / AI 范式 / 组件 / 动效 / 图标字体纹理），能引用真实资源就不凭空发挥；深度设计任务自动配合 `refero-design`、`motion-dev-animations` 等技能。
+**How**: say "build a landing page in the style of X" / "reference beautifului's AI panel patterns" — the agent first consults `~/resources/design-references.md` and reuses real resources instead of improvising; deep design tasks also leverage `refero-design`, `motion-dev-animations`, etc.
 
-触发词：设计参考、风格库、用 XX 的风格、做落地页、做 AI 面板。
+Keywords: design reference, style library, "in the style of X", landing page, AI panel.
 
-### skill-router — 技能咨询台 + 台账
+### skill-router — Skill advisor + inventory
 
-**何时用**：不知道用什么技能、想查平台技能清单、装新技能前判断重复、盘点/同步台账。
+**When**: unsure which skill to use, want a platform skill list, pre-install duplication check, inventory/reporting.
 
-**怎么用**：直接描述目标（“我想把截图合成视频用什么技能？”）或使用子命令：
+**How**: describe the goal directly ("which skill should I use to turn screenshots into a video?") or use subcommands:
 
-| 子命令 | 作用 |
+| Subcommand | Purpose |
 | --- | --- |
-| `scan [平台]` | 扫描技能清单（默认 pi） |
-| `report [平台]` | 盘点报告（技能数/同名/冲突） |
-| `check <技能> [平台]` | 装前判断是否重复/冗余 |
-| `platforms` | 平台概览 |
-| `drift [技能]` | 跨平台版本漂移检测 |
-| `sync` | 更新技能路由矩阵台账（新装技能后跑一次） |
-| `help` | 用法说明 |
+| `scan [platform]` | List skills (default: pi) |
+| `report [platform]` | Inventory report (counts/duplicates/conflicts) |
+| `check <skill> [platform]` | Pre-install duplication check |
+| `platforms` | Platform overview |
+| `drift [skill]` | Cross-platform version drift detection |
+| `sync` | Update the skill routing matrix (run after installing new skills) |
+| `help` | Usage |
 
-触发词：用什么技能、查技能清单、技能盘点、技能体检、更新台账、装新技能会不会重复。
+Keywords: which skill, list skills, skill inventory, skill audit, update inventory, will it duplicate.
 
-### vision — 读图转文字
+### vision — Image-to-text
 
-**何时用**：当前模型没有视觉能力，但任务需要看图片/截图、OCR 提取文字、识别 UI。
+**When**: current model has no vision, but the task needs to see images/screenshots, OCR text, or understand UI.
 
-**怎么用**：对 agent 说“分析这张图 /tmp/x.png”“提取图里文字”，agent 会自动调 `vision-cli`（自动发现本机视觉模型，按 preferredModels 顺序尝试、失败回退）；也可手动：`vision-cli <图片路径> [问题]`。
+**How**: say "analyze this image /tmp/x.png" / "extract the text" — the agent automatically calls `vision-cli` (auto-discovers local vision models, preferredModels order, fallback on failure); or manually: `vision-cli <image> [question]`.
 
-触发词：看图、识别图片、提取图片文字、分析截图、图片里写了什么。
+Advanced:
 
-## 安装
+```bash
+vision-cli --deep <image> "focus"          # autonomous multi-round understanding → full report
+vision-cli <image> "..." --format json     # API-enforced JSON output (extract lists)
+vision-cli <image> "..." --context "prev"  # follow-up on the same image (multi-turn)
+```
 
-**让 Agent 装（推荐）**——直接把仓库地址给当前 agent：
+Keywords: look at image, recognize image, extract image text, analyze screenshot, what's in this image.
 
-> “安装这个仓库的技能：https://github.com/haohaiHuang/my-pi-skills”
+## Install
 
-Agent 会自动执行：clone → 运行 `install.sh` → 装好全部技能。
+**Let your agent install it (recommended)** — give the repo URL to your current agent:
 
-**手动装**：
+> "Install the skills from this repo: https://github.com/haohaiHuang/my-pi-skills"
+
+The agent will clone and run `install.sh` automatically.
+
+**Manual**:
 
 ```bash
 git clone https://github.com/haohaiHuang/my-pi-skills && cd my-pi-skills
-./install.sh        # 安装到 pi（含外部资源、vision-cli）
-./install.sh ~/.workbuddy/skills      # 其他平台换目标目录
+./install.sh        # install to pi (including external assets, vision-cli)
+./install.sh ~/.workbuddy/skills      # other platforms: pass the target skills dir
 ```
 
-## 使用中的技能管理
+## Managing skills day to day
 
-**新装了一个技能？** 无需手动登记——skill-router 运行时扫描磁盘，下次查询自动可见；跑一次 `sync` 把新技能固化进路由矩阵台账（`/skill:skill-router sync`，或问 agent “更新技能台账”）。
+**Just installed a new skill?** No manual registration needed — skill-router scans the disk at runtime, so the skill is visible on next query; run `sync` to persist it into the routing matrix (`/skill:skill-router sync`, or just ask "update skill inventory").
 
-**本仓库的新技能**（维护者）：新自研 skill 目录放进 `skills/`，外部依赖放 `resources/`，commit push 即可。
+**New skills in this repo** (maintainers): put new original skill dirs in `skills/`, external deps in `resources/`, commit & push.
 
-## 注意
+## Notes
 
-- 本仓库只放**无上游的自研件**；带 API key 的配置文件（models.json、auth.json、mcp.json 等）**一律不进 git**，各机器自行配置
-- 机器相关的技能安装清单**不放本仓库**——存私有仓库（见 `docs/inventory.example.md`）
+- This repo only holds **original skills with no upstream**; files containing API keys (models.json, auth.json, mcp.json, etc.) must **never be committed** — configure them per machine
+- Machine-specific skill inventories are **not in this repo** — they live in a private repo (see `docs/inventory.example.md`)
