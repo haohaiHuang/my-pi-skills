@@ -82,7 +82,7 @@ function discoverVisionModels(preferred) {
 // ---------- 图片预处理：超大图自动缩放（默认开启，sips） ----------
 // 规则：长边 > MAX_EDGE 才缩放（格式跟随原图）；heic/heif 必须转 png（部分模型不支持）；
 // 缩放/转换失败则原样发送（不阻断）。作用：控制 base64 体积与模型处理成本，大图提速。
-const MAX_EDGE = 1600;
+const MAX_EDGE = 2400;
 function preprocessImage(imgPath) {
   const isHeic = /\.(heic|heif)$/i.test(imgPath);
   let longEdge = 0;
