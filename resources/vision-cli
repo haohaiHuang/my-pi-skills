@@ -79,6 +79,33 @@ function discoverVisionModels(preferred) {
   return models;
 }
 
+// ---------- 图片预处理：超大图自动缩放（默认开启，sips） ----------
+// 规则：长边 > MAX_EDGE 才缩放（格式跟随原图）；heic/heif 必须转 png（部分模型不支持）；
+// 缩放/转换失败则原样发送（不阻断）。作用：控制 base64 体积与模型处理成本，大图提速。
+const MAX_EDGE = 1600;
+function preprocessImage(imgPath) {
+  const isHeic = /\.(heic|heif)$/i.test(imgPath);
+  let longEdge = 0;
+  try {
+    const out = execFileSync("sips", ["-g", "pixelWidth", "-g", "pixelHeight", imgPath], { encoding: "utf-8" });
+    const w = parseInt(out.match(/pixelWidth:\s*(\d+)/)?.[1] || "0", 10);
+    const h = parseInt(out.match(/pixelHeight:\s*(\d+)/)?.[1] || "0", 10);
+    longEdge = Math.max(w, h);
+  } catch { /* 读不到尺寸就当无需缩放 */ }
+  if (!isHeic && (!longEdge || longEdge <= MAX_EDGE)) return imgPath;
+  const tmp = path.join(os.tmpdir(), `vision-${Date.now()}${isHeic ? ".png" : path.extname(imgPath).toLowerCase() || ".png"}`);
+  try {
+    const args = [];
+    if (longEdge > MAX_EDGE) args.push("-Z", String(MAX_EDGE));
+    if (isHeic) args.push("-s", "format", "png");
+    execFileSync("sips", [...args, imgPath, "--out", tmp], { stdio: "ignore" });
+    return tmp;
+  } catch {
+    try { fs.unlinkSync(tmp); } catch {}
+    return imgPath;
+  }
+}
+
 // ---------- 图片 → base64 data URL ----------
 function toDataUrl(imgPath) {
   const ext = path.extname(imgPath).toLowerCase();
@@ -190,13 +217,8 @@ async function main() {
     console.error(`图片不存在: ${imgPath}`);
     process.exit(1);
   }
-  // heic 转 png（部分模型不支持 heic）
-  let usePath = imgPath;
-  if (/\.heic$/i.test(imgPath)) {
-    const tmp = path.join(os.tmpdir(), `vision-${Date.now()}.png`);
-    execFileSync("sips", ["-s", "format", "png", imgPath, "--out", tmp], { stdio: "ignore" });
-    usePath = tmp;
-  }
+  // 图片预处理：heic/heif 转 png（部分模型不支持）；长边 > 1600px 自动缩放（控制体积、提速）
+  let usePath = preprocessImage(imgPath);
 
   const cfg = loadConfig();
   const preferred = cfg.preferredModels || [];

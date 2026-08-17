@@ -63,7 +63,7 @@ vision-cli /图.png "提取所有按钮文字" --format json
 - 图片路径不确定 → 先用 bash 找（`ls`、`find`、`mdfind`）
 - **模型自动发现**：vision-cli 自动扫描本机配置（~/.pi/agent/models.json / models-store.json / auth.json）找出所有支持图片的模型，按顺序尝试，失败自动换下一个
 - 优先级：`~/.config/vision-cli/config.json` 的 `preferredModels`（格式 `provider/model`，如 `xiaomi-token-plan-cn/mimo-v2.5`）
-- 图片是本地文件路径；`.heic` 自动转 png
+- 图片是本地文件路径；`.heic/.heif` 自动转 png；长边超 1600px 的大图自动缩放后再发送（sips），无需手动处理
 
 ## 故障排查
 
