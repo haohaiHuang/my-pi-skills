@@ -200,7 +200,7 @@ check_mode() {
 	# 1. 同名检测（frontmatter name 重复）
 	echo "--- [1] 同名检测 ---"
 	awk -F'\t' '{print $1}' "$tmp" | sort | uniq -d | while read -r n; do
-		echo "  ⚠️ 重复: $n ($(grep -c "^$n" "$tmp") 处)"
+		echo "  ⚠️ 重复: $n ($(grep -c "^$n$(printf '\t')" "$tmp") 处)"
 	done
 	[ "$(awk -F'\t' '{print $1}' "$tmp" | sort | uniq -d | wc -l | tr -d ' ')" = "0" ] && echo "  ✓ 无同名"
 
