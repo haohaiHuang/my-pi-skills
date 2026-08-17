@@ -1,0 +1,133 @@
+#!/usr/bin/env node
+/**
+ * vision-cli — 跨平台"读图转文字"服务
+ *
+ * 用途：当前 agent 模型无视觉能力时，调用此 CLI 把图片交给视觉模型识别，返回文字描述。
+ * 用法：vision-cli <图片路径> [问题]
+ *
+ * 模型路由：mimo-v2.5（主）→ agnes-2.0-flash（备，失败自动回退）
+ * 配置：~/.config/vision-cli/config.json（首次运行自动从 pi 配置提取生成）
+ */
+
+const fs = require("node:fs");
+const path = require("node:path");
+const os = require("node:os");
+const { execFileSync } = require("node:child_process");
+
+const CONFIG_PATH = path.join(os.homedir(), ".config", "vision-cli", "config.json");
+const DEFAULT_QUESTION = "请详细描述这张图片的内容：主体、文字（逐字输出）、布局、颜色、风格等，尽量完整。";
+
+// ---------- 配置 ----------
+function ensureConfig() {
+  if (fs.existsSync(CONFIG_PATH)) {
+    return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
+  }
+  // 从 pi 配置提取（首次运行）
+  const piAuth = path.join(os.homedir(), ".pi", "agent", "auth.json");
+  const piModels = path.join(os.homedir(), ".pi", "agent", "models.json");
+  let mimoKey = "", agnesKey = "";
+  try { mimoKey = JSON.parse(fs.readFileSync(piAuth, "utf-8"))?.["xiaomi-token-plan-cn"]?.key || ""; } catch {}
+  try { agnesKey = JSON.parse(fs.readFileSync(piModels, "utf-8"))?.providers?.Agnes?.apiKey || ""; } catch {}
+  const cfg = {
+    primary: {
+      baseUrl: "https://token-plan-cn.xiaomimimo.com/v1",
+      apiKey: mimoKey,
+      model: "mimo-v2.5",
+    },
+    fallback: {
+      baseUrl: "https://apihub.agnes-ai.com/v1",
+      apiKey: agnesKey,
+      model: "agnes-2.0-flash",
+    },
+  };
+  fs.mkdirSync(path.dirname(CONFIG_PATH), { recursive: true });
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + "\n");
+  console.error(`[vision-cli] 已生成配置 ${CONFIG_PATH}（请检查 apiKey 是否有效）`);
+  return cfg;
+}
+
+// ---------- 图片 → base64 data URL ----------
+function toDataUrl(imgPath) {
+  const ext = path.extname(imgPath).toLowerCase();
+  const mime = {
+    ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+    ".gif": "image/gif", ".webp": "image/webp", ".bmp": "image/bmp",
+    ".heic": "image/heic", ".heif": "image/heif",
+  }[ext] || "image/png";
+  const b64 = fs.readFileSync(imgPath).toString("base64");
+  return `data:${mime};base64,${b64}`;
+}
+
+// ---------- 调视觉模型（openai-completions 兼容） ----------
+async function askVision(cfg, imgPath, question) {
+  const url = `${cfg.baseUrl}/chat/completions`;
+  const body = {
+    model: cfg.model,
+    messages: [{
+      role: "user",
+      content: [
+        { type: "text", text: question },
+        { type: "image_url", image_url: { url: toDataUrl(imgPath) } },
+      ],
+    }],
+    max_tokens: 1500,
+  };
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${cfg.apiKey}` },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => "");
+    throw new Error(`HTTP ${resp.status}: ${errText.slice(0, 300)}`);
+  }
+  const data = await resp.json();
+  const text = data?.choices?.[0]?.message?.content;
+  if (!text) throw new Error("模型无返回内容");
+  return text.trim();
+}
+
+// ---------- 主流程 ----------
+async function main() {
+  const args = process.argv.slice(2);
+  if (args.length < 1) {
+    console.error("用法: vision-cli <图片路径> [问题]");
+    process.exit(1);
+  }
+  const imgPath = path.resolve(args[0]);
+  const question = args.slice(1).join(" ") || DEFAULT_QUESTION;
+
+  if (!fs.existsSync(imgPath)) {
+    console.error(`图片不存在: ${imgPath}`);
+    process.exit(1);
+  }
+  // heic 转 png（部分模型不支持 heic）
+  let usePath = imgPath;
+  if (/\.heic$/i.test(imgPath)) {
+    const tmp = path.join(os.tmpdir(), `vision-${Date.now()}.png`);
+    execFileSync("sips", ["-s", "format", "png", imgPath, "--out", tmp], { stdio: "ignore" });
+    usePath = tmp;
+  }
+
+  const cfg = ensureConfig();
+
+  // 主模型
+  try {
+    const text = await askVision(cfg.primary, usePath, question);
+    console.log(text);
+    return;
+  } catch (e) {
+    console.error(`[vision-cli] 主模型 ${cfg.primary.model} 失败: ${e.message}`);
+  }
+  // 回退模型
+  try {
+    const text = await askVision(cfg.fallback, usePath, question);
+    console.log(`[vision-cli 回退 ${cfg.fallback.model}]\n${text}`);
+    return;
+  } catch (e) {
+    console.error(`[vision-cli] 备模型 ${cfg.fallback.model} 也失败: ${e.message}`);
+    process.exit(1);
+  }
+}
+
+main();
