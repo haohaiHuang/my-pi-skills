@@ -75,6 +75,18 @@ classify() {
 		echo "绘图"
 		return
 		;;
+	hyperframes*)
+		echo "视频/音频"
+		return
+		;;
+	ego-browser)
+		echo "浏览器自动化"
+		return
+		;;
+	using-coze-cli | coze-agent-collaboration)
+		echo "平台接入"
+		return
+		;;
 	esac
 	# description 关键词 fallback（name 未命中时）
 	case "$desc" in
