@@ -31,7 +31,14 @@ platform_dirs() {
 	codex) echo "$H/.codex/skills" ;;
 	claude) echo "$H/.claude/skills" ;;
 	trae-ide) echo "$H/.trae-cn/skills" ;;
-	trae-work) echo "$H/Library/Application Support/TRAE SOLO CN/ModularData/ai-agent/skills" ;;
+	trae-work)
+		# 自动探测：本机 Trae Work 实际位置二选一
+		if [ -d "$H/.trae/skills" ]; then
+			echo "$H/.trae/skills"
+		else
+			echo "$H/Library/Application Support/TRAE SOLO CN/ModularData/ai-agent/skills"
+		fi
+		;;
 	*) echo "" ;;
 	esac
 }

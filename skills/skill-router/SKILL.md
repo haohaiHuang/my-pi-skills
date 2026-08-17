@@ -60,7 +60,7 @@ description: 本机技能咨询台与台账管理器。当用户困惑"用什么
 | pi | `~/.pi/agent/skills` + `~/.agents/skills`（直读共享层） |
 | workbuddy | `~/.workbuddy/skills` |
 | trae-ide | `~/.trae-cn/skills` |
-| trae-work | `~/Library/Application Support/TRAE SOLO CN/ModularData/ai-agent/skills` |
+| trae-work | `~/.trae/skills`（存在时）或 `~/Library/Application Support/TRAE SOLO CN/ModularData/ai-agent/skills`（自动探测） |
 | codex / claude | 未装 router，仅查询用 |
 
 ## 维护
