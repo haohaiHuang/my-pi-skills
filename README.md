@@ -29,20 +29,25 @@ docs/                      通用文档
 
 ## 安装
 
+**让 Agent 装（推荐）**——直接把仓库地址给当前 agent：
+
+> “安装这个仓库的技能：https://github.com/haohaiHuang/my-pi-skills”
+
+Agent 会自动执行：clone → 运行 `install.sh` → 装好全部技能。
+
+**手动装**：
+
 ```bash
 git clone https://github.com/haohaiHuang/my-pi-skills && cd my-pi-skills
 ./install.sh        # 安装到 pi（含外部资源、vision-cli）
+./install.sh ~/.workbuddy/skills      # 其他平台换目标目录
 ```
 
-其他平台（workbuddy / trae 等）：
+## 使用中的技能管理
 
-```bash
-./install.sh ~/.workbuddy/skills      # 换成目标平台的 skills 目录
-```
+**新装了一个技能？** 无需手动登记——skill-router 运行时扫描磁盘，下次查询自动可见；跑一次 `sync` 把新技能固化进路由矩阵台账（`/skill:skill-router sync`，或问 agent “更新技能台账”）。
 
-## 新增技能
-
-新 skill 目录放进 `skills/`，外部依赖放 `resources/`，commit push 即可。
+**本仓库的新技能**（维护者）：新自研 skill 目录放进 `skills/`，外部依赖放 `resources/`，commit push 即可。
 
 ## 注意
 
