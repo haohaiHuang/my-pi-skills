@@ -90,19 +90,21 @@ function toDataUrl(imgPath) {
   return `data:${mime};base64,${fs.readFileSync(imgPath).toString("base64")}`;
 }
 
-// ---------- 参数解析：<图片> [问题] [--context 历史] [--format text|json] ----------
+// ---------- 参数解析：<图片> [问题] [--context 历史] [--format text|json] [--deep] ----------
 function parseArgs(args) {
   let imgPath = null;
   const question = [];
   let context = null;
   let format = "text";
+  let deep = false;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--context") { context = args[++i] || null; continue; }
     if (args[i] === "--format") { format = args[++i] || "text"; continue; }
+    if (args[i] === "--deep") { deep = true; continue; }
     if (!imgPath) imgPath = args[i];
     else question.push(args[i]);
   }
-  return { imgPath, question: question.join(" "), context, format };
+  return { imgPath, question: question.join(" "), context, format, deep };
 }
 
 // ---------- 调视觉模型（openai-completions 兼容） ----------
@@ -156,11 +158,26 @@ async function askVision(m, imgPath, question, context, format) {
   return text.trim();
 }
 
+// ---------- 自主理解模式（--deep）：脚本内多轮读图直到理解，输出综合报告 ----------
+// 第1轮：整体理解；第2轮：按需求定向抓细节；第3轮：综合输出最终报告
+async function deepVision(m, imgPath, need) {
+  const r1 = await askVision(m, imgPath,
+    `请详细描述整张图片：布局结构、全部文字内容、所有元素、视觉风格。` +
+    (need ? `\n重点关注需求：${need}` : ""));
+  const r2 = await askVision(m, imgPath,
+    `基于你刚才对整张图的观察，针对需求「${need || "全面理解"}」补充关键细节：数据、价格、按钮、状态、层级关系等容易被整体描述忽略的信息。`,
+    r1);
+  const r3 = await askVision(m, imgPath,
+    `综合你前两轮对同一张图的观察，输出一份完整的图片理解报告，按以下结构组织（不要遗漏重要内容）：\n1. 概述\n2. 布局结构\n3. 内容细节（全部文字/数据）\n4. 交互元素（按钮/标签/状态）\n5. 视觉风格\n这是最终报告，直接输出正文。`,
+    `${r1}\n\n【第二轮补充】\n${r2}`);
+  return r3;
+}
+
 // ---------- 主流程 ----------
 async function main() {
-  const { imgPath, question, context, format } = parseArgs(process.argv.slice(2));
+  const { imgPath, question, context, format, deep } = parseArgs(process.argv.slice(2));
   if (!imgPath) {
-    console.error("用法: vision-cli <图片路径> [问题] [--context 历史问答] [--format text|json]");
+    console.error("用法: vision-cli <图片路径> [问题] [--context 历史] [--format text|json] [--deep]");
     process.exit(1);
   }
   const q = question || DEFAULT_QUESTION;
@@ -194,7 +211,9 @@ async function main() {
   for (const m of models) {
     used.push(`${m.provider}/${m.model}`);
     try {
-      const text = await askVision(m, usePath, q, context, format);
+      const text = deep
+        ? await deepVision(m, usePath, q)
+        : await askVision(m, usePath, q, context, format);
       if (used.length > 1) console.log(`[vision-cli 用 ${m.provider}/${m.model}]\n${text}`);
       else console.log(text);
       return;
