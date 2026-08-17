@@ -40,8 +40,8 @@ description: 本机技能咨询台与台账管理器。当用户困惑"用什么
 
 `bash <本技能目录>/scripts/catalog.sh all` → 已登记平台 + **自动发现平台**技能数一览。
 
-> 自动发现：catalog.sh 每次运行先扫描 `$HOME` 下所有隐藏目录，把含 SKILL.md 的 skills 目录识别为平台
-> （一层 `~/.<name>/skills`，两层 `~/.<name>/agent/skills`，如 pi、tabnine；软链跟随，滤空目录）。
+> 自动发现：catalog.sh 每次运行先扫描 `$HOME` 下所有隐藏目录，把**含实体 SKILL.md** 的 skills 目录识别为平台
+> （一层 `~/.<name>/skills`，两层 `~/.<name>/agent/skills`，如 pi、tabnine；纯软链空壳不算，滤空目录）。
 > 新装的 agent 无需改代码即可被查到——直接拿目录名当平台名查询。
 
 ## 冲突组速查（2026-08-09 全机清理后更新，随台账刷新）
@@ -66,12 +66,12 @@ description: 本机技能咨询台与台账管理器。当用户困惑"用什么
 | trae-ide | `~/.trae-cn/skills` |
 | trae-work | `~/.trae/skills`（存在时）或 `~/Library/Application Support/TRAE SOLO CN/ModularData/ai-agent/skills`（自动探测） |
 | codex / claude | 未装 router，仅查询用 |
-| **自动发现** | 扫描 `$HOME` 下所有含 SKILL.md 的隐藏 skills 目录（如 `.qwen`、`.roo`、`.tabnine/agent`），目录名即平台名，无需登记 |
+| **自动发现** | 扫描 `$HOME` 下所有**含实体 SKILL.md** 的隐藏 skills 目录（纯软链空壳不算），目录名即平台名，无需登记 |
 
 ## 维护
 
 - 本技能按"全家桶自持"原则部署于 5 平台（pi / workbuddy / trae-ide / trae-work），各副本需保持一致——改了逻辑要同步（codex/claude 不装，仅查询）
 - catalog.sh 是唯一数据源；新增分类关键词时改 classify() 函数
-- **平台列表不维护**：`catalog.sh all` 自动发现本机所有含 SKILL.md 的 skills 目录，新装的 agent 自动出现；只有目录映射变化（如平台搬家）才改 platform_dirs()
+- **平台列表不维护**：`catalog.sh all` 自动发现本机所有**含实体技能**的 skills 目录，新装的 agent 自动出现；纯软链空壳（如 `npx skills add -g` 铺出的占位目录）自动过滤；只有目录映射变化（如平台搬家）才改 platform_dirs()
 - 技能增删后，可跑 `--check` 刷新认知；冲突组速查表随新发现更新
 - 规范源台账见 `~/Documents/skill-sync-map.md`（先更规范源，再分发副本）

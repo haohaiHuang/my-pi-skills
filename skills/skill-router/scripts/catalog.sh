@@ -57,12 +57,12 @@ discover_platforms() {
 		for d in "$H"/.[a-zA-Z0-9_-]*/skills; do
 			[ -d "$d" ] || continue
 			# 仅当含 SKILL.md 才算平台（-L 跟随软链，滤掉空目录/纯资源目录）
-			[ -n "$(find -L "$d" -maxdepth 2 -name SKILL.md 2>/dev/null | head -1)" ] || continue
+			[ -n "$(find "$d" -maxdepth 2 -name SKILL.md 2>/dev/null | head -1)" ] || continue
 			echo "$d"
 		done
 		for d in "$H"/.[a-zA-Z0-9_-]*/agent/skills; do
 			[ -d "$d" ] || continue
-			[ -n "$(find -L "$d" -maxdepth 2 -name SKILL.md 2>/dev/null | head -1)" ] || continue
+			[ -n "$(find "$d" -maxdepth 2 -name SKILL.md 2>/dev/null | head -1)" ] || continue
 			echo "$d"
 		done
 	} | sort -u | while IFS= read -r d; do
@@ -186,7 +186,7 @@ scan_platform() {
 	local dirs
 	dirs=$(resolve_dirs "$plat")
 	if [ -z "$dirs" ]; then
-		echo "未知平台: $plat（已登记: pi/workbuddy/codex/claude/trae-ide/trae-work；或跑 catalog.sh all 看自动发现平台）" >&2
+		echo "未知平台: ${plat}（已登记: pi/workbuddy/codex/claude/trae-ide/trae-work；或跑 catalog.sh all 看自动发现平台）" >&2
 		return 1
 	fi
 	local found=0
