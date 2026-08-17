@@ -5,10 +5,12 @@
 # 用法：
 #   catalog.sh <平台>            列出该平台全部可见技能（分类）
 #   catalog.sh <平台> --check    管理台账模式：同名检测 + 同类冲突预警 + 结构统计
-#   catalog.sh all               列出所有平台技能数概览
+#   catalog.sh all               列出所有平台技能数概览（已登记 + 自动发现）
 #
-# 平台：pi / workbuddy / codex / claude / trae-ide / trae-work
-#   （trae-ide / trae-work 映射已预留，Trae 系列处理时激活）
+# 平台：
+#   已登记：pi / workbuddy / codex / claude / trae-ide / trae-work
+#   自动发现：catalog.sh 每次运行先扫描 $HOME 下所有含 SKILL.md 的隐藏 skills 目录
+#   （.qwen / .roo / .tabnine/agent 等），发现的平台名均可直接查询
 #
 # 设计原则（见 SKILL.md）：
 #   - 运行时现扫，不缓存 —— 清单永远与磁盘一致
@@ -41,6 +43,45 @@ platform_dirs() {
 		;;
 	*) echo "" ;;
 	esac
+}
+
+# ---------- 自动发现本机 agent 平台 ----------
+# 探测前置：扫描 $HOME 下所有隐藏目录的 skills 位置（惰性扫描先发现，再查台账）
+# 一层 ~/.<name>/skills，两层 ~/.<name>/agent/skills（如 pi、tabnine）
+# 输出: 平台名<TAB>目录（已排除已登记平台与噪音路径）
+discover_platforms() {
+	local known
+	known=$(platform_dirs pi; platform_dirs workbuddy; platform_dirs codex; platform_dirs claude; platform_dirs trae-ide; platform_dirs trae-work)
+	{
+		local d
+		for d in "$H"/.[a-zA-Z0-9_-]*/skills; do
+			[ -d "$d" ] || continue
+			# 仅当含 SKILL.md 才算平台（-L 跟随软链，滤掉空目录/纯资源目录）
+			[ -n "$(find -L "$d" -maxdepth 2 -name SKILL.md 2>/dev/null | head -1)" ] || continue
+			echo "$d"
+		done
+		for d in "$H"/.[a-zA-Z0-9_-]*/agent/skills; do
+			[ -d "$d" ] || continue
+			[ -n "$(find -L "$d" -maxdepth 2 -name SKILL.md 2>/dev/null | head -1)" ] || continue
+			echo "$d"
+		done
+	} | sort -u | while IFS= read -r d; do
+		# 跳过已登记平台目录（pi/.agents/workbuddy/codex/claude/trae-cn/trae）
+		echo "$known" | grep -qxF "$d" && continue
+		local name
+		name=$(printf '%s' "$d" | sed "s|^$H/||; s|/agent/skills$||; s|/skills$||" | tr -d '.')
+		printf '%s\t%s\n' "$name" "$d"
+	done
+}
+
+# ---------- 目录解析：先查已登记映射，再查自动发现 ----------
+resolve_dirs() {
+	local plat="$1" dirs
+	dirs=$(platform_dirs "$plat")
+	if [ -z "$dirs" ]; then
+		dirs=$(printf '%s\n' "$DISCOVERED" | awk -F'\t' -v p="$plat" '$1==p{print $2}')
+	fi
+	echo "$dirs"
 }
 
 # ---------- 分类规则：name 精确/前缀优先，fallback 描述关键词 ----------
@@ -143,9 +184,9 @@ get_frontmatter() {
 scan_platform() {
 	local plat="$1"
 	local dirs
-	dirs=$(platform_dirs "$plat")
+	dirs=$(resolve_dirs "$plat")
 	if [ -z "$dirs" ]; then
-		echo "未知平台: $plat（可用: pi workbuddy codex claude trae-ide trae-work all）" >&2
+		echo "未知平台: $plat（已登记: pi/workbuddy/codex/claude/trae-ide/trae-work；或跑 catalog.sh all 看自动发现平台）" >&2
 		return 1
 	fi
 	local found=0
@@ -163,7 +204,7 @@ scan_platform() {
 			printf '%s\t%s\t%s\n' "$name" "$cat" "$desc"
 			found=$((found + 1))
 		done
-	done < <(platform_dirs "$plat")
+	done < <(resolve_dirs "$plat")
 	# pi install 安装的技能在 ~/.pi/agent/git/github.com/<owner>/<repo>/skills/（多级结构）
 	if [ "$plat" = "pi" ] && [ -d "$H/.pi/agent/git/github.com" ]; then
 		local f
@@ -184,7 +225,7 @@ scan_platform() {
 stats() {
 	local plat="$1"
 	local dirs
-	dirs=$(platform_dirs "$plat")
+	dirs=$(resolve_dirs "$plat")
 	local ent=0 lnk=0 dead=0 d
 	while IFS= read -r d; do
 		[ -z "$d" ] && continue
@@ -192,7 +233,7 @@ stats() {
 		ent=$((ent + $(find "$d" -maxdepth 1 -type d ! -type l | wc -l | tr -d ' ')))
 		lnk=$((lnk + $(find "$d" -maxdepth 1 -type l | wc -l | tr -d ' ')))
 		dead=$((dead + $(find "$d" -maxdepth 1 -type l ! -exec test -e {} \; | wc -l | tr -d ' ')))
-	done < <(platform_dirs "$plat")
+	done < <(resolve_dirs "$plat")
 	echo "结构: 实体 $ent | 软链 $lnk | 死链 $dead"
 }
 
@@ -238,17 +279,32 @@ MODE="list"
 PLAT="${1:-}"
 [ "${2:-}" = "--check" ] && MODE="check"
 
+# 探测前置：自动发现本机实际存在的 agent 平台（一次扫描，供查询/all 复用）
+DISCOVERED="$(discover_platforms)"
+
 case "${PLAT:-}" in
 "")
 	echo "用法: catalog.sh <平台> [--check] | all"
-	echo "平台: pi workbuddy codex claude trae-ide trae-work"
+	echo "平台: 已登记(pi workbuddy codex claude trae-ide trae-work) + 自动发现平台; all 列出全部"
 	exit 1
 	;;
 "all")
+	echo "== 已登记平台 =="
 	for p in pi workbuddy codex claude trae-ide trae-work; do
 		n=$(scan_platform "$p" 2>/dev/null | wc -l | tr -d ' ')
-		printf '  %-10s %s\n' "$p:" "$n 技能"
+		printf '  %-12s %s\n' "$p:" "$n 技能"
 	done
+	echo ""
+	nd=$(printf '%s\n' "$DISCOVERED" | grep -c .)
+	echo "== 自动发现平台（$nd 个） =="
+	if [ "$nd" = "0" ]; then
+		echo "  （未发现新平台）"
+	else
+		while IFS=$'\t' read -r name dir; do
+			n=$(scan_platform "$name" 2>/dev/null | wc -l | tr -d ' ')
+			printf '  %-12s %s\n' "$name:" "$n 技能"
+		done <<< "$DISCOVERED"
+	fi
 	;;
 *)
 	if [ "$MODE" = "check" ]; then
