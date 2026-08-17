@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 /**
- * vision-cli — 跨平台"读图转文字"服务
+ * vision-cli — 跨平台"读图转文字"服务（通用版）
  *
- * 用途：当前 agent 模型无视觉能力时，调用此 CLI 把图片交给视觉模型识别，返回文字描述。
+ * 用途：当前 agent 模型无视觉能力时，把图片交给本机可用的视觉模型识别，返回文字。
  * 用法：vision-cli <图片路径> [问题]
  *
- * 模型路由：mimo-v2.5（主）→ agnes-2.0-flash（备，失败自动回退）
- * 配置：~/.config/vision-cli/config.json（首次运行自动从 pi 配置提取生成）
+ * 模型发现（不硬编码）：
+ *   1. 优先按 ~/.config/vision-cli/config.json 的 preferredModels 顺序
+ *   2. 否则自动扫描 ~/.pi/agent/models.json + auth.json，收集所有 input 含 image 的模型
+ *   3. 按顺序尝试，失败自动换下一个；全部失败或无视觉模型 → 明确提示
  */
 
 const fs = require("node:fs");
@@ -15,35 +17,66 @@ const os = require("node:os");
 const { execFileSync } = require("node:child_process");
 
 const CONFIG_PATH = path.join(os.homedir(), ".config", "vision-cli", "config.json");
+const PI_MODELS = path.join(os.homedir(), ".pi", "agent", "models.json");
+const PI_AUTH = path.join(os.homedir(), ".pi", "agent", "auth.json");
+const PI_STORE = path.join(os.homedir(), ".pi", "agent", "models-store.json");
 const DEFAULT_QUESTION = "请详细描述这张图片的内容：主体、文字（逐字输出）、布局、颜色、风格等，尽量完整。";
 
-// ---------- 配置 ----------
-function ensureConfig() {
-  if (fs.existsSync(CONFIG_PATH)) {
-    return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
-  }
-  // 从 pi 配置提取（首次运行）
-  const piAuth = path.join(os.homedir(), ".pi", "agent", "auth.json");
-  const piModels = path.join(os.homedir(), ".pi", "agent", "models.json");
-  let mimoKey = "", agnesKey = "";
-  try { mimoKey = JSON.parse(fs.readFileSync(piAuth, "utf-8"))?.["xiaomi-token-plan-cn"]?.key || ""; } catch {}
-  try { agnesKey = JSON.parse(fs.readFileSync(piModels, "utf-8"))?.providers?.Agnes?.apiKey || ""; } catch {}
-  const cfg = {
-    primary: {
-      baseUrl: "https://token-plan-cn.xiaomimimo.com/v1",
-      apiKey: mimoKey,
-      model: "mimo-v2.5",
-    },
-    fallback: {
-      baseUrl: "https://apihub.agnes-ai.com/v1",
-      apiKey: agnesKey,
-      model: "agnes-2.0-flash",
-    },
+// ---------- 读取配置（preferredModels 可选） ----------
+function loadConfig() {
+  if (!fs.existsSync(CONFIG_PATH)) return {};
+  try { return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8")); } catch { return {}; }
+}
+
+// ---------- 发现本机所有视觉模型 ----------
+// 来源1: ~/.pi/agent/models.json 的 providers；来源2: models-store.json（key 从 auth.json 查）
+// 返回 [{ provider, model, baseUrl, apiKey }]，按 preferredModels 顺序优先
+function discoverVisionModels(preferred) {
+  const models = [];
+  const seen = new Set();
+  let auth = {};
+  let piModels = { providers: {} };
+  let store = {};
+
+  try { auth = JSON.parse(fs.readFileSync(PI_AUTH, "utf-8")); } catch {}
+  try { piModels = JSON.parse(fs.readFileSync(PI_MODELS, "utf-8")); } catch {}
+  try { store = JSON.parse(fs.readFileSync(PI_STORE, "utf-8")); } catch {}
+
+  const add = (provider, m, baseUrl, apiKey) => {
+    if (!apiKey) return;
+    const input = m.input || m.capabilities?.input || [];
+    if (!input.includes("image")) return;
+    const key = `${provider}/${m.id}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    models.push({ provider, model: m.id, baseUrl, apiKey });
   };
-  fs.mkdirSync(path.dirname(CONFIG_PATH), { recursive: true });
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + "\n");
-  console.error(`[vision-cli] 已生成配置 ${CONFIG_PATH}（请检查 apiKey 是否有效）`);
-  return cfg;
+
+  // 来源1: models.json providers
+  for (const [provider, cfg] of Object.entries(piModels.providers || {})) {
+    const apiKey = cfg.apiKey || auth[provider]?.key;
+    if (!apiKey) continue;
+    const baseUrl = cfg.baseUrl;
+    for (const m of cfg.models || []) add(provider, m, baseUrl, apiKey);
+  }
+
+  // 来源2: models-store.json providers（key 从 auth.json 查）
+  for (const [provider, entry] of Object.entries(store)) {
+    const apiKey = auth[provider]?.key || piModels.providers?.[provider]?.apiKey;
+    if (!apiKey) continue;
+    const baseUrl = entry.baseUrl;
+    for (const m of entry.models || []) add(provider, m, m.baseUrl || baseUrl, apiKey);
+  }
+
+  // 按 preferredModels 排序（未指定的排后面，保持原顺序）
+  if (Array.isArray(preferred) && preferred.length > 0) {
+    models.sort((a, b) => {
+      const ai = preferred.indexOf(`${a.provider}/${a.model}`);
+      const bi = preferred.indexOf(`${b.provider}/${b.model}`);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
+  }
+  return models;
 }
 
 // ---------- 图片 → base64 data URL ----------
@@ -54,15 +87,14 @@ function toDataUrl(imgPath) {
     ".gif": "image/gif", ".webp": "image/webp", ".bmp": "image/bmp",
     ".heic": "image/heic", ".heif": "image/heif",
   }[ext] || "image/png";
-  const b64 = fs.readFileSync(imgPath).toString("base64");
-  return `data:${mime};base64,${b64}`;
+  return `data:${mime};base64,${fs.readFileSync(imgPath).toString("base64")}`;
 }
 
 // ---------- 调视觉模型（openai-completions 兼容） ----------
-async function askVision(cfg, imgPath, question) {
-  const url = `${cfg.baseUrl}/chat/completions`;
+async function askVision(m, imgPath, question) {
+  const url = `${m.baseUrl}/chat/completions`;
   const body = {
-    model: cfg.model,
+    model: m.model,
     messages: [{
       role: "user",
       content: [
@@ -74,12 +106,12 @@ async function askVision(cfg, imgPath, question) {
   };
   const resp = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${cfg.apiKey}` },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${m.apiKey}` },
     body: JSON.stringify(body),
   });
   if (!resp.ok) {
     const errText = await resp.text().catch(() => "");
-    throw new Error(`HTTP ${resp.status}: ${errText.slice(0, 300)}`);
+    throw new Error(`HTTP ${resp.status}: ${errText.slice(0, 200)}`);
   }
   const data = await resp.json();
   const text = data?.choices?.[0]?.message?.content;
@@ -109,25 +141,34 @@ async function main() {
     usePath = tmp;
   }
 
-  const cfg = ensureConfig();
+  const cfg = loadConfig();
+  const preferred = cfg.preferredModels || [];
+  const models = discoverVisionModels(preferred);
 
-  // 主模型
-  try {
-    const text = await askVision(cfg.primary, usePath, question);
-    console.log(text);
-    return;
-  } catch (e) {
-    console.error(`[vision-cli] 主模型 ${cfg.primary.model} 失败: ${e.message}`);
-  }
-  // 回退模型
-  try {
-    const text = await askVision(cfg.fallback, usePath, question);
-    console.log(`[vision-cli 回退 ${cfg.fallback.model}]\n${text}`);
-    return;
-  } catch (e) {
-    console.error(`[vision-cli] 备模型 ${cfg.fallback.model} 也失败: ${e.message}`);
+  if (models.length === 0) {
+    console.error(
+      "[vision-cli] 未找到可用的视觉模型。\n" +
+      "  检查：~/.pi/agent/models.json 中是否有 input 含 image 的模型且配了 apiKey，\n" +
+      "  或用 ~/.config/vision-cli/config.json 的 preferredModels 指定（provider/model 格式）。"
+    );
     process.exit(1);
   }
+
+  const used = [];
+  for (const m of models) {
+    used.push(`${m.provider}/${m.model}`);
+    try {
+      const text = await askVision(m, usePath, question);
+      if (used.length > 1) console.log(`[vision-cli 用 ${m.provider}/${m.model}]\n${text}`);
+      else console.log(text);
+      return;
+    } catch (e) {
+      console.error(`[vision-cli] ${m.provider}/${m.model} 失败: ${e.message}`);
+    }
+  }
+
+  console.error(`[vision-cli] 所有视觉模型都失败（尝试过: ${used.join(", ")}）`);
+  process.exit(1);
 }
 
 main();

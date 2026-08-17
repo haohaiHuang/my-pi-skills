@@ -1,6 +1,6 @@
 ---
 name: vision
-description: 读图转文字（当前模型无视觉能力的替代方案）。当任务需要查看图片/截图、识别 UI、OCR 提取文字，而当前模型无法直接读取图片内容时使用——用 vision-cli 调视觉模型（mimo-v2.5 主 / agnes-2.0-flash 备）读取本地图片并返回文字描述。触发场景：用户发来图片/截图要求分析、任务涉及图片内容、模型发现图片无法作为附件理解。触发词：看图、识别图片、这张图里有什么、提取图片文字、分析截图、看看这张图、图片里写了什么。
+description: 读图转文字（当前模型无视觉能力的替代方案）。当任务需要查看图片/截图、识别 UI、OCR 提取文字，而当前模型无法直接读取图片内容时使用——用 vision-cli 自动发现本机可用的视觉模型（按 preferredModels 顺序，失败自动换下一个）读取本地图片并返回文字描述。触发场景：用户发来图片/截图要求分析、任务涉及图片内容、模型发现图片无法作为附件理解。触发词：看图、识别图片、这张图里有什么、提取图片文字、分析截图、看看这张图、图片里写了什么。
 ---
 
 # Vision — 读图转文字
@@ -38,10 +38,12 @@ vision-cli /图片的绝对路径.png           # 默认详细描述（主体/�
 
 - 用户要你看图 → **不要回答"我是文本模型看不了图片"**，直接用 vision-cli
 - 图片路径不确定 → 先用 bash 找（`ls`、`find`、`mdfind`）
-- 主模型失败会自动回退备模型，无需干预
+- **模型自动发现**：vision-cli 自动扫描本机配置（~/.pi/agent/models.json / models-store.json / auth.json）找出所有支持图片的模型，按顺序尝试，失败自动换下一个
+- 优先级：`~/.config/vision-cli/config.json` 的 `preferredModels`（格式 `provider/model`，如 `xiaomi-token-plan-cn/mimo-v2.5`）
 - 图片是本地文件路径；`.heic` 自动转 png
 
 ## 故障排查
 
-- 报错检查 `~/.config/vision-cli/config.json` 的 apiKey 是否有效
+- 报错"未找到可用的视觉模型" → 本机没有配支持图片的模型，或 apiKey 缺失（检查 models.json + auth.json）
+- 全部失败 → 报错会列出尝试过的模型，检查各自 apiKey 是否有效
 - 确认 `vision-cli` 在 PATH（`which vision-cli`）
