@@ -123,7 +123,7 @@ async function askVision(m, imgPath, question, context, format) {
   const body = {
     model: m.model,
     messages: [{ role: "user", content }],
-    max_tokens: 1500,
+    max_tokens: 8192,
   };
   // API 级强制 JSON（部分模型不支持，失败时降级为纯提示词引导）
   if (format === "json") body.response_format = { type: "json_object" };
@@ -154,7 +154,11 @@ async function askVision(m, imgPath, question, context, format) {
   }
   const data = await resp.json();
   const text = data?.choices?.[0]?.message?.content;
-  if (!text) throw new Error("模型无返回内容");
+  if (!text) {
+    const finish = data?.choices?.[0]?.finish_reason;
+    const reasoning = data?.choices?.[0]?.message?.reasoning_content;
+    throw new Error(`模型无返回内容 (finish_reason=${finish}, 思考内容=${reasoning ? reasoning.length + "字" : "无"})`);
+  }
   return text.trim();
 }
 
