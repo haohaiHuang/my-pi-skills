@@ -29,26 +29,20 @@ docs/                      通用文档
 
 ## 安装
 
-1. Clone 本仓库
-2. 把 skill 复制到 agent 的 skills 目录（示例：pi）：
-   ```bash
-   cp -R skills/* ~/.pi/agent/skills/
-   ```
-   （其他平台：`~/.agents/skills`、`~/.workbuddy/skills`、`~/.codex/skills` 等）
-3. 放回外部资源（必须，否则对应 skill 残废）：
-   ```bash
-   mkdir -p ~/resources ~/Documents
-   cp resources/design-references.md ~/resources/
-   cp docs/skill-sync-map.md ~/Documents/
-   ```
-4. vision-cli 加入 PATH：
-   ```bash
-   cp resources/vision-cli ~/.local/bin/ && chmod +x ~/.local/bin/vision-cli
-   ```
+```bash
+git clone https://github.com/haohaiHuang/my-pi-skills && cd my-pi-skills
+./install.sh        # 安装到 pi（含外部资源、vision-cli）
+```
+
+其他平台（workbuddy / trae 等）：
+
+```bash
+./install.sh ~/.workbuddy/skills      # 换成目标平台的 skills 目录
+```
 
 ## 新增技能
 
-自研 skill 丢进 `skills/`，外部依赖放 `resources/` 并在上方结构表登记，然后 commit push。
+新 skill 目录放进 `skills/`，外部依赖放 `resources/`，commit push 即可。
 
 ## 注意
 
