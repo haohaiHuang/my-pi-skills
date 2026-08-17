@@ -123,12 +123,30 @@ async function askVision(m, imgPath, question, context, format) {
     messages: [{ role: "user", content }],
     max_tokens: 1500,
   };
+  // API 级强制 JSON（部分模型不支持，失败时降级为纯提示词引导）
+  if (format === "json") body.response_format = { type: "json_object" };
   const resp = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${m.apiKey}` },
     body: JSON.stringify(body),
   });
   if (!resp.ok) {
+    // 模型不支持 response_format → 去掉重试（提示词引导仍有效）
+    if (format === "json" && resp.status === 400) {
+      delete body.response_format;
+      const retry = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${m.apiKey}` },
+        body: JSON.stringify(body),
+      });
+      if (retry.ok) {
+        const data = await retry.json();
+        const text = data?.choices?.[0]?.message?.content;
+        if (text) return text.trim();
+      }
+      const errText = await retry.text().catch(() => "");
+      throw new Error(`HTTP ${retry.status}: ${errText.slice(0, 200)}`);
+    }
     const errText = await resp.text().catch(() => "");
     throw new Error(`HTTP ${resp.status}: ${errText.slice(0, 200)}`);
   }
