@@ -237,6 +237,67 @@ stats() {
 	echo "结构: 实体 $ent | 软链 $lnk | 死链 $dead"
 }
 
+# ---------- 单技能在某平台的版本 ----------
+# 返回 frontmatter version；无 version 字段则返回 SKILL.md 哈希前 6 位（用于漂移检测）
+platform_skill_version() {
+	local plat="$1" name="$2"
+	local dirs d f
+	dirs=$(resolve_dirs "$plat")
+	while IFS= read -r d; do
+		[ -z "$d" ] && continue
+		f="$d/$name/SKILL.md"
+		[ -f "$f" ] || continue
+		local v
+		v=$(get_frontmatter "$f" version)
+		if [ -n "$v" ]; then
+			echo "$v"
+		else
+			md5 -q "$f" 2>/dev/null | cut -c1-6
+		fi
+		return
+	done <<< "$dirs"
+	echo ""
+}
+
+# ---------- 技能路由矩阵（sync 用）：技能 × 平台（版本） ----------
+# 输出 markdown 表格到 stdout；✗ = 该平台无此技能
+build_matrix() {
+	# 真实平台：已登记 + 自动发现（去重）
+	local platlist
+	platlist=$(printf '%s\n' pi workbuddy codex claude trae-ide trae-work)
+	if [ -n "$DISCOVERED" ]; then
+		platlist=$(printf '%s\n%s\n' "$platlist" "$(printf '%s\n' "$DISCOVERED" | cut -f1)")
+	fi
+	platlist=$(printf '%s\n' "$platlist" | sort -u | tr '\n' ' ')
+
+	# 所有技能名（跨平台 union）
+	local names p
+	names=$(for p in $platlist; do
+		scan_platform "$p" 2>/dev/null | cut -f1
+	done | sort -u)
+
+	# 表头
+	printf '| 技能 |'
+	for p in $platlist; do printf ' %s |' "$p"; done
+	echo ""
+	printf '%s' '|---|'
+	for p in $platlist; do printf '%s' '---|'; done
+	echo ""
+
+	# 每技能一行
+	local name row ver
+	while IFS= read -r name; do
+		[ -z "$name" ] && continue
+		row="| $name |"
+		for p in $platlist; do
+			ver=$(platform_skill_version "$p" "$name")
+			[ -z "$ver" ] && ver="✗"
+			row="$row $ver |"
+		done
+		echo "$row"
+	done <<< "$names"
+}
+
 # ---------- 管理台账模式：--check ----------
 check_mode() {
 	local plat="$1"
@@ -305,6 +366,9 @@ case "${PLAT:-}" in
 			printf '  %-12s %s\n' "$name:" "$n 技能"
 		done <<< "$DISCOVERED"
 	fi
+	;;
+"matrix")
+	build_matrix
 	;;
 *)
 	if [ "$MODE" = "check" ]; then
