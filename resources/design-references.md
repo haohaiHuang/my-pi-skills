@@ -18,7 +18,19 @@
 - **怎么用**：抓 <https://ui.aceternity.com/> 的组件 demo 当设计/动效范式参考；组件是 React 的，不直接装，借范式
 - **典型场景**：做落地页/SaaS 页面时参考其区块语言；它基于 Motion，与动画工作流契合
 
-### 3. Minimal Gallery — 极简网页设计灵感库
+### 3. Kami 设计原则 — 暖纸墨蓝排版约束系统（本地）
+
+- **是什么**：轻量版 Kami 设计系统（tw93/Kami 技能提炼）——暖羊皮纸底 `#f5f4ed` + 唯一墨蓝 `#1B365D` + 衬线承载层级；十条不变量（禁纯白/禁冷灰/禁第二彩色/禁加粗斜体/禁硬阴影）+ 三步自检（取色 R≥G>B、墨蓝面积 ≤5%、页面密度 60-80%）
+- **怎么用**：直接读 `~/Desktop/Design/kami-design-principles/README.md`（使用说明）和 `design-tokens.css`（设计令牌 + 组件配方，可整体粘进项目）；进阶读完整规范 `~/.agents/skills/kami/references/design.md`（1280 行）
+- **典型场景**：做文档/落地页/作品集/简历/幻灯片等"排版型"视觉时走"暖纸编辑感"风格；用户要求"有高级感/书卷气/印刷质感"或"别做科技冷灰风"时
+
+### 4. Zine 风格参考 — 52 个 AI 海报技能风格库（本地）
+
+- **是什么**：52 个「照片→海报/画作」类 AI 图像生成技能的提炼——8 大风格族（水彩水墨抽象/复古拼贴档案/像素复古界面/电影海报霓虹/超现实波普/明信片旅行/诗意极简/3D 品牌），含每族核心配方（从代表技能 SKILL.md 提炼）和产品设计可迁移性分级
+- **怎么用**：读 `~/Desktop/Design/zine-style-references/README.md`（触发词路由表 + 迁移性速览）→ `style-families.md`（族详情）→ `quick-reference.md`（52 技能速查）；图像生成任务直接用配方写 prompt，产品设计任务用其中可迁移规律（暖纸底/档案排版/潘通取色/留白）
+- **典型场景**：照片转海报/画作风格、复古档案感/像素风/电影海报风/水墨风/潘通色卡风设计；与 Kami 配合使用（同源「暖纸+衬线+克制」审美）
+
+### 5. Minimal Gallery — 极简网页设计灵感库
 
 - **是什么**：2013 年起每日更新的精选网页设计案例库（极简风为主，含模板、字体、工具）
 - **怎么用**：浏览 <https://minimal.gallery/> 找灵感案例；页面 curl 可能被拒（HTTP 000），用 web_search 查案例
@@ -26,7 +38,7 @@
 
 ## B. AI 应用界面范式
 
-### 4. Beautiful UI — AI-native 界面范式
+### 6. Beautiful UI — AI-native 界面范式
 
 - **是什么**：AI 应用 UI 组件库（Chat、Streaming Text、Thinking、Tool Chips、Approval Card、Records Table 等 20 个）
 - **怎么用**：抓 <https://www.beautifului.dev/> 的 demo 页面当设计语言参考（fetch_content 或 curl 解析）；组件是 React/Next 的，不直接装，只借范式
@@ -34,13 +46,13 @@
 
 ## C. 组件素材库
 
-### 5. 21st.dev — shadcn/ui 组件市场
+### 7. 21st.dev — shadcn/ui 组件市场
 
 - **是什么**：设计工程师社区发布的 shadcn/ui 组件/模板目录（React + Tailwind），含 shadcn 主题、shaders、渐变；组件以 shadcn registry 格式发布，与 shadcn/ui 原语组合
 - **怎么用**：浏览 <https://21st.dev/> 预览组件 → 复制 AI-ready prompt 让 Cursor/Claude Code/v0 等 agent 直接落地，或 `npx shadcn add` 安装；组件是 React 的，不直接装时借范式
 - **典型场景**：项目已用 shadcn/ui 时找现成组件/主题；做 React 界面时参考其组件语言
 
-### 6. Uiverse Galaxy — 组件/按钮素材库
+### 8. Uiverse Galaxy — 组件/按钮素材库
 
 - **是什么**：3800+ 免费 UI 元素（按钮为主，MIT）
 - **怎么用**：
@@ -51,7 +63,7 @@
 
 ## D. 动画引擎
 
-### 7. Motion — Web 动画库（首选）
+### 9. Motion — Web 动画库（首选）
 
 - **是什么**：专业 Web 动画引擎（弹簧物理、滚动、手势），MIT
 - **怎么用**：独立 HTML 直接 CDN 引用，零安装：
@@ -65,7 +77,7 @@
 - **配套**：本机已装 `motion-dev-animations` skill（~/.pi/agent/skills/motion-dev-animations/）——写动画前查它的 best-practices、spring 物理与可访问性指南
 - **典型场景**：做 HTML 动效时用 Motion 而不是手写 CSS 动画
 
-### 8. Anime.js — 全能动画引擎（补充）
+### 10. Anime.js — 全能动画引擎（补充）
 
 - **是什么**：通用 JS/SVG 动画引擎 v4（keyframes、easings、stagger、SVG morph、运动路径、Scroll Observer），`npm i animejs` 或 CDN
 - **怎么用**：<https://animejs.com/> 文档/示例；CDN: `https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.esm.js`
@@ -73,31 +85,31 @@
 
 ## F. 图标 / 字体 / 纹理（高频素材，直接引用）
 
-### 10. Lucide — 图标库（首选）
+### 12. Lucide — 图标库（首选）
 
 - **是什么**：1000+ 线性图标，MIT，SVG 可直接引用
 - **怎么用**：CDN 或复制 SVG：`https://unpkg.com/lucide-static@latest/icons/<name>.svg`；或 <https://lucide.dev/> 预览
 - **典型场景**：按钮/导航/空状态/特性列表图标
 
-### 11. Heroicons — 图标库（补充）
+### 13. Heroicons — 图标库（补充）
 
 - **是什么**：Tailwind 官方图标（outline/solid 两套），MIT
 - **怎么用**：<https://heroicons.com/> 复制 SVG；或 `https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg`
 - **典型场景**：需要 outline/solid 两种权重时
 
-### 12. Google Fonts — 字体源
+### 14. Google Fonts — 字体源
 
 - **是什么**：免费 web 字体（含中文：思源黑体 Noto Sans SC / 思源宋体 Noto Serif SC）
 - **怎么用**：<https://fonts.google.com/> 挑字体 → 复制 <link> 或 @import 到 HTML
 - **典型场景**：中英文排版字体；中文优先 Noto/思源系（免费可商用）
 
-### 13. Hero Patterns — SVG 背景纹理
+### 15. Hero Patterns — SVG 背景纹理
 
 - **是什么**：免费 SVG 平铺纹理（dots/grid/waves 等），CC0
 - **怎么用**：<https://heropatterns.com/> 选图案 → 复制 CSS background（内联 SVG data URI）
 - **典型场景**：hero 区/卡片背景的低调纹理
 
-### 14. CSS 渐变工具
+### 16. CSS 渐变工具
 
 - **是什么**：渐变背景生成器（mesh gradient 等）
 - **怎么用**：<https://cssgradient.io/> 生成 CSS；或手写 `background: radial-gradient(...)` 叠加做 mesh 效果
@@ -116,7 +128,7 @@
 
 ## E. 工具发现（非设计资源）
 
-### 9. VibeIndex — AI 编程工具导航
+### 11. VibeIndex — AI 编程工具导航
 
 - **是什么**：285 个 AI 编程工具目录（16 类：AI IDE、构建器、代码审查、测试等）
 - **怎么用**：<https://vibeindex.dev/> 浏览发现工具（注意：这是工具目录，不是设计参考）
