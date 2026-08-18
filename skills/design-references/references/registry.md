@@ -1,63 +1,75 @@
 # 资源注册表 — 三维索引
 
-**维度**：`角色`（R调研源 / C约束模板 / E执行工具 / V校验标准）× `形态`（直引 / 转译 / 规则 / 工具）× `层级`（主 / 次 / 兜底）+ 适用场景 + **退化链**（工具缺失时降级路径）。
+**维度**：`角色`（R调研源 / C约束模板 / E执行工具 / V校验标准）× `形态`（直引 / 转译 / 规则 / 工具）× `层级`（主 / 次 / 兜底）+ 适用场景 + **退化链** + **精确来源**。
 
 **查法**：`[分支] × [环节] → 找对应格子`。主层级必查，次按需，兜底无匹配才查。
 **填法**：新增资源先登记再使用；一条资源可占多行（每行一个格子），但每行只占一格。
-**装前规则**：新增资源必须五栏全填；与现有资源**同型**（同角色+同形态+同场景）的不装；站不住位置的不装。
+**装前规则**：新增资源必须六栏全填（含**精确来源**——URL/仓库/本地路径，禁止只写名称）；与现有资源**同型**（同角色+同形态+同场景）的不装；站不住位置的不装。
+**来源规则**：所有资源必须带可复现来源——换电脑后按来源（URL/仓库/路径）可精确找到，禁止仅凭名称。
 
 ---
 
 ## R 调研源（环节 1：真实产品/作品，回答"别人怎么做的"）
 
-| 资源 | 形态 | 层级 | 适用场景 | 退化链 |
-| --- | --- | --- | --- | --- |
-| refero MCP / refero-design skill（真实产品 DESIGN.md，150K+ 屏幕） | 直引 | 主 | APP / 网页 / Mac | → styles.refero.design 网站 → web_search |
-| Zine 风格库（52 个 AI 海报技能风格配方，本地 `~/Desktop/Design/zine-style-references/`） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） |
-| VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → getdesign.md 官网 |
-| Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search |
-| Aceternity UI（落地页组件/区块范式） | 转译 | 次 | 网页 | → 官网浏览 → web_search |
-| 21st.dev（shadcn/ui 组件市场） | 转译 | 次 | 网页 | → 官网浏览 |
-| minimal.gallery（极简网页灵感） | 转译 | 兜底 | 网页 | → web_search |
-| Uiverse Galaxy（组件/按钮素材） | 直引 | 兜底 | 网页 | → 本地克隆 grep |
-| orange-line-illustration（纽约客风编辑插画风格） | 转译 | 次 | 海报 / 杂志 | → 技能本地文件 |
-| Lucide / Heroicons / Google Fonts / Hero Patterns / 渐变工具（图标字体纹理素材） | 直引 | 兜底 | 通用 | → CDN 直引（无退化） |
+| 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
+| --- | --- | --- | --- | --- | --- |
+| refero MCP / refero-design skill（真实产品 DESIGN.md，150K+ 屏幕） | 直引 | 主 | APP / 网页 / Mac | → styles.refero.design 网站 → web_search | skill 仓库 `https://github.com/referodesign/refero_skill`（已装本机）；MCP `https://api.refero.design/mcp`；网站 `https://styles.refero.design/` |
+| Zine 风格库（52 个 AI 海报技能风格配方） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） | 本地 `~/Desktop/Design/zine-style-references/`；上游合集 `https://github.com/tluy/skill-zine-summary` |
+| VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → getdesign.md 官网 | `https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/` |
+| Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://www.beautifului.ai/` |
+| Aceternity UI（落地页组件/区块范式） | 转译 | 次 | 网页 | → 官网浏览 → web_search | `https://ui.aceternity.com/` |
+| 21st.dev（shadcn/ui 组件市场） | 转译 | 次 | 网页 | → 官网浏览 | `https://21st.dev/` |
+| minimal.gallery（极简网页灵感） | 转译 | 兜底 | 网页 | → web_search | `https://minimal.gallery/` |
+| Uiverse Galaxy（组件/按钮素材） | 直引 | 兜底 | 网页 | → 本地克隆 grep | `https://uiverse.io/` |
+| orange-line-illustration（纽约客风编辑插画风格） | 转译 | 次 | 海报 / 杂志 | → 技能本地文件 | skill 仓库 `https://github.com/orange2ai/orange-line-illustration.git`（已装本机 `~/.agents/skills/orange-line-illustration/`） |
+| Lucide（图标库·首选） | 直引 | 兜底 | 通用 | → CDN 直引（无退化） | `https://lucide.dev/`；CDN `https://unpkg.com/lucide-static@latest/icons/<name>.svg` |
+| Heroicons（图标库·补充） | 直引 | 兜底 | 通用 | → CDN 直引 | `https://heroicons.com/`；`https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg` |
+| Google Fonts（字体源） | 直引 | 兜底 | 通用 | → CDN 直引 | `https://fonts.google.com/` |
+| Hero Patterns（SVG 背景纹理） | 直引 | 兜底 | 通用 | → 官网复制 | `https://heropatterns.com/` |
+| CSS 渐变工具 | 直引 | 兜底 | 通用 | → 官网 | `https://cssgradient.io/`（或同类） |
+| DESIGN.md 格式规范（Google spec） | 直引 | 次 | 通用 | → 官网 | `https://getdesign.md/`；参考实现 `https://github.com/google-labs-code/design.md` |
 
 ## C 约束模板（环节 2：规则/令牌，回答"我们怎么做"）
 
-| 资源 | 形态 | 层级 | 适用场景 | 退化链 |
-| --- | --- | --- | --- | --- |
-| Kami 约束骨架（十条不变量 + 设计令牌，本地 `~/Desktop/Design/kami-design-principles/`） | 规则 | 主 | 通用排版（所有场景常驻） | → Kami 轻量版 README → 十条不变量心法手动应用 |
-| Kami 完整设计规范（`~/.agents/skills/kami/references/design.md`） | 规则 | 主 | 文档 / 网页 | → 本地文件直读（无退化） |
-| Zine 风格族配方（从风格库提炼的色板/质感/排版规律） | 转译 | 主 | 海报 / 杂志 | → style-families.md 直读 |
-| DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 在线拿 / getdesign.md |
-| design-md-skill（Google spec 生成器，已装：s-a-s-k-i-a 版） | 工具 | 主 | APP / 网页 / Mac（约束生成） | → 手动写约束集（遵循 workflow.md 格式） |
+| 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
+| --- | --- | --- | --- | --- | --- |
+| Kami 约束骨架（十条不变量 + 设计令牌） | 规则 | 主 | 通用排版（所有场景常驻） | → Kami 轻量版 README → 十条不变量心法手动应用 | 本地 `~/Desktop/Design/kami-design-principles/`（README.md + design-tokens.css） |
+| Kami 完整设计规范 | 规则 | 主 | 文档 / 网页 | → 本地文件直读（无退化） | skill 仓库 `https://github.com/tw93/Kami`（已装本机 `~/.agents/skills/kami/`，规范在 `references/design.md`） |
+| Zine 风格族配方（从风格库提炼的色板/质感/排版规律） | 转译 | 主 | 海报 / 杂志 | → style-families.md 直读 | 本地 `~/Desktop/Design/zine-style-references/style-families.md` |
+| DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 在线拿 / getdesign.md | refero MCP（见上）；`https://getdesign.md/` |
+| design-md-skill（Google spec 生成器） | 工具 | 主 | APP / 网页 / Mac（约束生成） | → 手动写约束集（遵循 workflow.md 格式） | skill 仓库 `https://github.com/s-a-s-k-i-a/design-md-skill`（已装本机 `~/.pi/agent/git/github.com/s-a-s-k-i-a/design-md-skill/`）；CLI `@google/design.md`（npm） |
+| huashu-design 设计哲学（20 条，含反 AI slop） | 规则 | 次 | 网页 / 通用 | → 技能本地文件 | skill 仓库 `https://github.com/alchaincyf/huashu-design`（已装本机） |
+| brand-guidelines / theme-factory（anthropics，未装） | 规则 | 兜底 | 通用 | → 手动应用品牌准则 | `https://github.com/anthropics/skills`（未装，按需） |
 
 ## E 执行工具（环节 3：能动手的技能）
 
-| 资源 | 形态 | 层级 | 适用场景 | 退化链 |
-| --- | --- | --- | --- | --- |
-| kami 技能（WeasyPrint 排版 → HTML/PDF） | 工具 | 主 | 文档 / 海报排版 / 网页 | → 手写 HTML 遵循令牌 |
-| huashu-design（HTML 高保真原型/幻灯片/动画） | 工具 | 主 | 网页 / 通用 | → kami / 手写 HTML |
-| baoyu-design（HTML 设计产物：mockup/deck/落地页） | 工具 | 次 | 网页 / 通用 | → huashu-design |
-| frontend-design（anthropics/skills，前端落地） | 工具 | 次 | 网页 / Mac | → 手写 HTML/CSS |
-| gpt-image-2（图像生成/编辑） | 工具 | 主 | 海报 / 杂志插图 | → 其他绘图工具 |
-| imagegen（openai/skills 官方图像生成） | 工具 | 次 | 海报 / 杂志插图 | → gpt-image-2 |
-| Figma 家族（openai/skills：generate/implement/design-system-rules） | 工具 | 次 | APP / 网页 | → HTML 原型 |
-| guizang-ppt-skill（横向翻页网页 PPT） | 工具 | 主 | PPT | → kami slides 路径 |
-| motion / motion-dev-animations / Anime.js（动效） | 工具 | 次 | 通用（网页动效） | → CSS 动画 |
-| hyperframes（HTML 渲染视频/动画） | 工具 | 次 | 通用（视频） | → 静态 HTML 分段 |
-| diagram-design（架构/流程/图表 SVG） | 工具 | 次 | 通用（图表） | → 手写 SVG |
-| theme-factory / brand-guidelines / canvas-design / algorithmic-art（anthropics/skills） | 工具 | 兜底 | 通用 | → 手动应用品牌准则 |
+| 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
+| --- | --- | --- | --- | --- | --- |
+| kami 技能（WeasyPrint 排版 → HTML/PDF） | 工具 | 主 | 文档 / 海报排版 / 网页 | → 手写 HTML 遵循令牌 | `https://github.com/tw93/Kami`（已装本机 `~/.agents/skills/kami/`） |
+| huashu-design（HTML 高保真原型/幻灯片/动画） | 工具 | 主 | 网页 / 通用 | → kami / 手写 HTML | `https://github.com/alchaincyf/huashu-design`（已装本机 `~/.agents/skills/huashu-design/`） |
+| baoyu-design（HTML 设计产物：mockup/deck/落地页） | 工具 | 次 | 网页 / 通用 | → huashu-design | 已装本机 `~/.agents/skills/baoyu-design/`（来源见其 SKILL.md 头注释；npm 分发：`npm i -g baoyu-design` 或仓库 `https://github.com/baoyu-ai/baoyu-design` 待核） |
+| frontend-design（anthropics/skills，未装） | 工具 | 次 | 网页 / Mac | → 手写 HTML/CSS | `https://github.com/anthropics/skills`（skill 路径 `skills/frontend-design/`） |
+| gpt-image-2（图像生成/编辑） | 工具 | 主 | 海报 / 杂志插图 | → 其他绘图工具 | npm `gpt-image-2-skill`（已装本机 `~/.pi/agent/npm/node_modules/gpt-image-2-skill/`）；源仓库 `https://github.com/Wangnov/gpt-image-2-skill` |
+| imagegen（openai/skills 官方图像生成，未装） | 工具 | 次 | 海报 / 杂志插图 | → gpt-image-2 | `https://github.com/openai/skills`（skill 路径 `skills/imagegen/`） |
+| Figma 家族（openai/skills：generate/implement/design-system-rules，未装） | 工具 | 次 | APP / 网页 | → HTML 原型 | `https://github.com/openai/skills`（skills/figma-*） |
+| guizang-ppt-skill（横向翻页网页 PPT） | 工具 | 主 | PPT | → kami slides 路径 | `https://github.com/op7418/guizang-ppt-skill`（已装本机 `~/.pi/agent/git/github.com/op7418/`） |
+| motion（Motion.dev 官方，动效） | 工具 | 次 | 通用（网页动效） | → CSS 动画 | `https://github.com/motiondivision/motion`（已装本机 skill `~/.pi/agent/skills/motion/` 或 `~/.agents/skills/motion/`） |
+| motion-dev-animations（动效补充） | 工具 | 兜底 | 通用（网页动效） | → CSS 动画 | `https://github.com/199-biotechnologies/motion-dev-animations-skill`（已装本机） |
+| Anime.js（动效补充） | 工具 | 兜底 | 通用（动效） | → motion | `https://animejs.com/` |
+| hyperframes（HTML 渲染视频/动画） | 工具 | 次 | 通用（视频） | → 静态 HTML 分段 | `https://github.com/heygen-com/hyperframes`（已装本机 `~/.agents/skills/hyperframes/`） |
+| diagram-design（架构/流程/图表 SVG） | 工具 | 次 | 通用（图表） | → 手写 SVG | `https://github.com/cathrynlavery/diagram-design`（已装本机 `~/.pi/agent/git/github.com/cathrynlavery/`） |
+| theme-factory / brand-guidelines / canvas-design / algorithmic-art（anthropics，未装） | 工具 | 兜底 | 通用 | → 手动应用 | `https://github.com/anthropics/skills` |
+| OpenAI imagegen（官方图像，未装） | 工具 | 兜底 | 海报 / 杂志 | → gpt-image-2 | `https://github.com/openai/skills`（skills/imagegen/） |
 
 ## V 校验标准（环节 4：检查清单）
 
-| 资源 | 形态 | 层级 | 适用场景 | 退化链 |
-| --- | --- | --- | --- | --- |
-| Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%） | 规则 | 主 | 通用排版 | → 取色器 + 目测 → 三条规则人脑执行 |
-| huashu 5 维评审（设计成品多维度审查） | 规则 | 主 | 网页 / 通用 | → Kami 三查 + 人工评审 |
-| Zine 风格一致性自检（对照选定风格族的色板/质感/排版核对） | 规则 | 次 | 海报 / 杂志 | → 人工对照 style-families.md |
-| design-qa-checklist（Owl-Listener/designer-skills 的 UI QA 清单，待装） | 规则 | 主 | APP（交互可用性） | → 手动过导航/状态/反馈三问 |
+| 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
+| --- | --- | --- | --- | --- | --- |
+| Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%） | 规则 | 主 | 通用排版 | → 取色器 + 目测 → 三条规则人脑执行 | 本地 `~/Desktop/Design/kami-design-principles/README.md`（三查章节） |
+| huashu 5 维评审（设计成品多维度审查） | 规则 | 主 | 网页 / 通用 | → Kami 三查 + 人工评审 | `https://github.com/alchaincyf/huashu-design`（5 维评审章节，已装本机） |
+| Zine 风格一致性自检（对照选定风格族的色板/质感/排版核对） | 规则 | 次 | 海报 / 杂志 | → 人工对照 style-families.md | 本地 `~/Desktop/Design/zine-style-references/style-families.md` |
+| design-qa-checklist（UI QA 清单） | 规则 | 主 | APP（交互可用性） | → 手动过导航/状态/反馈三问 | skill 仓库 `https://github.com/Owl-Listener/designer-skills`（子技能 `design-ops/skills/design-qa-checklist/`，已装本机 `~/.pi/agent/skills/design-qa-checklist/`） |
+| 设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个） | 规则 | 主 | APP / 网页（UX 调研） | → 手动走方法步骤 | 同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/`（已装本机 `~/.pi/agent/skills/` 下各子技能） |
 
 ---
 
@@ -67,18 +79,20 @@
 | --- | --- | --- | --- |
 | R·海报场景·主 | 已有 Zine 风格库 | 无缺 | — |
 | R·杂志场景·主 | 已有 Zine 风格库 | 无缺 | — |
-| R·Mac 场景·主 | refero 已覆盖（2000+ 产品含桌面） | 无缺（撤销原标记） | — |
-| V·APP 场景·校验 | ✅ 已补（design-qa-checklist 已装） | 无缺 |
-| R·UX 研究方法 | ✅ 已补（design-research 组 11 个方法已装） | 无缺 |
-| C·APP 场景·约束模板 | ✅ 已补（design-md-skill 已装：Google spec 生成器，支持 --no-figma） | 无缺 |
+| R·Mac 场景·主 | refero 已覆盖（2000+ 产品含桌面） | 无缺 | — |
+| R·UX 研究方法 | ✅ 已补（design-research 组 11 个方法已装） | 无缺 | — |
+| C·APP 场景·约束模板 | ✅ 已补（design-md-skill 已装：Google spec 生成器，支持 --no-figma） | 无缺 | — |
+| V·APP 场景·校验 | ✅ 已补（design-qa-checklist 已装） | 无缺 | — |
 | E·Mac 场景·执行 | 依赖通用工具，无原生 SwiftUI 执行链 | 待评估 | frontend-design / 原生 |
 
 ## 安装裁定（基于装配图，已执行）
 
 | 资源 | 裁定 | 状态 |
 | --- | --- | --- |
-| Owl-Listener/designer-skills | ✅ 精选安装（非同型全装，只取缺口子技能） | 已装 12 个：design-qa-checklist + design-research 组 11 个（interview-script/empathy-map/journey-map/affinity-diagram/card-sort-analysis/diary-study-plan/usability-test-plan/user-persona/summarize-interview/research-repository） |
-| wenyen-hsu/design-md-skill | ⛔ 不装（无 SKILL.md 且依赖 Figma MCP，本机未配置） | 已装替代：s-a-s-k-i-a/design-md-skill（Google spec 生成器，`--no-figma` 可用，@google/design.md CLI 校验 + 导出 Tailwind/DTCG tokens） |
+| Owl-Listener/designer-skills | ✅ 精选安装（非同型全装，只取缺口子技能） | 已装 12 个：design-qa-checklist + design-research 组 11 个 |
+| s-a-s-k-i-a/design-md-skill | ✅ 安装（Google spec 生成器，替代 wenyen-hsu 版） | 已装 |
+| wenyen-hsu/design-md-skill | ⛔ 不装（无 SKILL.md + Figma 依赖，已被 s-a-s-k-i-a 版替代） | 弃用 |
 | VoltAgent awesome-claude-design | ⛔ 不装（与 refero 同型：R 查询类） | 仅登记，需要时拉到 Design 文件夹作离线补充 |
 | anthropics brand-guidelines / theme-factory / algorithmic-art | ⛔ 不装（增强非补缺） | 仅登记，按需再装 |
 | openai imagegen | ⛔ 不装（与 gpt-image-2 同型重合） | 仅登记 |
+| frontend-design（anthropics） | 🔶 待评估（E·Mac 执行缺格候选） | 未装 |
