@@ -1,61 +1,71 @@
 ---
 name: design-references
-description: 设计参考索引。做 UI、界面、视觉、风格、动效相关的任务时使用——先查 ~/resources/design-references.md 的设计资源台账（真实产品设计系统、AI 界面范式、组件库、动画库、图标字体纹理），再决定怎么做；深度设计任务配合 refero-design（research-first 方法论，MCP 已配置）与 motion-dev-animations（动画）等协同技能。核心原则：能引用真实资源，就不凭空发挥。触发词：设计参考、风格库、参考网站、design reference、参考 beautifului/refero/uiverse、用 XX 的风格、做落地页、做 AI 面板、加动画。
+description: 设计任务路由技能。识别任务场景（APP/网页/Mac应用/海报/杂志封面插图/PPT/通用）与工作流环节（0意图澄清/1调研定位/2定义约束/3产出/4校验），路由到对应资源并驱动产出。不跑全流程——只执行当前环节动作，信息不全先问询用户，产出一环节交付物并给出下一步。核心原则：能引用真实资源就不凭空发挥。触发词：设计参考、风格库、design reference、用 XX 的风格、做个 APP/网页/海报/落地页、UI 设计、排版、配色、参考 beautifului/refero/uiverse。
 ---
 
-# Design References
+# Design References — 工作流路由
 
-动手做任何视觉/界面/风格/动效相关任务前，先读 `~/resources/design-references.md`，确认是否有可用的设计资源，再决定怎么做。
+这是**设计工作流的路由大脑**，不是资源清单。每次被调用时：
 
-核心原则：**能引用真实资源，就不凭空发挥。** 不依赖模型的"通用设计直觉"。
+1. **识别场景**（APP / 网页 / Mac 应用 / 海报 / 杂志封面插图 / PPT / 通用）
+2. **定位环节**（从对话推断当前处于五环节的哪个，允许从任意环节进入）
+3. **执行该环节动作**（见下），信息不足先问询（一次问完，≤3 问）
+4. **交付环节产物 + 下一步建议**，让对话自然推进
 
-## 何时触发（任务类型）
+> 资源明细见 `~/resources/design-references.md`；三维索引见 `references/registry.md`（角色/形态/层级）。
 
-用户请求属于以下任一类，先查参考再动手：
+## 五环节（每环节：动作 → 产物 → 查什么）
 
-- **落地页 / SaaS 官网 / 产品页**（hero、区块语言、营销叙事）
-- **AI 产品界面**（聊天面板、agent 状态、流式输出、工具调用 chips）
-- **风格化**（"用 XX 的风格"、"像 Linear/Raycast 那样"）
-- **组件**（按钮、卡片、表单、导航、图标）
-- **动效**（进入动画、滚动揭示、微交互、页面过渡）
-- **排版 / 配色 / 间距**（设计 token 方向）
-- **PPT / 演示 / 文档排版**（视觉输出类）
+| 环节 | 动作 | 产物 | 查注册表 |
+| --- | --- | --- | --- |
+| **0 意图澄清** | 问询缺口（平台/受众/目标/硬约束），一次问完 ≤3 问 | Brief | 无（约束输入） |
+| **1 调研定位** | 按场景查真实产品/作品，给 2-3 风格候选 + 理由 | 风格候选 | `角色=R` |
+| **2 定义约束** | 把候选转译成可校验约束集（色板/字体/间距/质感规则） | 约束集 | `角色=C` |
+| **3 产出** | 调用执行工具，严格按约束集产出 | 产物 | `角色=E` |
+| **4 校验** | 对照约束集自检；不达标回环节 2，不打补丁 | 达标/回炉 | `角色=V` |
 
-不属于：纯后端逻辑、纯文本内容写作（除非要排版视觉化）。
+**铁律**：参考必须**转译**成约束（环节 2），不能"看一眼"就产出。约束集是可校验的，画面不是。
 
-## 使用流程
+## 场景路由表（环节 1 的主参考来源）
 
-1. **判断任务类型** → 对应查素材库 A–E 分组（设计系统 / AI 范式 / 组件 / 动效 / 工具）
-2. **选资源**：
-   - 有 refero → 优先走 `refero-design` skill（MCP 已配置：styles 视觉方向 / screens 界面模式 / flows 流程）——设计任务首选
-   - 无 refero 或只需范式 → 素材库里的 aceternity / beautifului / 21st.dev / galaxy / minimal
-3. **落地方式**（按资源类型）：
-   - 设计系统（refero DESIGN.md）→ 拿 token（调色板/字体/间距）照实现
-   - 组件库 → 借范式（React 组件不直接装，抄结构/样式语言）
-   - 动效 → `motion-dev-animations` skill（spring 物理/best-practices）或素材库 CDN 片段
-   - 图标/字体/纹理 → 素材库直接引 CDN/SVG
-4. **协同技能**（本机已装，按需组合）：
-   - `refero-design` — 深度设计研究方法论（styles/screens/flows，非协商条款）
-   - `motion-dev-animations` — Motion.dev 动画（spring 物理、120fps、可访问性）
-   - `kami` — 专业排版（文档/PPT/落地页 HTML）
-   - `guizang-ppt-skill` — 横向翻页网页 PPT
-   - `hyperframes` — 视频/动画合成（HTML 渲染视频）
-   - `gpt-image-2` — 图像生成/编辑（配图、插画、视觉探索）
-5. **没有匹配资源 → 正常发挥，不要硬凑**（素材库"工具发现"分组是找新工具用，不是设计参考）
+| 场景 | 主参考 | 转译成 | 产出工具 |
+| --- | --- | --- | --- |
+| APP（移动 UI/UX） | registry 中 R 角色·APP 场景 | token + 组件规范 + 交互范式 | E 角色·APP |
+| 网页/落地页 | registry 中 R 角色·网页场景 | 设计系统 | E 角色·网页 |
+| Mac 桌面应用 | registry 中 R 角色·Mac 场景 | token + 平台控件语义 | E 角色·通用 |
+| 海报（印刷/社交） | registry 中 R 角色·海报场景 | 风格配方 → prompt | E 角色·海报 |
+| 杂志封面/插图 | registry 中 R 角色·杂志场景 | 版式网格 + 图像配方 | E 角色·杂志 |
+| PPT/演示 | registry 中 R 角色·通用 | 版式骨架 | E 角色·PPT |
+| 通用排版 | `C 角色·Kami 约束骨架` 常驻 | 排版层级规则 | E 角色·文档 |
 
-## 场景速查
+## 问询协议（环节 0）
 
-| 任务 | 查什么 | 用什么落地 |
-|---|---|---|
-| "用 XX 的风格做落地页" | refero styles（DESIGN.md token） | kami / 直接 HTML |
-| AI 产品面板/聊天界面 | beautifului（AI-native 范式） | 借组件语言重写 |
-| 按钮/卡片/表单组件 | galaxy（3800+ 元素）/ 21st.dev | 复制样式适配 |
-| 网页/PPT 动效 | motion-dev-animations / Motion CDN | 独立 HTML + CDN |
-| 图标 | Lucide / Heroicons（素材库 C 组） | 引 SVG |
-| 字体 | Google Fonts（素材库） | 引 CDN |
-| 背景纹理/渐变 | Hero Patterns / 渐变工具（素材库） | 引 CSS/SVG |
+只在缺口阻塞执行时问，一次问完，按场景细分：
+
+| 场景 | 必问项 |
+| --- | --- |
+| APP | 平台（iOS/Android/双端）、目标用户、是否有品牌色、核心交互范式偏好 |
+| 网页 | 类型（落地页/官网/工具）、受众、C 端/B 端、参考产品倾向 |
+| Mac | 目标系统版本、原生 vs 跨端、控件语义要求 |
+| 海报 | 媒介（印刷/社交/屏幕）、尺寸比例、渠道（小红书/抖音/线下） |
+| 杂志 | 版式网格偏好、图像风格倾向、开本 |
+| 通用 | 格式、渠道、受众、硬约束 |
+
+已能从上下文推断的项跳过。问完继续走流程，不等多余确认。
+
+## 资源路由（查 registry.md 的入口）
+
+```
+[场景] × [环节] → 查 registry.md 对应格子：
+  主层级资源 → 必须查
+  次层级资源 → 按需查
+  兜底层级资源 → 主/次都没有匹配时才查（禁止硬凑）
+```
+
+新增资源前先登记进 registry.md（角色/形态/层级/适用场景四栏必填），站不住位置的不装。
 
 ## 数据源
 
-- 素材台账：`~/resources/design-references.md`（本机共享，所有平台同一 HOME 可见）
-- 深度方法论：`refero-design` skill（MCP：`https://api.refero.design/mcp`，pi 已配置）
+- 资源明细台账：`~/resources/design-references.md`（A-G 浏览视图 + 每条三维标注）
+- 资源三维索引：`references/registry.md`（角色 × 形态 × 层级）
+- 深度方法论：`refero-design` skill（styles/screens/flows，MCP 已配置）
