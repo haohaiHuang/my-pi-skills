@@ -68,17 +68,17 @@
 | R·海报场景·主 | 已有 Zine 风格库 | 无缺 | — |
 | R·杂志场景·主 | 已有 Zine 风格库 | 无缺 | — |
 | R·Mac 场景·主 | refero 已覆盖（2000+ 产品含桌面） | 无缺（撤销原标记） | — |
-| R·UX 研究方法 | 16 条资源全为视觉/风格参考，无 UX 方法 | 待补 | Owl-Listener design-research 组 |
-| C·APP 场景·约束模板 | 无跨产品可复用的 APP 约束骨架 | 待补 | design-md-skill（生成式） |
-| V·APP 场景·校验 | 无 UI 可用性/交互自检标准 | 待补 | design-qa-checklist |
+| V·APP 场景·校验 | ✅ 已补（design-qa-checklist 已装） | 无缺 |
+| R·UX 研究方法 | ✅ 已补（design-research 组 11 个方法已装） | 无缺 |
+| C·APP 场景·约束模板 | 🔶 部分（design-md-skill 未装：无 SKILL.md + 依赖 Figma MCP） | 退化链=手动写约束集；若配 Figma MCP 再评估 |
 | E·Mac 场景·执行 | 依赖通用工具，无原生 SwiftUI 执行链 | 待评估 | frontend-design / 原生 |
 
-## 安装裁定（基于装配图）
+## 安装裁定（基于装配图，已执行）
 
-| 资源 | 裁定 |
-| --- | --- |
-| Owl-Listener/designer-skills | ✅ 装（补 V·APP + R·UX 两个类型真空） |
-| wenyen-hsu/design-md-skill | ✅ 装（补 C·APP 约束生成） |
-| VoltAgent awesome-claude-design | ⛔ 不装（与 refero 同型：R 查询类，仅登记，拉到 Design 文件夹作离线补充） |
-| anthropics brand-guidelines / theme-factory / algorithmic-art | ⛔ 不装（增强非补缺，登记即可，按需再装） |
-| openai imagegen | ⛔ 不装（与 gpt-image-2 同型重合） |
+| 资源 | 裁定 | 状态 |
+| --- | --- | --- |
+| Owl-Listener/designer-skills | ✅ 精选安装（非同型全装，只取缺口子技能） | 已装 12 个：design-qa-checklist + design-research 组 11 个（interview-script/empathy-map/journey-map/affinity-diagram/card-sort-analysis/diary-study-plan/usability-test-plan/user-persona/summarize-interview/research-repository） |
+| wenyen-hsu/design-md-skill | ⛔ 不装（无 SKILL.md 且依赖 Figma MCP，本机未配置） | 仅登记：C·APP 约束生成，退化链=手动写约束集 |
+| VoltAgent awesome-claude-design | ⛔ 不装（与 refero 同型：R 查询类） | 仅登记，需要时拉到 Design 文件夹作离线补充 |
+| anthropics brand-guidelines / theme-factory / algorithmic-art | ⛔ 不装（增强非补缺） | 仅登记，按需再装 |
+| openai imagegen | ⛔ 不装（与 gpt-image-2 同型重合） | 仅登记 |
