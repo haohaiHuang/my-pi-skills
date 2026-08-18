@@ -21,12 +21,14 @@
 ### 3. Kami 设计原则 — 暖纸墨蓝排版约束系统（本地） 〔C约束模板·规则·主·通用排版常驻〕
 
 - **是什么**：轻量版 Kami 设计系统（tw93/Kami 技能提炼）——暖羊皮纸底 `#f5f4ed` + 唯一墨蓝 `#1B365D` + 衬线承载层级；十条不变量（禁纯白/禁冷灰/禁第二彩色/禁加粗斜体/禁硬阴影）+ 三步自检（取色 R≥G>B、墨蓝面积 ≤5%、页面密度 60-80%）
+- **来源**：`https://github.com/tw93/Kami`（原始技能仓库）；本地 `~/Desktop/Design/kami-design-principles/`（自建轻量版）；完整规范 `~/.agents/skills/kami/references/design.md`
 - **怎么用**：直接读 `~/Desktop/Design/kami-design-principles/README.md`（使用说明）和 `design-tokens.css`（设计令牌 + 组件配方，可整体粘进项目）；进阶读完整规范 `~/.agents/skills/kami/references/design.md`（1280 行）
 - **典型场景**：做文档/落地页/作品集/简历/幻灯片等"排版型"视觉时走"暖纸编辑感"风格；用户要求"有高级感/书卷气/印刷质感"或"别做科技冷灰风"时
 
 ### 4. Zine 风格参考 — 52 个 AI 海报技能风格库（本地） 〔R调研源·转译·主·海报/杂志〕
 
 - **是什么**：52 个「照片→海报/画作」类 AI 图像生成技能的提炼——8 大风格族（水彩水墨抽象/复古拼贴档案/像素复古界面/电影海报霓虹/超现实波普/明信片旅行/诗意极简/3D 品牌），含每族核心配方（从代表技能 SKILL.md 提炼）和产品设计可迁移性分级
+- **来源**：`https://github.com/tluy/skill-zine-summary`（52 技能上游合集）；本地 `~/Desktop/Design/zine-style-references/`（自建提炼版）
 - **怎么用**：读 `~/Desktop/Design/zine-style-references/README.md`（触发词路由表 + 迁移性速览）→ `style-families.md`（族详情）→ `quick-reference.md`（52 技能速查）；图像生成任务直接用配方写 prompt，产品设计任务用其中可迁移规律（暖纸底/档案排版/潘通取色/留白）
 - **典型场景**：照片转海报/画作风格、复古档案感/像素风/电影海报风/水墨风/潘通色卡风设计；与 Kami 配合使用（同源「暖纸+衬线+克制」审美）
 
