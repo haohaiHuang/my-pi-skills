@@ -31,7 +31,7 @@
 | Kami 完整设计规范（`~/.agents/skills/kami/references/design.md`） | 规则 | 主 | 文档 / 网页 | → 本地文件直读（无退化） |
 | Zine 风格族配方（从风格库提炼的色板/质感/排版规律） | 转译 | 主 | 海报 / 杂志 | → style-families.md 直读 |
 | DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 在线拿 / getdesign.md |
-| design-md-skill（生成 DESIGN.md 约束文件，待装） | 工具 | 主 | APP（约束生成） | → 手动写约束集（遵循 workflow.md 格式） |
+| design-md-skill（Google spec 生成器，已装：s-a-s-k-i-a 版） | 工具 | 主 | APP / 网页 / Mac（约束生成） | → 手动写约束集（遵循 workflow.md 格式） |
 
 ## E 执行工具（环节 3：能动手的技能）
 
@@ -70,7 +70,7 @@
 | R·Mac 场景·主 | refero 已覆盖（2000+ 产品含桌面） | 无缺（撤销原标记） | — |
 | V·APP 场景·校验 | ✅ 已补（design-qa-checklist 已装） | 无缺 |
 | R·UX 研究方法 | ✅ 已补（design-research 组 11 个方法已装） | 无缺 |
-| C·APP 场景·约束模板 | 🔶 部分（design-md-skill 未装：无 SKILL.md + 依赖 Figma MCP） | 退化链=手动写约束集；若配 Figma MCP 再评估 |
+| C·APP 场景·约束模板 | ✅ 已补（design-md-skill 已装：Google spec 生成器，支持 --no-figma） | 无缺 |
 | E·Mac 场景·执行 | 依赖通用工具，无原生 SwiftUI 执行链 | 待评估 | frontend-design / 原生 |
 
 ## 安装裁定（基于装配图，已执行）
@@ -78,7 +78,7 @@
 | 资源 | 裁定 | 状态 |
 | --- | --- | --- |
 | Owl-Listener/designer-skills | ✅ 精选安装（非同型全装，只取缺口子技能） | 已装 12 个：design-qa-checklist + design-research 组 11 个（interview-script/empathy-map/journey-map/affinity-diagram/card-sort-analysis/diary-study-plan/usability-test-plan/user-persona/summarize-interview/research-repository） |
-| wenyen-hsu/design-md-skill | ⛔ 不装（无 SKILL.md 且依赖 Figma MCP，本机未配置） | 仅登记：C·APP 约束生成，退化链=手动写约束集 |
+| wenyen-hsu/design-md-skill | ⛔ 不装（无 SKILL.md 且依赖 Figma MCP，本机未配置） | 已装替代：s-a-s-k-i-a/design-md-skill（Google spec 生成器，`--no-figma` 可用，@google/design.md CLI 校验 + 导出 Tailwind/DTCG tokens） |
 | VoltAgent awesome-claude-design | ⛔ 不装（与 refero 同型：R 查询类） | 仅登记，需要时拉到 Design 文件夹作离线补充 |
 | anthropics brand-guidelines / theme-factory / algorithmic-art | ⛔ 不装（增强非补缺） | 仅登记，按需再装 |
 | openai imagegen | ⛔ 不装（与 gpt-image-2 同型重合） | 仅登记 |
