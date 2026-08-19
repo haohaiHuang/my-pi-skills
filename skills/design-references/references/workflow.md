@@ -132,7 +132,7 @@
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 选定 DESIGN.md（C 直引）→ design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）。
+**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 选定 DESIGN.md（C 直引）→ design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次，本地 `~/Desktop/Design/logo-generator-references/`）**。
 
 **退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 
@@ -196,6 +196,6 @@
 FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规则}
 ```
 
-**资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）。
+**资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ **logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次）**。
 
 **退化链**：脚本检查 → 取色器 + 目测 → 三条检查规则人脑执行。
