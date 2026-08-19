@@ -259,6 +259,40 @@ platform_skill_version() {
 	echo ""
 }
 
+# ---------- 外部资源扫描（design-references 的非技能资产） ----------
+# 输出: 资源名<TAB>类型<TAB>状态(✓/✗)<TAB>位置
+# 覆盖：registry.md 引用的本地目录（Design 资源） + ~/resources 台账 + npm 全局 CLI
+# 设计意图：这些资产是 design-references 技能执行依赖的外部文件，不进技能矩阵（无 SKILL.md），
+#           但属于机器存档的一部分（本机是否有）
+scan_external() {
+	# 路径列表 = registry.md 引用的本地资产（与技能基础结构绑定，变更频率极低）
+	# 每条：名称<TAB>类型<TAB>路径
+	local name type path
+	while IFS=$'\t' read -r name type path; do
+		[ -z "$name" ] && continue
+		if [ -e "$path" ]; then
+			printf '%s\t%s\t✓\t%s\n' "$name" "$type" "$path"
+		else
+			printf '%s\t%s\t✗\t（缺失，来源见 registry.md）\n' "$name" "$type"
+		fi
+	done <<< "$(printf '%s\t%s\t%s\n%s\t%s\t%s\n' \
+		"kami-design-principles" "设计资源目录" "$H/Desktop/Design/kami-design-principles" \
+		"zine-style-references" "设计资源目录" "$H/Desktop/Design/zine-style-references")"
+	# ~/resources 设计台账
+	if [ -f "$H/resources/design-references.md" ]; then
+		printf 'design-references.md\t资源台账\t✓\t%s\n' "$H/resources/design-references.md"
+	else
+		printf 'design-references.md\t资源台账\t✗\t（缺失）\n'
+	fi
+	# npm 全局 CLI（design-md-skill 配套）
+	if command -v designmd >/dev/null 2>&1; then
+		printf 'designmd (npm @google/design.md)\tCLI\t✓\t%s\n' "$(command -v designmd)"
+	else
+		printf 'designmd (npm @google/design.md)\tCLI\t✗\t（未安装，npm i -g @google/design.md）\n'
+	fi
+	return 0
+}
+
 # ---------- 技能路由矩阵（sync 用）：技能 × 平台（版本） ----------
 # 输出 markdown 表格到 stdout；✗ = 该平台无此技能
 build_matrix() {
@@ -272,7 +306,7 @@ build_matrix() {
 
 	# 所有技能名（跨平台 union）
 	local names p
-	names=$(for p in $platlist; do
+		names=$(for p in $platlist; do
 		scan_platform "$p" 2>/dev/null | cut -f1
 	done | sort -u)
 
@@ -296,6 +330,18 @@ build_matrix() {
 		done
 		echo "$row"
 	done <<< "$names"
+}
+
+# ---------- 外部资源矩阵（machine 存档用）：资源 × 本机状态 ----------
+build_external_matrix() {
+	echo ""
+	echo "## 外部资源（本机状态）"
+	echo ""
+	printf '| 资源 | 类型 | 状态 | 位置 |\n'
+	printf '|---| --- | --- | --- |\n'
+	scan_external | while IFS=$'\t' read -r res type st loc; do
+		printf '| %s | %s | %s | %s |\n' "$res" "$type" "$st" "$loc"
+	done
 }
 
 # ---------- 管理台账模式：--check ----------
@@ -369,6 +415,7 @@ case "${PLAT:-}" in
 	;;
 "matrix")
 	build_matrix
+	build_external_matrix
 	;;
 *)
 	if [ "$MODE" = "check" ]; then
