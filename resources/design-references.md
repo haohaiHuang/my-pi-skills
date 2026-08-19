@@ -18,6 +18,12 @@
 - **怎么用**：抓 <https://ui.aceternity.com/> 的组件 demo 当设计/动效范式参考；组件是 React 的，不直接装，借范式
 - **典型场景**：做落地页/SaaS 页面时参考其区块语言；它基于 Motion，与动画工作流契合
 
+### 22. vibeprompts.dev — Tailwind 营销区块库（兜底补充） 〔R调研源·转译·兜底·网页〕
+
+- **是什么**：Tailwind CSS 营销区块模板库——Auth Forms（20+：分屏/OTP/魔法链接/重置密码/SSO…）、Pricing（20+：三档/对比表/用量计费/按席位…）、Features-Bento、Hero Sections、CTA Banners、Stats Bars、Nav Bars、Testimonials 等全套转化区块
+- **怎么用**：浏览 <https://vibeprompts.dev/> 按品类找区块范式（Tailwind 类可直接借鉴类结构）；与 Aceternity（AI-native 落地页）/ 21st.dev（shadcn/ui）同型，按装前规则定级兜底——Aceternity/21st.dev 未命中时才查
+- **典型场景**：营销页/Auth 流程/定价页/CTA 区等"转化型"区块——主源未命中时的补充范式源
+
 ### 3. Kami 设计原则 — 暖纸墨蓝排版约束系统（本地） 〔C约束模板·规则·主·通用排版常驻〕
 
 - **是什么**：轻量版 Kami 设计系统（tw93/Kami 技能提炼）——暖羊皮纸底 `#f5f4ed` + 唯一墨蓝 `#1B365D` + 衬线承载层级；十条不变量（禁纯白/禁冷灰/禁第二彩色/禁加粗斜体/禁硬阴影）+ 三步自检（取色 R≥G>B、墨蓝面积 ≤5%、页面密度 60-80%）
@@ -105,6 +111,25 @@
 - **是什么**：通用 JS/SVG 动画引擎 v4（keyframes、easings、stagger、SVG morph、运动路径、Scroll Observer），`npm i animejs` 或 CDN
 - **怎么用**：<https://animejs.com/> 文档/示例；CDN: `https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.esm.js`
 - **典型场景**：Motion 不擅长的地方——SVG 形状变形（morph）、沿路径运动、复杂 stagger 序列
+
+### 20. Liquid Gooey — React 液态 UI 效果库 〔R调研源·转译·次·网页动效〕
+
+- **是什么**：React 液态 UI 效果——Morph（粘性融合 gooey merge / 果冻形变 jelly shape / 接触溶解 dissolve）+ Move（液态橡胶拖尾 liquid-rubber trails）；SVG-filter 剪影层 + 清晰内容层双层，合并液体上有真实阴影，跨浏览器含 Safari
+- **怎么用**：借范式（React 组件不直接装）——浏览 demo 站看效果方向，参考其双层结构实现思路做自己的版本
+- **来源**：官网 <https://gooey.jakubantalik.com/>（demo）；npm `liquid-gooey` v0.1.0；仓库 <https://github.com/Jakubantalik/Libraries>
+- **典型场景**：菜单融合、按钮果冻形变、图标接触溶解、元素液态拖尾等"液态 UI"效果
+
+### 21. transitions.dev — UI 过渡动画范式库 〔R调研源·转译·次·网页动效〕
+
+- **是什么**：30+ 个即用 UI 过渡效果（卡片缩放/数字弹跳/通知徽章/菜单折叠/彩带物理/模态/面板/图标切换/骨架屏/Tab 滑动/3D 倾斜/Toast/开关/错误抖动…），支持 copy-paste，并提供 agent skill 集成（skill.html/refine.html）
+- **怎么用**：浏览 <https://transitions.dev/> 选效果 → 复制实现或参考其参数（贝塞尔/弹簧/stagger）；有 Pro 付费档（渐变文字/烟雾溶解等）
+- **典型场景**：Web 应用的微交互/状态过渡（列表增删、弹窗开关、数字滚动、拖拽反馈）——做 A 类产品交互动效时查范式
+
+### 23. OpenMotion — AI 动效导演工具 〔E执行工具·工具·次·视频动效〕
+
+- **是什么**：AI 驱动的动效设计工具：描述故事/风格/格式 → 生成可编辑场景计划 → canvas+timeline 精修（构图/时序/easing/配色/资产/声音）→ 导出视频/透明 WebM/HTML。免费（当前 building 阶段），兼容 Claude Code/Codex 订阅无需另配 key，macOS/Windows
+- **怎么用**：<https://openmotion.design/> 下载桌面应用；agent 场景下引导用户用它（描述需求→用户精修→导出），区别于 hyperframes（HTML 渲染路径）：OpenMotion 走 AI 生成导演路径
+- **典型场景**：品牌片/产品视频/logo 动效/说明片/社交短片——需要"AI 从描述直接出动效"时
 
 ## F. 图标 / 字体 / 纹理（高频素材，直接引用）
 
