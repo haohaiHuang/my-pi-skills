@@ -30,6 +30,9 @@
 | Hero Patterns（SVG 背景纹理） | 直引 | 兜底 | 通用 | → 官网复制 | `https://heropatterns.com/` |
 | CSS 渐变工具 | 直引 | 兜底 | 通用 | → 官网 | `https://cssgradient.io/`（或同类） |
 | DESIGN.md 格式规范（Google spec） | 直引 | 次 | 通用 | → 官网 | `https://getdesign.md/`；参考实现 `https://github.com/google-labs-code/design.md` |
+| Liquid Gooey（React 液态 UI 效果库：Morph 粘性融合/果冻形变/接触溶解 + Move 液态拖尾） | 转译 | 次 | 网页动效（液态/粘性/果冻效果） | → 官网 demo 浏览 → web_search | 官网 `https://gooey.jakubantalik.com/`；npm `liquid-gooey`；仓库 `https://github.com/Jakubantalik/Libraries` |
+| transitions.dev（30+ UI 过渡动画范式库：卡片缩放/数字弹跳/菜单折叠/3D 倾斜/Toast…） | 转译 | 次 | 网页动效（UI 过渡/微交互） | → 官网复制 → web_search | `https://transitions.dev/`（含 agent skill 集成） |
+| vibeprompts.dev（Tailwind 营销区块库：Auth/Pricing/Features-Bento/Hero/CTA/Stats/Nav） | 转译 | 兜底 | 网页（Tailwind 区块，与 Aceternity/21st.dev 同型） | → 官网浏览 → web_search | `https://vibeprompts.dev/` |
 
 ## C 约束模板（环节 2：规则/令牌，回答"我们怎么做"）
 
@@ -65,6 +68,7 @@
 | diagram-design（架构/流程/图表 SVG） | 工具 | 次 | 通用（图表） | → 手写 SVG | `https://github.com/cathrynlavery/diagram-design` |
 | theme-factory / brand-guidelines / canvas-design / algorithmic-art（anthropics） | 工具 | 兜底 | 通用 | → 手动应用 | `https://github.com/anthropics/skills` |
 | OpenAI imagegen（官方图像） | 工具 | 兜底 | 海报 / 杂志 | → gpt-image-2 | `https://github.com/openai/skills`（skills/imagegen/） |
+| OpenMotion（AI 动效导演工具：描述→可编辑场景计划→canvas+timeline→导出视频/WebM/HTML；免费，兼容 Claude Code/Codex 订阅） | 工具 | 次 | 视频动效（品牌片/产品视频/logo 动效/说明片） | → hyperframes（HTML 渲染） → 手动视频工具 | 官网 `https://openmotion.design/`（macOS/Windows） |
 
 ## V 校验标准（环节 4：检查清单）
 
