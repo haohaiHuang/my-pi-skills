@@ -38,6 +38,27 @@
 - **怎么用**：浏览 <https://minimal.gallery/> 找灵感案例；页面 curl 可能被拒（HTTP 000），用 web_search 查案例
 - **典型场景**：做极简风/高端感设计时找真实案例参考
 
+### 17. logo-generator 设计模式库 — 图形/Logo 参数化设计原则（本地） 〔C约束模板·规则·次·logo/App Icon/品牌图形〕
+
+- **是什么**：op7418/logo-generator-skill 的参考文档——8 条可检查的设计底线（极致简洁：元素 ≤5-6；留白 ≥40%；线宽 2.5-4px；单焦点；结构稳定；圆角切割）+ 完整 SVG 构图模式库（点阵/几何/线条/节点网络/字母抽象，每模式含哲学+参数+代码+适用场景）+ 生成 6+ 变体的分配策略（纯几何/点阵/线条/混合×2/节点网络，按密度/对称/重量/复杂度四维变化）
+- **来源**：源 `https://github.com/op7418/logo-generator-skill`；本地 `~/Desktop/Design/logo-generator-references/design_patterns.md`（722 行）
+- **怎么用**：logo/icon 任务时直接读 Part 0（8 条原则，带数字可自查）+ Part 4（视觉/技术/概念三层检查清单）；构图参考读 Part 1-3（可直接抄的 SVG 模板）；生成多样变体读 Part 5
+- **典型场景**：生成 App Icon / Logo / 品牌图形时作约束与校验参考；与 gpt-image-2 等图像生成工具配合（生成前定约束，生成后按清单自检）
+
+### 18. logo-generator 背景风格库 — 12 种高端展示背景规格（本地） 〔C约束模板·转译·次·海报/展示图/logo showcase〕
+
+- **是什么**：12 种展示背景风格（暗色 6：绝对虚空/磨砂穹顶/流体深渊/物理影棚/物理流体/LED 矩阵；亮色 6：纸本编辑/幻彩透砂/晨雾光域/无菌影棚/容器化界面/瑞士扁平），每种带完整规格（基础色/噪点/纹理/氛围/情绪/饱和度数值）+ 四维选择索引（按产品类型/情绪/对比度/复杂度查表）
+- **来源**：源 `https://github.com/op7418/logo-generator-skill`；本地 `~/Desktop/Design/logo-generator-references/background_styles.md`（262 行）
+- **怎么用**：需要给产物配展示背景/主视觉背景时，先按产品类型+情绪查 "Style Selection Guide" 定 2-4 个候选，再读对应风格条目拿具体规格（色值/纹理/饱和度）转译成 prompt 或 CSS
+- **典型场景**：logo showcase、产品主视觉、海报背景、演示封面背景；与 Zine 风格库互补（Zine=海报风格配方，本库=展示背景规格）
+
+### 19. logo-generator WebGL 动态背景规格（本地） 〔C约束模板·规则·兜底·网页动态背景/C2 动效〕
+
+- **是什么**：WebGL 动态背景的实现规格（shader 参数/动画节奏/配色，供网页动态背景参考）
+- **来源**：源 `https://github.com/op7418/logo-generator-skill`；本地 `~/Desktop/Design/logo-generator-references/webgl_backgrounds.md`（127 行）
+- **怎么用**：C2 动效场景做网页动态背景时直读；实现级细节，非设计路由主依赖
+- **典型场景**：落地页动态背景、hero 区 WebGL 动效
+
 ## B. AI 应用界面范式
 
 ### 6. Beautiful UI — AI-native 界面范式 〔R调研源·转译·次·APP〕
