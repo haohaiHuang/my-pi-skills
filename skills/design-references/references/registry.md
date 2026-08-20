@@ -45,9 +45,9 @@
 | design-md-skill（Google spec 生成器） | 工具 | 主 | APP / 网页 / Mac（约束生成） | → 手动写约束集（遵循 workflow.md 格式） | skill 仓库 `https://github.com/s-a-s-k-i-a/design-md-skill`；CLI `@google/design.md`（npm） |
 | huashu-design 设计哲学（20 条，含反 AI slop） | 规则 | 次 | 网页 / 通用 | → 技能本地文件 | skill 仓库 `https://github.com/alchaincyf/huashu-design` |
 | brand-guidelines / theme-factory（anthropics） | 规则 | 兜底 | 通用 | → 手动应用品牌准则 | `https://github.com/anthropics/skills` |
-| logo-generator 设计模式库（8 条参数化原则 + 构图模式 + 检查清单） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 本地 `~/Desktop/Design/logo-generator-references/design_patterns.md`；源 `https://github.com/op7418/logo-generator-skill` |
-| logo-generator 背景风格库（12 种展示背景规格：色值/噪点/纹理/氛围/饱和度） | 转译 | 次 | 海报 / 展示图 / logo showcase 背景 | → 本地直读 | 本地 `~/Desktop/Design/logo-generator-references/background_styles.md`；源 `https://github.com/op7418/logo-generator-skill` |
-| logo-generator WebGL 动态背景规格 | 规则 | 兜底 | 网页动态背景 / C2 动效 | → 本地直读 | 本地 `~/Desktop/Design/logo-generator-references/webgl_backgrounds.md`；源 `https://github.com/op7418/logo-generator-skill` |
+| logo-generator 设计模式库（8 条参数化原则 + 构图模式 + 检查清单） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md` |
+| logo-generator 背景风格库（12 种展示背景规格：色值/噪点/纹理/氛围/饱和度） | 转译 | 次 | 海报 / 展示图 / logo showcase 背景 | → GitHub 直读 → 本地兜底 | 源 `https://github.com/op7418/logo-generator-skill`（`references/background_styles.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/background_styles.md` |
+| logo-generator WebGL 动态背景规格 | 规则 | 兜底 | 网页动态背景 / C2 动效 | → GitHub 直读 → 本地兜底 | 源 `https://github.com/op7418/logo-generator-skill`（`references/webgl_backgrounds.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/webgl_backgrounds.md` |
 
 ## E 执行工具（环节 3：能动手的技能）
 
@@ -79,7 +79,7 @@
 | Zine 风格一致性自检（对照选定风格族的色板/质感/排版核对） | 规则 | 次 | 海报 / 杂志 | → 人工对照 style-families.md | 本地 `~/Desktop/Design/zine-style-references/style-families.md` |
 | design-qa-checklist（UI QA 清单） | 规则 | 主 | APP（交互可用性） | → 手动过导航/状态/反馈三问 | skill 仓库 `https://github.com/Owl-Listener/designer-skills`（子技能 `design-ops/skills/design-qa-checklist/`） |
 | 设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个） | 规则 | 主 | APP / 网页（UX 调研） | → 手动走方法步骤 | 同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/` |
-| logo-generator 图形质量底线（元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 缩放 16-512） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 本地 `~/Desktop/Design/logo-generator-references/design_patterns.md`（Part 0 + Part 4） |
+| logo-generator 图形质量底线（元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 缩放 16-512） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md` |
 
 ---
 

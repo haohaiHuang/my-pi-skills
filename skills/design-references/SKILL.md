@@ -74,9 +74,10 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 ## 品牌图形 / Logo 场景挂载（跨分支，环节 2/4 必读）
 
-任务落在 **logo / App Icon / 品牌图形 / favicon** 时（无论走 A/B/C 哪个分支），环节 2 与 4 **必须读取本地参考文档**——这是"生成时约束 + 生成后校验"的常驻参考，不是可选调研：
+任务落在 **logo / App Icon / 品牌图形 / favicon** 时（无论走 A/B/C 哪个分支），环节 2 与 4 **必须读取 logo-generator 参考文档**——这是"生成时约束 + 生成后校验"的常驻参考，不是可选调研：
 
-- **环节 2（约束）**：读 `~/Desktop/Design/logo-generator-references/design_patterns.md` **Part 0**（8 条参数化底线：元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 结构稳定 / 圆角切割）转译进约束集；构图方向参考 Part 1-3 模式库（点阵/几何/线条/节点网络/字母抽象）；需多个候选方向时按 Part 5 的 6+ 变体分配策略
+- **读取方式（GitHub 优先，本地兜底）**：优先从源仓库 `https://github.com/op7418/logo-generator-skill` 的 `references/` 读取（`design_patterns.md` / `background_styles.md` / `webgl_backgrounds.md`）；仓库下架或不可达时，读本地存档 `~/Desktop/Design/logo-generator-references/`（同名文件）。
+- **环节 2（约束）**：读 `design_patterns.md` **Part 0**（8 条参数化底线：元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 结构稳定 / 圆角切割）转译进约束集；构图方向参考 Part 1-3 模式库（点阵/几何/线条/节点网络/字母抽象）；需多个候选方向时按 Part 5 的 6+ 变体分配策略
 - **环节 4（校验）**：读同文件 **Part 4** 三层检查清单（视觉：平衡/留白/缩放 16→512/简洁/独特；技术：viewBox/currentColor/分组/defs；概念：相关性/故事性/多功能）逐项自检
 - **展示背景**：配展示图或主视觉背景时读 `background_styles.md`（12 种规格 + 按产品类型/情绪/对比度/复杂度四维查表）；WebGL 动态背景兜底见 `webgl_backgrounds.md`
 - 来源与退化链见 registry（C 规则·次 / V 规则·次）
