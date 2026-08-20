@@ -15,7 +15,7 @@
 
 | 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
 | --- | --- | --- | --- | --- | --- |
-| refero MCP / refero-design skill（真实产品 DESIGN.md，150K+ 屏幕） | 直引 | 主 | APP / 网页 / Mac | → styles.refero.design 网站 → web_search | skill 仓库 `https://github.com/referodesign/refero_skill`；MCP `https://api.refero.design/mcp`；网站 `https://styles.refero.design/` |
+| refero MCP / refero-design skill（真实产品 DESIGN.md，150K+ 屏幕） | 直引 | 主 | APP / 网页 / Mac | → 用户参考库候选池（台账+registry）→ styles.refero.design 网站 → web_search | skill 仓库 `https://github.com/referodesign/refero_skill`；MCP `https://api.refero.design/mcp`；网站 `https://styles.refero.design/` |
 | Zine 风格库（52 个 AI 海报技能风格配方） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） | 本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary` |
 | VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → getdesign.md 官网 | `https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/` |
 | Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://www.beautifului.ai/` |
