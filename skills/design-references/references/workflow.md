@@ -50,7 +50,11 @@
 **动作序列**：
 
 1. **盘点已有资产**（承接环节 0）：项目已有设计系统 → 它就是主参考，外部参考只做增强；无系统才从零调研
-2. **用户参考库候选池（新增，优先于一切外部搜索）**：先从用户积累的参考库抽候选——`~/resources/design-references.md`（台账 A-G 浏览视图）+ `references/registry.md`（角色×形态×层级）按当前场景分支筛 2-3 个真实候选；用户指定了风格（如“用 XX 的风格”）则直引对应资源。**用户精选资产永远在外部随机搜索结果之前。**
+2. **统一候选池（优先于一切外部搜索；真实产品 + Hallmark 形态/气质库同池）**：候选源分两类，用同一套四维匹配分级评估：
+   - **真实产品参考**：`~/resources/design-references.md`（台账）+ `references/registry.md` 按场景筛 2-3 个；用户指定风格则直引对应资源。**用户精选资产永远在外部随机搜索结果之前。**
+   - **Hallmark 形态/气质库**（软依赖，已装 hallmark 时可用）：21 宏结构 = **形态**维度（页面形状：Bento/Stat-Led/Manifesto…）；4 genre + 21 theme = **气质**维度（editorial/modern-minimal/atmospheric/playful + 具体配色字体）。作为预打包的"形态+气质"实例进同池。
+   - 每个候选标注：`形态分 × 气质分 × 行业分 × 防重分`（四维见下方分级表）。
+   - **选择优先级**：行业+形态+气质全中（真实产品）> 形态+气质（真实产品或 Hallmark 组合）> 只有气质（theme/genre）> 只有形态（macrostructure）> 兜底（catalog 静默，仅用户 go ahead 时）。
 3. **参考萃取（必须逐 section 读出数值，禁止摘要式浏览）**：完整 DESIGN.md 的每个 section 都要读并记录：
    - Colors → 每色 hex + 角色 + 适用场景
    - Typography → 每种字体的字号/字重/字距/适用场景
@@ -70,7 +74,7 @@
 候选2: {...}
 ```
 
-**匹配精度分级**（决定"命中"的定义）：
+**匹配精度分级**（四维：形态 × 气质 × 行业 × 防重，决定"命中"的定义）：
 
 | 精度 | 定义 | 采用 |
 | --- | --- | --- |
@@ -78,6 +82,8 @@
 | 良好 | 同形态 + 同气质（行业可跨） | 推荐替身 |
 | 可用 | 同形态（功能类似）或 同气质（视觉语言） | 可借用 |
 | 不可用 | 形态不同且气质不同 | 弃用，继续降级 |
+
+**防重维度（仅 Hallmark 来源候选）**：查 `.hallmark/log.json` 或 CSS 顶部 `/* Hallmark · macrostructure/theme */` 戳，排除连续重复（同一项目连续两次输出不得共享宏结构；主题须满足 paper band / display style / accent hue 三轴至少一个不同）。
 
 **参考类型决定精度需求**：视觉参考（色板/字体/质感）→ 气质匹配优先，行业可跨；UX 参考（流程/交互）→ 形态匹配必须，行业可跨。
 
@@ -134,7 +140,7 @@
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 选定 DESIGN.md（C 直引）→ design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**。
+**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 选定 DESIGN.md（C 直引）→ design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**。
 
 **退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 
@@ -199,5 +205,11 @@ FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规
 ```
 
 **资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ **logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次：GitHub 源优先，本地存档兜底）**。
+
+**四段校验分层（每层管的东西不同，全跑）**：
+1. **机器层**：`design_audit`（pi 的 design-router extension）跑可机器判定的 slop gates + 色值/emoji/字重/圆角/渐变扫描（合并了环节 4 机器扫描与 hallmark 机器子集）
+2. **品牌层**：Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%）
+3. **视觉层**：hallmark slop-test 58 gates 全量（V 规则·次·软依赖——机器子集已由第 1 层跑，视觉/上下文类由模型按 slop-test.md 自查：gate 6/8/28/29/31/32/35/36/44/45/52-54/56/57）
+4. **UX 层**：design-qa-checklist（导航/状态/反馈可用性）
 
 **退化链**：脚本检查 → 取色器 + 目测 → 三条检查规则人脑执行。

@@ -48,6 +48,8 @@ const SLUG_BY_KEYWORD = [
   ["logo-design-patterns", "logo-generator 设计模式库"],
   ["logo-background-styles", "logo-generator 背景风格库"],
   ["logo-webgl-backgrounds", "logo-generator WebGL"],
+  ["hallmark-anti-patterns", "hallmark anti-patterns 约束集"],
+  ["hallmark-genre-bans", "hallmark genre 允许/禁止清单"],
   // E 执行工具
   ["kami-skill", "kami 技能"],
   ["huashu-design", "huashu-design（HTML 高保真原型"],
@@ -72,6 +74,7 @@ const SLUG_BY_KEYWORD = [
   ["design-qa-checklist", "design-qa-checklist"],
   ["design-research-methods", "设计研究 UX 方法"],
   ["logo-quality-floor", "logo-generator 图形质量底线"],
+  ["hallmark-slop-test", "hallmark slop-test 58 gates"],
 ];
 
 // ---------- 分支 × 环节 → 资源 slug 路由表（来自 SKILL.md 分支表 + workflow.md 环节调用表） ----------
@@ -135,6 +138,9 @@ const ROUTES = {
 
 // logo 场景跨分支附加（环节 2/4 必读）
 const LOGO_EXTRA = { 2: ["logo-design-patterns"], 4: ["logo-quality-floor"] };
+
+// hallmark 去 AI 味跨分支附加（环节 2 前置约束 / 环节 4 验收，软依赖）
+const HALLMARK_EXTRA = { 2: ["hallmark-anti-patterns", "hallmark-genre-bans"], 4: ["hallmark-slop-test"] };
 
 // ---------- markdown 表格解析 ----------
 function parseTableRows(lines) {
@@ -223,12 +229,22 @@ function main() {
     resources,
     routes: ROUTES,
     logoExtra: LOGO_EXTRA,
+    hallmarkExtra: HALLMARK_EXTRA,
+  };
+
+  const manifest = {
+    extensionVersion: "1.1.0",
+    // 转译自的 hallmark 版本（checks/ 的 gate 号语义跟随此版本；上游更新需复核 checks）
+    hallmarkRuleVersion: "1.1.0",
+    designReferencesSource: "skills/design-references @ 26b97f1",
+    registryGenerated: output.generated,
   };
 
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify(output, null, 2) + "\n");
+  writeFileSync(join(HERE, "../data/manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 
-  console.log(`✅ registry.json 生成：${resources.length} 条资源，${Object.keys(ROUTES).length} 个分支路由`);
+  console.log(`✅ registry.json + manifest.json 生成：${resources.length} 条资源，${Object.keys(ROUTES).length} 个分支路由`);
   if (skipped.length) {
     console.log(`⚠️ 未匹配 slug 的资源（${skipped.length}）：`);
     for (const s of skipped) console.log(`   - ${s}`);

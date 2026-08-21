@@ -4,13 +4,28 @@
 
 **关系**：`skills/design-references/` 是跨 6 平台共通真源（推理密集部分）；本 extension 是 **pi 专属增强壳**（确定性部分），互不取代。Hallmark 为上游技能（`~/.pi/agent/skills/hallmark/`），不 fork，机器化规则跟随其版本。
 
-## 安装（分发）
+## 安装（一键脚本）
 
 ```bash
-# 从 my-pi-skills 分发（构建产物含 data/registry.json）
-rsync -a --delete --exclude 'tests/' ~/my-pi-skills/extensions/design-router/ ~/.pi/agent/extensions/design-router/
-# pi 内 /reload 或重启生效
+# 默认：装 pi 平台（extension + 自动补 design-references skill）
+./install-design-router.sh
+
+# 同时安装 hallmark（第三方上游，需显式确认）
+./install-design-router.sh --with-hallmark
+
+# design-references 分发到全部已登记平台（workbuddy/codex/claude/trae-ide/trae-work）
+./install-design-router.sh --all-platforms
 ```
+
+**依赖策略**（讨论结论）：
+
+| 依赖 | 性质 | 安装行为 |
+| --- | --- | --- |
+| extension 本体 | 必装 | 无条件分发；4 工具独立工作，不依赖任何 skill |
+| design-references skill | 自己的资产（共通层） | 缺则**自动补装** |
+| hallmark skill | 第三方上游（nutlope/hallmark） | **只检测提示**，装需 `--with-hallmark` |
+
+版本配套：`data/manifest.json` 记录 extension 版本 / 转译自的 hallmark 规则版本 / design-references 源 / registry 生成日期；`/design-router status` 显示实际 hallmark 版本与转译源是否一致（不一致提示复核 checks）。
 
 ## 工具
 
@@ -24,9 +39,10 @@ rsync -a --delete --exclude 'tests/' ~/my-pi-skills/extensions/design-router/ ~/
 ## 注入（before_agent_start）
 
 - **触发**：prompt 含设计意图（设计/落地页/landing/海报/hallmark/redesign/audit/study 等强词，或 2 个弱词组合）
-- **内容**：完整 hallmark SKILL.md（四动词 + 六条纪律 + 组件/页面分流 + 流程）+ 工具提示
-- **配置**：`config.json` `injectionMode: full | slim`（slim 只注入四动词 + 六条纪律，~2K tokens）
-- **注入源**：`~/.pi/agent/skills/hallmark/SKILL.md`（与已装技能同源，不双份拷贝；hallmark 未装则静默跳过）
+- **内容**：**归位映射（inject-map.md）** + hallmark 完整 SKILL.md（已装时）——五环节为壳，Hallmark 按环节归位为执行细节，不再平行注入两套流程
+- **hallmark 未装**：只注入归位映射 + 一行说明（机器校验工具仍可用）；TOOL_NOTE 的 references 提示按是否安装条件化
+- **配置**：`config.json` `injectionMode: full | slim`（slim 时 hallmark 部分只注入四动词 + 六条纪律）
+- **注入源**：inject-map.md（本目录）+ `~/.pi/agent/skills/hallmark/SKILL.md`（与已装技能同源，不双份拷贝）
 
 ## 维护
 
@@ -40,10 +56,10 @@ node extensions/design-router/tests/self-test.ts
 # 集成验证
 pi -p "调用 design_lookup 工具查询分支 A2 环节 1 的资源，总结返回"
 pi -p "调用 design_audit 工具扫描 <含 slop 的 html>，汇报检出"
-pi -p "帮我设计一个落地页，先回答你收到的 hallmark 纪律与可用工具"  # 验证注入
+pi -p "帮我设计一个落地页，先回答你收到的设计规则骨架与可用工具"  # 验证注入（归位映射）
 ```
 
-**上游跟随**：Hallmark 更新 → 复核 `checks/` 的 gate 号与 `slop-rules.json` 语义；design-references 更新 registry.md → 重跑 build-registry.mjs。
+**上游跟随**：Hallmark 更新 → 复核 `checks/` 的 gate 号与 manifest 的 `hallmarkRuleVersion`；design-references 更新 registry.md → 重跑 build-registry.mjs（同时更新 manifest 的 source/registryGenerated）。
 
 ## 明确不做（边界）
 

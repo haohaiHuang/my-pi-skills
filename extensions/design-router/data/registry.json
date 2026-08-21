@@ -283,6 +283,26 @@
       "slug": "logo-webgl-backgrounds"
     },
     {
+      "name": "hallmark anti-patterns 约束集（反 AI 生成禁忌：默认字体/渐变文字/emoji 图标/编造指标/假 chrome/标题斜体/transition-all/重绘 UI chrome…）",
+      "role": "C",
+      "form": "规则",
+      "level": "次",
+      "scenarios": "网页 / 通用（去 AI 味**前置约束**，环节 2 常驻，产出前转译进约束集）",
+      "fallback": "→ skill 本地文件直读（软依赖，未安装则跳过，靠 Kami 骨架兜底）",
+      "source": "`https://github.com/nutlope/hallmark`（`references/anti-patterns.md` + `typography.md`/`color.md`/`layout-and-space.md`/`motion.md`/`copy.md`）",
+      "slug": "hallmark-anti-patterns"
+    },
+    {
+      "name": "hallmark genre 允许/禁止清单（editorial / modern-minimal / atmospheric / playful 各自的允许项与禁止项）",
+      "role": "C",
+      "form": "规则",
+      "level": "次",
+      "scenarios": "网页 / 通用（按 genre 信号加载对应文件）",
+      "fallback": "→ skill 本地文件直读（软依赖，未安装则跳过）",
+      "source": "`https://github.com/nutlope/hallmark`（`references/genres/*.md`）",
+      "slug": "hallmark-genre-bans"
+    },
+    {
       "name": "kami 技能（WeasyPrint 排版 → HTML/PDF）",
       "role": "E",
       "form": "工具",
@@ -501,6 +521,16 @@
       "fallback": "→ 上游仓库 → 原则人工应用",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md`",
       "slug": "logo-quality-floor"
+    },
+    {
+      "name": "hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项）",
+      "role": "V",
+      "form": "规则",
+      "level": "次",
+      "scenarios": "网页 / 通用（产出后校验；机器可判定子集已由 pi 的 design-router extension 的 design_audit 合并执行）",
+      "fallback": "→ skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底）",
+      "source": "`https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`）",
+      "slug": "hallmark-slop-test"
     }
   ],
   "routes": {
@@ -662,6 +692,15 @@
     ],
     "4": [
       "logo-quality-floor"
+    ]
+  },
+  "hallmarkExtra": {
+    "2": [
+      "hallmark-anti-patterns",
+      "hallmark-genre-bans"
+    ],
+    "4": [
+      "hallmark-slop-test"
     ]
   }
 }

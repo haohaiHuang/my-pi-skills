@@ -111,6 +111,22 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 新增资源前先登记进 registry.md（角色/形态/层级/适用场景/退化链五栏必填），站不住位置的不装；与现有资源同型的不装。
 
+## Hallmark 协同（软依赖增强，未安装不影响本 skill）
+
+**分工**：本 skill 是**路由 + 方法论层**（什么时候用谁、用什么参考、怎么约束）；Hallmark（`https://github.com/nutlope/hallmark`，可选安装）是**执行层**（怎么把参考/约束转成不像 AI 生成的页面）。两者不平行竞争，按环节归位：
+
+| 本 skill 五环节 | Hallmark 资产归位 |
+| --- | --- |
+| 0 意图澄清 | 三问（Audience/Use case/Tone）并入本 skill 问询协议（Tone 补入风格方向问询） |
+| 1 调研定位 | 21 宏结构（形态）+ 4 genre/21 theme（气质）进**统一候选池**，四维匹配分级选择（见 workflow.md 环节 1） |
+| 2 定义约束 | genre/theme 决策 + anti-patterns 禁忌**前置转译进约束集**（C 角色，见 registry hallmark-anti-patterns） |
+| 3 产出 | E 工具产出 + Hallmark build 纪律（enrichment/preview/stamp）+ 六条纪律（含 pre-emit 六轴自评，交付前跑） |
+| 4 校验 | slop-test 58 gates（V 角色）+ 四段校验分层（机器/Kami 三查/Hallmark 视觉/design-qa） |
+
+**选择裁决**：用户显式指令 > 参考驱动（真实产品优先）> Hallmark 形态/气质库 > catalog 静默兜底（仅用户 go ahead 时）。去 AI 味是**两段式**：anti-patterns 进环节 2 约束（前置防线），slop-test 在环节 4 验收（后置闸门）。
+
+**pi 平台配套**：`design-router` extension（my-pi-skills `extensions/design-router/`）提供确定性工具——`design_lookup`（统一候选池查询）/ `design_audit`（机器层校验）/ `design_contrast`（对比度）/ `hallmark_study_fetch`（URL→DNA），并在设计任务时注入本协同说明 + hallmark 完整规则。
+
 ## 数据源
 
 - 资源明细台账：`~/resources/design-references.md`（A-G 浏览视图 + 每条三维标注）

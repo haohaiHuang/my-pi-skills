@@ -82,10 +82,36 @@ function loadHallmarkSkill(): string {
     return "";
   }
 }
+function loadInjectMap(): string {
+  try {
+    return readFileSync(join(baseDir, "inject-map.md"), "utf8");
+  } catch {
+    return "";
+  }
+}
 function slimHallmark(full: string): string {
   const cut = full.indexOf("## Design flow (default)");
   const body = cut > 0 ? full.slice(0, cut) : full.slice(0, 6000);
   return body + "\n\n（slim 模式：只注入四动词表 + 跨动词纪律；完整流程细节按需 read hallmark references/）";
+}
+
+function buildInjection(config: Config): string {
+  const map = loadInjectMap();
+  const hallmark = loadHallmarkSkill();
+  const parts: string[] = [];
+  if (map) parts.push(map);
+  if (hallmark) {
+    parts.push(
+      "\n---\n\n# Hallmark SKILL.md（完整规则，供执行层遵循）\n\n" +
+        (config.injectionMode === "slim" ? slimHallmark(hallmark) : hallmark),
+    );
+  }
+  if (!hallmark) {
+    parts.push(
+      "\n---\n\n[design-router] hallmark skill 未安装（软依赖）：跳过其规则，按上方归位映射 + design-references skill 执行；机器校验仍可用 design_audit / design_contrast。",
+    );
+  }
+  return parts.join("\n");
 }
 
 const TOOL_NOTE = `
@@ -93,9 +119,16 @@ const TOOL_NOTE = `
 · design_lookup <branch> <stage> — 查设计资源注册表（R/C/E/V 三维索引 + 退化链 + 来源）
 · design_audit <target> — 跑 Hallmark 机器化 slop gates + 环节4 扫描，返回带 gate 号的 punch list（只读）
 · design_contrast <target> — APCA/WCAG 对比度计算
-· hallmark_study_fetch <url> — 抓取页面提取 DNA 草稿（字体/色值/间距/结构信号），DNA 判定读 hallmark references/study.md
-完整细节按需 read ~/.pi/agent/skills/hallmark/references/（slop-test.md / anti-patterns.md / study.md 等）
+· hallmark_study_fetch <url> — 抓取页面提取 DNA 草稿（字体/色值/间距/结构信号）
 `;
+
+function toolNoteWithDetails(): string {
+  const hallmark = loadHallmarkSkill();
+  const detailLine = hallmark
+    ? "完整细节按需 read ~/.pi/agent/skills/hallmark/references/（slop-test.md / anti-patterns.md / study.md 等）"
+    : "规则细节按 design-references skill（references/registry.md + workflow.md）执行";
+  return TOOL_NOTE + detailLine + "\n";
+}
 
 // ---------- 设计任务检测 ----------
 const STRONG_HINTS = [
@@ -202,6 +235,7 @@ export default function (pi: ExtensionAPI) {
       const slugs = [
         ...(registry.routes[branch][stage] || []),
         ...(registry.logoExtra[stage] || []),
+        ...(registry.hallmarkExtra?.[stage] || []),
       ];
       const hits = slugs
         .map((slug) => registry.resources.find((r) => r.slug === slug))
@@ -331,13 +365,12 @@ export default function (pi: ExtensionAPI) {
   // ---- Hallmark 常驻注入（设计任务触发） ----
   pi.on("before_agent_start", async (event) => {
     if (!event.prompt || !isDesignTask(event.prompt)) return;
-    const full = loadHallmarkSkill();
-    if (!full) return; // hallmark 未安装，静默跳过
-    const injected = config.injectionMode === "slim" ? slimHallmark(full) : full;
+    const injected = buildInjection(config);
+    if (!injected.trim()) return; // 注入源全部缺失，静默
     return {
       message: {
         customType: "design-router",
-        content: injected + TOOL_NOTE,
+        content: injected + "\n\n" + toolNoteWithDetails(),
         display: true,
       },
     };
@@ -360,21 +393,30 @@ export default function (pi: ExtensionAPI) {
       // status（默认）
       const registry = loadRegistry();
       const cfg = loadConfig();
+      let manifest: Record<string, string> = {};
+      try {
+        manifest = JSON.parse(readFileSync(join(baseDir, "data/manifest.json"), "utf8"));
+      } catch {
+        /* 无 manifest */
+      }
       const hallmarkInstalled = (() => {
         try {
-          readFileSync(HALLMARK_SKILL, "utf8");
-          return true;
+          return readFileSync(HALLMARK_SKILL, "utf8");
         } catch {
-          return false;
+          return "";
         }
       })();
+      const hallmarkVer = hallmarkInstalled.match(/^version:\s*(.+)$/m)?.[1]?.trim() || "?";
+      const expected = manifest.hallmarkRuleVersion || "?";
+      const verMatch = hallmarkInstalled && (expected === "?" || hallmarkVer === expected);
       const lines = [
         "design-router 状态",
-        `· 注入模式: ${cfg.injectionMode}（config.json 可改 full/slim）`,
+        `· 注入模式: ${cfg.injectionMode}（config.json 可改 full/slim；注入 = 归位映射 inject-map.md + hallmark SKILL.md）`,
         `· registry: ${registry.resources.length} 条资源 / ${Object.keys(registry.routes).length} 个分支路由（data/registry.json）`,
-        `· hallmark skill: ${hallmarkInstalled ? "已安装" : "未安装（注入会静默跳过）"} ${HALLMARK_SKILL}`,
+        `· 版本配套: extension ${manifest.extensionVersion || "?"} · 规则转译自 hallmark ${expected} · registry 生成 ${manifest.registryGenerated || "?"}`,
+        `· hallmark 实际: ${hallmarkInstalled ? "已安装 " + hallmarkVer : "未安装（软依赖，注入跳过 hallmark 部分，工具照常）"}${hallmarkInstalled && !verMatch ? " ⚠️ 版本与转译源不一致（${hallmarkVer} vs ${expected}），checks 规则可能需复核" : ""}`,
+        `· design-references skill: ${loadInjectMap() ? "注入映射就绪" : "inject-map.md 缺失"}`,
         `· 检查器: typography / layout / a11y / copy / contrast（design_audit 全跑，design_contrast 单跑）`,
-        `· study: hallmark_study_fetch（URL 模式）`,
         `· 触发词: 设计/落地页/landing/海报/hallmark/redesign/audit/study 等`,
       ];
       ctx.ui.notify(lines.join("\n"), "info");
