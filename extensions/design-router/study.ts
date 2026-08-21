@@ -169,5 +169,3 @@ export async function fetchDna(url: string, signal?: AbortSignal): Promise<DnaDr
 export function dnaSelfTest(): boolean {
   return typeof fetchDna === "function";
 }
-
-export type { AuditFile };

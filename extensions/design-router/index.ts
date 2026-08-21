@@ -191,6 +191,19 @@ function readAuditFiles(paths: string[]): AuditFile[] {
     .filter((f): f is AuditFile => f !== null);
 }
 
+/** 读目标文件/目录 → { files, paths, error }（两工具共用，错误文案统一） */
+function readTargetFiles(target: string): { files: AuditFile[]; paths: string[]; error?: string } {
+  const abs = resolve(target);
+  let paths: string[];
+  try {
+    paths = collectFiles(abs);
+  } catch (e) {
+    return { files: [], paths: [], error: `无法读取 ${target}：${(e as Error).message}` };
+  }
+  if (paths.length === 0) return { files: [], paths: [], error: `目标下无前端文件（html/css/js/tsx/vue）：${target}` };
+  return { files: readAuditFiles(paths), paths };
+}
+
 const VISUAL_GATES_NOTE =
   "以下 gates 需视觉/上下文判定，机器无法覆盖，请模型按 hallmark references/slop-test.md 自查：6（hero 居中）、8（结构指纹）、28/29/31（enrichment）、32（diversification knob）、35/36（装饰/基线）、44/45（hero 折叠/无意义装饰）、52-54（响应式 section-head/radio/eyebrow 列）、56（sticky 重叠）、57（studied-DNA 丢弃）。";
 
@@ -201,7 +214,8 @@ function formatFindings(findings: Finding[], showVisualNote: boolean): string {
   const bySeverity = { error: 0, warn: 0, info: 0 };
   for (const f of findings) bySeverity[f.severity]++;
   const lines = [`检出 ${findings.length} 项（error ${bySeverity.error} / warn ${bySeverity.warn} / info ${bySeverity.info}）：`, ""];
-  const sorted = [...findings].sort((a, b) => (a.severity === "error" ? -1 : a.severity === "warn" ? 0 : 1) - (b.severity === "error" ? -1 : b.severity === "warn" ? 0 : 1) || a.gate.localeCompare(b.gate));
+  const SEV_ORDER = { error: -1, warn: 0, info: 1 } as const;
+  const sorted = [...findings].sort((a, b) => SEV_ORDER[a.severity] - SEV_ORDER[b.severity] || a.gate.localeCompare(b.gate));
   for (const f of sorted) {
     const icon = f.severity === "error" ? "🔴" : f.severity === "warn" ? "🟡" : "🔵";
     lines.push(`${icon} [gate ${f.gate}] ${f.message}  ${f.location}`);
@@ -244,15 +258,13 @@ function localLedgerLayer(query: string): ResearchLayer {
 }
 
 /** refero 层：网页浏览 styles.refero.design（免费；SPA 需浏览器，pi 用 ego-browser） */
-async function referoWebLayer(): Promise<ResearchLayer> {
-  return {
-    name: "refero Styles 网站（真实产品设计系统，免费网页版）",
-    evidence: "https://styles.refero.design/",
-    result:
-      "✅ 可浏览（SPA，需浏览器——pi 平台用 ego-browser 打开 styles.refero.design 搜同品类产品/风格词）。" +
-      "浏览到的产品设计系统信息转译成约束；浏览器不可用时降级到 web 搜索层。",
-  };
-}
+const referoWebLayer: ResearchLayer = {
+  name: "refero Styles 网站（真实产品设计系统，免费网页版）",
+  evidence: "https://styles.refero.design/",
+  result:
+    "✅ 可浏览（SPA，需浏览器——pi 平台用 ego-browser 打开 styles.refero.design 搜同品类产品/风格词）。" +
+    "浏览到的产品设计系统信息转译成约束；浏览器不可用时降级到 web 搜索层。",
+};
 
 /** web 搜索层：tvly CLI（tavily） */
 async function webSearchLayer(query: string): Promise<ResearchLayer> {
@@ -281,12 +293,7 @@ export default function (pi: ExtensionAPI) {
     }),
     async execute(_toolCallId, params: { branch: string; query: string }, signal, _onUpdate, _ctx) {
       const query = params.query.trim();
-      const layers: ResearchLayer[] = [localLedgerLayer(query)];
-      try {
-        layers.push(await referoWebLayer());
-      } catch {
-        layers.push({ name: "refero Styles 网站", evidence: "https://styles.refero.design/", result: "❌ 层异常" });
-      }
+      const layers: ResearchLayer[] = [localLedgerLayer(query), referoWebLayer];
       try {
         layers.push(await webSearchLayer(`${query} product website`));
       } catch {
@@ -371,17 +378,8 @@ export default function (pi: ExtensionAPI) {
       target: Type.String({ description: "文件或目录路径（目录会递归收集 html/css/js/tsx/vue 等）" }),
     }),
     async execute(_toolCallId, params: { target: string }, _signal, _onUpdate, ctx) {
-      const target = resolve(params.target);
-      let paths: string[];
-      try {
-        paths = collectFiles(target);
-      } catch (e) {
-        return { content: [{ type: "text", text: `无法读取 ${target}：${(e as Error).message}` }], details: {}, isError: true };
-      }
-      if (paths.length === 0) {
-        return { content: [{ type: "text", text: `目标下无前端文件（html/css/js/tsx/vue）：${target}` }], details: {}, isError: true };
-      }
-      const files = readAuditFiles(paths);
+      const { files, paths, error } = readTargetFiles(params.target);
+      if (error) return { content: [{ type: "text", text: error }], details: {}, isError: true };
       const findings = [
         ...runTypographyChecks(files),
         ...runLayoutChecks(files),
@@ -406,14 +404,8 @@ export default function (pi: ExtensionAPI) {
       target: Type.String({ description: "CSS/HTML 文件或目录路径" }),
     }),
     async execute(_toolCallId, params: { target: string }, _signal, _onUpdate, _ctx) {
-      const target = resolve(params.target);
-      let paths: string[];
-      try {
-        paths = collectFiles(target);
-      } catch (e) {
-        return { content: [{ type: "text", text: `无法读取 ${target}：${(e as Error).message}` }], details: {}, isError: true };
-      }
-      const files = readAuditFiles(paths);
+      const { files, paths, error } = readTargetFiles(params.target);
+      if (error) return { content: [{ type: "text", text: error }], details: {}, isError: true };
       const findings = runContrastChecks(files);
       if (findings.length === 0) {
         return { content: [{ type: "text", text: "✅ 未检出低于 4.5:1 的显式 color/background 配对（或无可配对声明，需人工核对继承链）。" }], details: { files: paths.length } };
