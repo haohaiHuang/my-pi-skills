@@ -29,9 +29,10 @@ import { runCopyChecks } from "./checks/copy.ts";
 import { runContrastChecks } from "./checks/contrast.ts";
 import { fetchDna } from "./study.ts";
 
+const execFileAsync = promisify(execFile);
+
 declare const __dirname: string | undefined;
 
-const execFileAsync = promisify(execFile);
 const baseDir =
   typeof __dirname === "string" && __dirname ? __dirname : dirname(fileURLToPath(import.meta.url));
 
@@ -116,6 +117,7 @@ function buildInjection(config: Config): string {
 
 const TOOL_NOTE = `
 [design-router] 本会话可用确定性设计工具，按需调用：
+· design_research <branch> <query> — 【环节 1 必用】确定性调研：本地台账 → refero 探测 → web 搜索，返回带证据来源的真实候选池，禁止仅凭内建知识选风格
 · design_lookup <branch> <stage> — 查设计资源注册表（R/C/E/V 三维索引 + 退化链 + 来源）
 · design_audit <target> — 跑 Hallmark 机器化 slop gates + 环节4 扫描，返回带 gate 号的 punch list（只读）
 · design_contrast <target> — APCA/WCAG 对比度计算
@@ -205,9 +207,117 @@ function formatFindings(findings: Finding[], showVisualNote: boolean): string {
   return lines.join("\n");
 }
 
+// ---------- design_research: 环节 1 确定性调研 ----------
+const LEDGER = join(process.env.HOME || "", "resources/design-references.md");
+const REFERO_MCP = "https://api.refero.design/mcp";
+
+interface ResearchLayer {
+  name: string;
+  evidence: string;
+  result: string;
+}
+
+/** 本地台账：按关键词抽条目（按 ## 分类分组，只返回命中行附近内容） */
+function localLedgerLayer(query: string): ResearchLayer {
+  try {
+    const text = readFileSync(LEDGER, "utf8");
+    const lines = text.split("\n");
+    const hits: string[] = [];
+    let category = "";
+    for (const line of lines) {
+      if (/^## /.test(line)) category = line.replace(/^## /, "").trim();
+      if (/^### /.test(line) && line.toLowerCase().includes(query.toLowerCase())) {
+        const next = lines[lines.indexOf(line) + 1] || "";
+        hits.push(`- [${category}] ${line.replace(/^### /, "").trim()} ${next.trim().slice(0, 80)}`);
+      }
+    }
+    return {
+      name: "本地台账（用户精选资产）",
+      evidence: LEDGER,
+      result: hits.length ? hits.slice(0, 6).join("\n") : "（无关键词命中条目；可人工查看全文按需调用）",
+    };
+  } catch {
+    return { name: "本地台账（用户精选资产）", evidence: LEDGER, result: "（台账不存在）" };
+  }
+}
+
+/** refero 探测：HTTP MCP tools/list，判定订阅状态（extension 无 MCP client，直连 HTTP） */
+async function referoProbeLayer(): Promise<ResearchLayer> {
+  const base = { name: "refero MCP（真实产品设计系统）", evidence: REFERO_MCP };
+  try {
+    const res = await fetch(REFERO_MCP, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
+      signal: AbortSignal.timeout(6000),
+    });
+    const data = (await res.json()) as { result?: { tools?: unknown[] }; error?: { code?: string; message?: string } };
+    if (res.ok && data.result?.tools?.length) {
+      return { ...base, result: `✅ 可用（${data.result.tools.length} 个工具）。下一步：调用 refero_refero_search_styles 取真实风格 / refero_refero_search_screens 取真实界面。` };
+    }
+    if (data.error?.code === "NO_SUBSCRIPTION") {
+      return { ...base, result: "❌ 订阅过期（NO_SUBSCRIPTION）。需 https://refero.design/mcp/upgrade 续费；当前降级到 web 搜索层。" };
+    }
+    return { ...base, result: `❌ 不可用（HTTP ${res.status}：${data.error?.message || res.statusText}）。降级到 web 搜索层。` };
+  } catch (e) {
+    return { ...base, result: `❌ 网络不可达（${(e as Error).message}）。降级到 web 搜索层。` };
+  }
+}
+
+/** web 搜索层：tvly CLI（tavily） */
+async function webSearchLayer(query: string): Promise<ResearchLayer> {
+  const base = { name: "web 搜索（tavily）", evidence: "tvly CLI" };
+  try {
+    const { stdout } = await execFileAsync("tvly", ["search", query, "--max-results", "6", "--depth", "basic"], { timeout: 20000 });
+    return { ...base, result: stdout.trim().slice(0, 3000) || "（无结果）" };
+  } catch {
+    return { ...base, result: "❌ tvly 不可用。所有外部层失败——才允许声明'无真实参考可查'并按 Kami 骨架执行。" };
+  }
+}
+
 // ======================================================================
 export default function (pi: ExtensionAPI) {
   const config = loadConfig();
+
+  // ---- design_research - 环节 1 确定性调研 ----
+  pi.registerTool({
+    name: "design_research",
+    label: "Design Research",
+    description:
+      "环节 1 调研的确定性工具（设计任务必用）：自动走退化链（本地台账 → refero MCP 探测 → web 搜索）返回真实候选池 + 证据来源。规则：设计任务的风格候选必须来自本工具输出，禁止仅凭模型内建知识直接选风格；本工具所有外部层都失败时，才允许声明'无真实参考可查'并按 Kami 骨架执行。",
+    parameters: Type.Object({
+      branch: Type.String({ description: "场景分支：A1(APP)/A2(网页)/A3(Mac)/B1(海报)/B2(杂志插图)/B3(PPT)/C1(组件素材)/C2(动效)/C3(文档排版)" }),
+      query: Type.String({ description: "调研主题：产品/行业/品类描述（如 'API 可观测性 SaaS'、'咖啡品牌官网'、'在线课程平台'），web 层会原样用于搜索" }),
+    }),
+    async execute(_toolCallId, params: { branch: string; query: string }, signal, _onUpdate, _ctx) {
+      const query = params.query.trim();
+      const layers: ResearchLayer[] = [localLedgerLayer(query)];
+      try {
+        layers.push(await referoProbeLayer());
+      } catch {
+        layers.push({ name: "refero MCP", evidence: REFERO_MCP, result: "❌ 探测异常" });
+      }
+      try {
+        layers.push(await webSearchLayer(`${query} product website`));
+      } catch {
+        layers.push({ name: "web 搜索（tavily）", evidence: "tvly CLI", result: "❌ 搜索异常" });
+      }
+      const lines = [
+        `## design_research 候选池（${params.branch}）`,
+        "",
+        "**规则**：候选必须来自下列输出并标注证据来源；全部外部层失败才允许声明无真实参考、按 Kami 骨架执行。禁止用内建知识冒充调研结果。",
+        "",
+      ];
+      for (const layer of layers) {
+        lines.push(`### ${layer.name}`, `证据: ${layer.evidence}`, layer.result, "");
+      }
+      lines.push("**下一步**：从候选里选 2-3 个真实方向（标注形态/气质/行业/防重四维 + 证据来源），展示给用户选。refero 可用时优先用 refero 取 DESIGN.md/风格详情。");
+      return {
+        content: [{ type: "text", text: lines.join("\n") }],
+        details: { branch: params.branch, layers: layers.map((l) => l.name) },
+      };
+    },
+  });
 
   // ---- design_lookup ----
   pi.registerTool({
