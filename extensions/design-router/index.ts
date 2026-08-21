@@ -274,7 +274,7 @@ export default function (pi: ExtensionAPI) {
     name: "design_research",
     label: "Design Research",
     description:
-      "环节 1 调研的确定性工具（设计任务必用）：自动走退化链（本地台账 → refero MCP 探测 → web 搜索）返回真实候选池 + 证据来源。规则：设计任务的风格候选必须来自本工具输出，禁止仅凭模型内建知识直接选风格；本工具所有外部层都失败时，才允许声明'无真实参考可查'并按 Kami 骨架执行。",
+      "环节 1 调研的确定性工具（设计任务必用）：自动走退化链（本地台账 → refero Styles 网站网页浏览 → tvly web 搜索）返回真实候选池 + 证据来源。规则：设计任务的风格候选必须来自本工具输出，禁止仅凭模型内建知识直接选风格；本工具所有外部层都失败时，才允许声明'无真实参考可查'并按 Kami 骨架执行。",
     parameters: Type.Object({
       branch: Type.String({ description: "场景分支：A1(APP)/A2(网页)/A3(Mac)/B1(海报)/B2(杂志插图)/B3(PPT)/C1(组件素材)/C2(动效)/C3(文档排版)" }),
       query: Type.String({ description: "调研主题：产品/行业/品类描述（如 'API 可观测性 SaaS'、'咖啡品牌官网'、'在线课程平台'），web 层会原样用于搜索" }),
@@ -401,7 +401,7 @@ export default function (pi: ExtensionAPI) {
     name: "design_contrast",
     label: "Design Contrast",
     description:
-      "对目标 CSS/HTML 计算 color/background 配对对比度（WCAG 2.1 为主 + APCA 近似参考）。检出 <4.5:1 的文本对（大字/图标按 3:1 人工放宽）与 ink-on-ink（文字≈填充）。支持 hex/rgb/hsl/oklch/一层 CSS 变量。",
+      "对目标 CSS/HTML 计算 color/background 配对对比度（WCAG 2.1 为主 + APCA 近似参考），含继承链配对（.card 背景 + .card h2 文字）。检出 <4.5:1 的文本对（大字/图标按 3:1 人工放宽）与 ink-on-ink（文字≈填充）。支持 hex/rgb/hsl/oklch/一层 CSS 变量。",
     parameters: Type.Object({
       target: Type.String({ description: "CSS/HTML 文件或目录路径" }),
     }),
@@ -518,7 +518,7 @@ export default function (pi: ExtensionAPI) {
         `· 版本配套: extension ${manifest.extensionVersion || "?"} · 规则转译自 hallmark ${expected} · registry 生成 ${manifest.registryGenerated || "?"}`,
         `· hallmark 实际: ${hallmarkInstalled ? "已安装 " + hallmarkVer : "未安装（软依赖，注入跳过 hallmark 部分，工具照常）"}${hallmarkInstalled && !verMatch ? " ⚠️ 版本与转译源不一致（${hallmarkVer} vs ${expected}），checks 规则可能需复核" : ""}`,
         `· design-references skill: ${loadInjectMap() ? "注入映射就绪" : "inject-map.md 缺失"}`,
-        `· 检查器: typography / layout / a11y / copy / contrast（design_audit 全跑，design_contrast 单跑）`,
+        `· 检查器: typography / layout / a11y / copy / contrast / cheat（design_audit 全跑，design_contrast 单跑 contrast）`,
         `· 触发词: 设计/落地页/landing/海报/hallmark/redesign/audit/study 等`,
       ];
       ctx.ui.notify(lines.join("\n"), "info");

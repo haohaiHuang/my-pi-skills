@@ -31,9 +31,10 @@
 
 | 工具 | 作用 |
 | --- | --- |
+| `design_research <branch> <query>` | **环节 1 必用**：确定性调研退化链（本地台账 → refero 网站 → tvly web 搜索），候选带证据来源，禁止内建知识冒充 |
 | `design_lookup <branch> <stage>` | 查 registry 三维索引（R/C/E/V × 主/次/兜底 + 退化链 + 来源）。分支 A1/A2/A3/B1/B2/B3/C1/C2/C3，环节 1-4 |
-| `design_audit <target>` | 合并 Hallmark 机器化 gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51）+ 环节4 扫描 → 带 gate 号 punch list，只读 |
-| `design_contrast <target>` | WCAG 2.1（主判）+ APCA 近似（参考）对比度扫描，支持 hex/rgb/hsl/oklch/一层 CSS 变量 |
+| `design_audit <target>` | 合并 Hallmark 机器化 gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51）+ interfaces CS-* 8 条 + 环节4 扫描 + 继承链对比度 → 带 gate 号 punch list，只读 |
+| `design_contrast <target>` | WCAG 2.1（主判）+ APCA 近似（参考）对比度扫描，支持 hex/rgb/hsl/oklch/一层 CSS 变量 + 继承链配对（选择器包含匹配） |
 | `hallmark_study_fetch <url>` | 抓取 HTML/CSS 提取 DNA 草稿（字体/色值/间距/结构信号）。DNA 判定由模型读 `hallmark references/study.md` |
 
 ## 注入（before_agent_start）

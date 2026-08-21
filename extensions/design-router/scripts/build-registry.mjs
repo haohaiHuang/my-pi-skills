@@ -11,6 +11,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_SRC = join(HERE, "../../../skills/design-references/references/registry.md");
@@ -237,11 +238,19 @@ function main() {
     cheatExtra: CHEAT_EXTRA,
   };
 
+  // design-references 源 commit：优先 git 读取，失败回退写死值
+  let drCommit = "26b97f1";
+  try {
+    drCommit = execSync("git rev-parse --short HEAD", { cwd: join(HERE, "../../..") }).toString().trim();
+  } catch {
+    /* 非 git 环境，用回退值 */
+  }
+
   const manifest = {
     extensionVersion: "1.1.0",
     // 转译自的 hallmark 版本（checks/ 的 gate 号语义跟随此版本；上游更新需复核 checks）
     hallmarkRuleVersion: "1.1.0",
-    designReferencesSource: "skills/design-references @ 26b97f1",
+    designReferencesSource: `skills/design-references @ ${drCommit}`,
     registryGenerated: output.generated,
   };
 

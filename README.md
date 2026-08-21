@@ -17,6 +17,8 @@ skills/                    Original skills (each with SKILL.md)
   design-references/       Design reference index
   skill-router/            Skill advisor + inventory (scripts/catalog.sh)
   vision/                  Image-to-text
+extensions/                Pi-only capability layer (确定性工具壳，pi 专属)
+  design-router/           design-references 确定性工具化 + hallmark 注入（5 工具，见其 README）
 resources/                 External assets / companion tools
   design-references.md     Asset catalog for design-references (SKILL.md is just the entry)
   vision-cli               Cross-platform CLI for vision (put on PATH, e.g. ~/.local/bin)
@@ -24,6 +26,11 @@ docs/                      Generic docs
   skill-sync-map.md        Multi-platform skill distribution methodology (template)
   inventory.example.md     Per-machine inventory template (actual inventories live in a private repo)
 ```
+
+## 安装
+
+- 技能分发到各平台：`./install.sh [目标 skills 目录]`（默认 `~/.pi/agent/skills`）
+- pi 专属 extension：`./install-design-router.sh`（含 design-references 自动补装；hallmark 需 `--with-hallmark` 显式确认）
 
 > Skills with a GitHub upstream (mattpocock, lark-*, etc.) install from their own upstream, not this repo.
 
@@ -33,7 +40,7 @@ docs/                      Generic docs
 
 **When**: UI / visual / style / motion tasks (landing pages, AI panels, PPT, components, styling).
 
-**How**: say "build a landing page in the style of X" / "reference beautifului's AI panel patterns" — the agent first consults `~/resources/design-references.md` and reuses real resources instead of improvising; deep design tasks also leverage `refero-design`, `motion-dev-animations`, etc.
+**How**: say "build a landing page in the style of X" / "reference beautifului's AI panel patterns" — the agent first consults `~/resources/design-references.md` and reuses real resources instead of improvising; deep design tasks also leverage refero Styles 网站（网页浏览）/ hallmark / motion-dev-animations 等。pi 平台由 `extensions/design-router` 提供确定性工具（design_research/design_lookup/design_audit/design_contrast/hallmark_study_fetch）。
 
 Keywords: design reference, style library, "in the style of X", landing page, AI panel.
 
