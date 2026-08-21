@@ -3,13 +3,13 @@
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
-      "name": "refero MCP / refero-design skill（真实产品 DESIGN.md，150K+ 屏幕）",
+      "name": "refero Styles 网站（真实产品设计系统，150K+ 屏幕，网页浏览）",
       "role": "R",
-      "form": "直引",
+      "form": "转译",
       "level": "主",
       "scenarios": "APP / 网页 / Mac",
-      "fallback": "→ 用户参考库候选池（台账+registry）→ styles.refero.design 网站 → web_search",
-      "source": "skill 仓库 `https://github.com/referodesign/refero_skill`；MCP `https://api.refero.design/mcp`；网站 `https://styles.refero.design/`",
+      "fallback": "→ 用户参考库候选池（台账+registry）→ web_search",
+      "source": "网站 `https://styles.refero.design/`（SPA，需浏览器浏览——pi 平台用 ego-browser / 其他平台 WebFetch 或人工）",
       "slug": "refero-design"
     },
     {
@@ -218,8 +218,8 @@
       "form": "直引",
       "level": "主",
       "scenarios": "APP / 网页 / Mac",
-      "fallback": "→ refero 在线拿 / getdesign.md",
-      "source": "refero MCP（见上）；`https://getdesign.md/`",
+      "fallback": "→ refero 网站网页浏览拿 / getdesign.md",
+      "source": "refero 网站（见上）；`https://getdesign.md/`",
       "slug": "design-md"
     },
     {

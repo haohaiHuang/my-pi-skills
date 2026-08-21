@@ -15,7 +15,7 @@
 
 | 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
 | --- | --- | --- | --- | --- | --- |
-| refero MCP / refero-design skill（真实产品 DESIGN.md，150K+ 屏幕） | 直引 | 主 | APP / 网页 / Mac | → 用户参考库候选池（台账+registry）→ styles.refero.design 网站 → web_search | skill 仓库 `https://github.com/referodesign/refero_skill`；MCP `https://api.refero.design/mcp`；网站 `https://styles.refero.design/` |
+| refero Styles 网站（真实产品设计系统，150K+ 屏幕，网页浏览） | 转译 | 主 | APP / 网页 / Mac | → 用户参考库候选池（台账+registry）→ web_search | 网站 `https://styles.refero.design/`（SPA，需浏览器浏览——pi 平台用 ego-browser / 其他平台 WebFetch 或人工） |
 | Zine 风格库（52 个 AI 海报技能风格配方） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） | 本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary` |
 | VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → getdesign.md 官网 | `https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/` |
 | Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://www.beautifului.ai/` |
@@ -41,7 +41,7 @@
 | Kami 约束骨架（十条不变量 + 设计令牌） | 规则 | 主 | 通用排版（所有场景常驻） | → Kami 轻量版 README → 十条不变量心法手动应用 | 本地目录 `~/Desktop/Design/kami-design-principles/`（README.md + design-tokens.css，自 kami 技能 references/design.md 提取） |
 | Kami 完整设计规范 | 规则 | 主 | 文档 / 网页 | → 本地文件直读（无退化） | skill 仓库 `https://github.com/tw93/Kami`（规范在 `references/design.md`） |
 | Zine 风格族配方（从风格库提炼的色板/质感/排版规律） | 转译 | 主 | 海报 / 杂志 | → style-families.md 直读 | 本地 `~/Desktop/Design/zine-style-references/style-families.md`（⚠️ 该文件是提炼资产，可能未生成——需要时从上游 52 skill README 提炼） |
-| DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 在线拿 / getdesign.md | refero MCP（见上）；`https://getdesign.md/` |
+| DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 网站网页浏览拿 / getdesign.md | refero 网站（见上）；`https://getdesign.md/` |
 | design-md-skill（Google spec 生成器） | 工具 | 主 | APP / 网页 / Mac（约束生成） | → 手动写约束集（遵循 workflow.md 格式） | skill 仓库 `https://github.com/s-a-s-k-i-a/design-md-skill`；CLI `@google/design.md`（npm） |
 | huashu-design 设计哲学（20 条，含反 AI slop） | 规则 | 次 | 网页 / 通用 | → 技能本地文件 | skill 仓库 `https://github.com/alchaincyf/huashu-design` |
 | brand-guidelines / theme-factory（anthropics） | 规则 | 兜底 | 通用 | → 手动应用品牌准则 | `https://github.com/anthropics/skills` |

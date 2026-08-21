@@ -50,7 +50,7 @@
 **动作序列**：
 
 1. **盘点已有资产**（承接环节 0）：项目已有设计系统 → 它就是主参考，外部参考只做增强；无系统才从零调研
-2. **硬调研步骤（pi 平台：必须调用 `design_research <branch> <query>`；其他平台：等效确定性调研）**：先跑确定性调研取候选池——本地台账 → refero MCP 探测 → web 搜索，每层带**证据来源**。**禁止仅凭模型内建知识直接选风格**——候选必须来自调研输出并标注证据；所有外部层失败才允许声明"无真实参考可查"并按 Kami 骨架执行。
+2. **硬调研步骤（pi 平台：必须调用 `design_research <branch> <query>`；其他平台：等效确定性调研）**：先跑确定性调研取候选池——本地台账 → refero 网站（网页浏览） → web 搜索，每层带**证据来源**。**禁止仅凭模型内建知识直接选风格**——候选必须来自调研输出并标注证据；所有外部层失败才允许声明"无真实参考可查"并按 Kami 骨架执行。
 3. **统一候选池（优先于一切外部搜索；真实产品 + Hallmark 形态/气质库同池）**：在 design_research 输出的真实候选基础上，补 Hallmark 组合候选：
    - **真实产品参考**：`~/resources/design-references.md`（台账）+ `references/registry.md` 按场景筛 2-3 个；用户指定风格则直引对应资源。**用户精选资产永远在外部随机搜索结果之前。**
    - **Hallmark 形态/气质库**（软依赖，已装 hallmark 时可用）：21 宏结构 = **形态**维度（页面形状：Bento/Stat-Led/Manifesto…）；4 genre + 21 theme = **气质**维度（editorial/modern-minimal/atmospheric/playful + 具体配色字体）。作为预打包的"形态+气质"实例进同池。
@@ -62,7 +62,7 @@
    - Spacing / Radius / Shadow → 具体数值档位
    - Do / Don't → 全清单逐条记录
    缺一个 section 就不算调研完，补完才进候选展示
-5. 分支 A：refero 搜同品类真实产品 → 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情
+5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情
 6. **搜索失败时走决策树**（见下方「搜索失败决策框架」）
 7. 每个候选记录 token 草稿 + 理由（供环节 2 直接消费）
 8. **候选验证（pi 平台硬步骤：对选中的 2-3 个候选逐一 `hallmark_study_fetch <url>`；其他平台：WebFetch 或人工核对）**：拿真实字体/色值/间距/结构信号。验证成功 → 该候选可"直引"（萃取具体数值进约束）；验证失败/抓不到 → 标注"未验证"，只能"属性级借用"（如"暗色仪表盘式"），禁止把未验证候选当直引参考。验证结果一并展示给用户。
@@ -71,7 +71,7 @@
 **产物格式**：
 
 ```
-候选1: {来源: 用户参考库/refero/Linear | 气质: 极简 | token草稿: 色#4F46E5系/Inter/间距4pt | 理由: 同品类标杆 | 与已有资产匹配度: 高/中/低}
+候选1: {来源: 用户参考库/refero网站/Linear | 气质: 极简 | token草稿: 色#4F46E5系/Inter/间距4pt | 理由: 同品类标杆 | 与已有资产匹配度: 高/中/低}
 候选2: {...}
 ```
 
@@ -111,11 +111,11 @@
 
 | 分支 | 主 | 次 | 兜底 |
 | --- | --- | --- | --- |
-| A | 用户参考库候选池（台账+registry）→ refero-design（MCP） | Beautiful UI（A1）/ Aceternity（A2） | minimal.gallery |
+| A | 用户参考库候选池（台账+registry）→ refero Styles 网站（网页浏览） | Beautiful UI（A1）/ Aceternity（A2） | minimal.gallery |
 | B | Zine 风格库（本地） | orange-line-illustration | web_search |
 | C | 不跑本环节 | — | — |
 
-**退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ refero-design skill → styles.refero.design 网站 → Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
+**退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ refero Styles 网站（网页浏览）→ Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
 
 ---
 
@@ -141,7 +141,7 @@
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 选定 DESIGN.md（C 直引）→ design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**。
+**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**。
 
 **退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 

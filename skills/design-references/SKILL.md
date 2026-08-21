@@ -33,8 +33,8 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 | 产品阶段 | 环节子集 | 技能/参考调用 |
 | --- | --- | --- |
-| 探索期（需求→概念） | 0 + 1 | refero-design（R 主）+ Beautiful UI（A1）/ minimal（兜底） |
-| 定义期（方案→设计） | 0 + 1 + 2 | Kami 骨架（C 常驻）+ refero DESIGN.md（直引）+ design-md-skill（A1 约束生成） |
+| 探索期（需求→概念） | 0 + 1 | refero Styles 网站（网页浏览）+ Beautiful UI（A1）/ minimal（兜底） |
+| 定义期（方案→设计） | 0 + 1 + 2 | Kami 骨架（C 常驻）+ refero 网站 DESIGN.md（直引·网页浏览）+ design-md-skill（A1 约束生成） |
 | 执行期（开发→迭代） | 3（+2 按需） | kami / huashu-design / Figma 家族 / motion |
 | 评估期（验收→反馈） | 4 → 回 2 | Kami 三查 + design-qa-checklist + huashu 5 维 |
 
@@ -132,4 +132,4 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 - 资源明细台账：`~/resources/design-references.md`（A-G 浏览视图 + 每条三维标注）
 - 资源三维索引：`references/registry.md`（角色 × 形态 × 层级 + 退化链）
 - 环节操作手册：`references/workflow.md`
-- 深度方法论：`refero-design` skill（styles/screens/flows，MCP 已配置）
+- 深度方法论：`refero Styles 网站`（https://styles.refero.design/，网页浏览取真实产品设计系统；SPA 需浏览器——pi 平台用 ego-browser）

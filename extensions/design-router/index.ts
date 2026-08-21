@@ -209,7 +209,6 @@ function formatFindings(findings: Finding[], showVisualNote: boolean): string {
 
 // ---------- design_research: 环节 1 确定性调研 ----------
 const LEDGER = join(process.env.HOME || "", "resources/design-references.md");
-const REFERO_MCP = "https://api.refero.design/mcp";
 
 interface ResearchLayer {
   name: string;
@@ -241,27 +240,15 @@ function localLedgerLayer(query: string): ResearchLayer {
   }
 }
 
-/** refero 探测：HTTP MCP tools/list，判定订阅状态（extension 无 MCP client，直连 HTTP） */
-async function referoProbeLayer(): Promise<ResearchLayer> {
-  const base = { name: "refero MCP（真实产品设计系统）", evidence: REFERO_MCP };
-  try {
-    const res = await fetch(REFERO_MCP, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
-      signal: AbortSignal.timeout(6000),
-    });
-    const data = (await res.json()) as { result?: { tools?: unknown[] }; error?: { code?: string; message?: string } };
-    if (res.ok && data.result?.tools?.length) {
-      return { ...base, result: `✅ 可用（${data.result.tools.length} 个工具）。下一步：调用 refero_refero_search_styles 取真实风格 / refero_refero_search_screens 取真实界面。` };
-    }
-    if (data.error?.code === "NO_SUBSCRIPTION") {
-      return { ...base, result: "❌ 订阅过期（NO_SUBSCRIPTION）。需 https://refero.design/mcp/upgrade 续费；当前降级到 web 搜索层。" };
-    }
-    return { ...base, result: `❌ 不可用（HTTP ${res.status}：${data.error?.message || res.statusText}）。降级到 web 搜索层。` };
-  } catch (e) {
-    return { ...base, result: `❌ 网络不可达（${(e as Error).message}）。降级到 web 搜索层。` };
-  }
+/** refero 层：网页浏览 styles.refero.design（免费；SPA 需浏览器，pi 用 ego-browser） */
+async function referoWebLayer(): Promise<ResearchLayer> {
+  return {
+    name: "refero Styles 网站（真实产品设计系统，免费网页版）",
+    evidence: "https://styles.refero.design/",
+    result:
+      "✅ 可浏览（SPA，需浏览器——pi 平台用 ego-browser 打开 styles.refero.design 搜同品类产品/风格词）。" +
+      "浏览到的产品设计系统信息转译成约束；浏览器不可用时降级到 web 搜索层。",
+  };
 }
 
 /** web 搜索层：tvly CLI（tavily） */
@@ -293,9 +280,9 @@ export default function (pi: ExtensionAPI) {
       const query = params.query.trim();
       const layers: ResearchLayer[] = [localLedgerLayer(query)];
       try {
-        layers.push(await referoProbeLayer());
+        layers.push(await referoWebLayer());
       } catch {
-        layers.push({ name: "refero MCP", evidence: REFERO_MCP, result: "❌ 探测异常" });
+        layers.push({ name: "refero Styles 网站", evidence: "https://styles.refero.design/", result: "❌ 层异常" });
       }
       try {
         layers.push(await webSearchLayer(`${query} product website`));

@@ -19,7 +19,7 @@ const OUT = join(HERE, "../data/registry.json");
 // ---------- 名称 → slug 映射（registry 首列为中文+括号描述，需人工映射） ----------
 const SLUG_BY_KEYWORD = [
   // R 调研源
-  ["refero-design", "refero MCP / refero-design skill"],
+  ["refero-design", "refero Styles 网站"],
   ["zine-style-library", "Zine 风格库"],
   ["voltagent", "VoltAgent"],
   ["beautiful-ui", "Beautiful UI"],
