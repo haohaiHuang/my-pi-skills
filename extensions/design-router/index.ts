@@ -27,6 +27,7 @@ import { runLayoutChecks } from "./checks/layout.ts";
 import { runA11yChecks } from "./checks/a11y.ts";
 import { runCopyChecks } from "./checks/copy.ts";
 import { runContrastChecks } from "./checks/contrast.ts";
+import { runCheatChecks } from "./checks/cheat.ts";
 import { fetchDna } from "./study.ts";
 
 const execFileAsync = promisify(execFile);
@@ -65,6 +66,8 @@ interface Registry {
   resources: RegistryResource[];
   routes: Record<string, Record<string, string[]>>;
   logoExtra: Record<string, string[]>;
+  hallmarkExtra?: Record<string, string[]>;
+  cheatExtra?: Record<string, string[]>;
 }
 function loadRegistry(): Registry {
   try {
@@ -333,6 +336,7 @@ export default function (pi: ExtensionAPI) {
         ...(registry.routes[branch][stage] || []),
         ...(registry.logoExtra[stage] || []),
         ...(registry.hallmarkExtra?.[stage] || []),
+        ...(registry.cheatExtra?.[stage] || []),
       ];
       const hits = slugs
         .map((slug) => registry.resources.find((r) => r.slug === slug))
@@ -384,6 +388,7 @@ export default function (pi: ExtensionAPI) {
         ...runA11yChecks(files),
         ...runCopyChecks(files),
         ...runContrastChecks(files),
+        ...runCheatChecks(files),
       ];
       const isPage = files.some((f) => f.kind === "html");
       const text = formatFindings(findings, isPage);

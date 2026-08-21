@@ -194,6 +194,14 @@ function pickColor(decls: string, prop: string, vars: Map<string, string>): stri
   return parseColor(resolved) ? resolved : null;
 }
 
+/** 选择器包含判断：child 选择器文本中，parent 是否作为完整选择器单元出现（后代/子代上下文）
+ * 如 parent=".card"，child=".card h2" ✓、".card:hover .title" ✓、".card-2 h2" ✗（边界控制） */
+function isDescendantContext(parent: string, child: string): boolean {
+  const esc = parent.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`(^|[\\s>+~])${esc}(?=[\\s>+~.#:[]|$)`);
+  return re.test(child);
+}
+
 // ---------- 主检查 ----------
 export function runContrastChecks(files: AuditFile[]): Finding[] {
   const findings: Finding[] = [];
@@ -202,11 +210,18 @@ export function runContrastChecks(files: AuditFile[]): Finding[] {
   for (const f of files) {
     if (!/\.(css|scss|less|tsx|jsx|vue|html?)$/i.test(f.path)) continue;
     const c = f.content;
-    const vars = extractVars(c);
-    const rules = extractRules(c);
+    // HTML 文件：提取 <style> 块作为 CSS 源（避免 <style> 标签污染选择器解析）
+    let cssSource = c;
+    if (/\.html?$/i.test(f.path)) {
+      const blocks = [...c.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join("\n");
+      if (blocks) cssSource = blocks;
+    }
+    const vars = extractVars(cssSource);
+    const rules = extractRules(cssSource);
     let paired = 0;
     let fails = 0;
 
+    // 同规则配对（原有）
     for (const rule of rules) {
       let bgStr = pickColor(rule.decls, "background-color", vars);
       if (!bgStr) bgStr = pickColor(rule.decls, "background", vars);
@@ -238,6 +253,35 @@ export function runContrastChecks(files: AuditFile[]): Finding[] {
           message: `文字色与填充色几乎相同（${colorStr} on ${bgStr}，ratio ${ratio.toFixed(2)}:1）。疑似 ink-on-ink——深色填充上要用 --color-paper 类文字。`,
           location: loc(f.path, rule.line),
         });
+      }
+    }
+
+    // 继承配对（新增）：规则 A 有背景且自身无 color（或已配对），规则 B 选择器含 A 的完整单元且有 color → 配对
+    const bgRules = rules
+      .map((r) => ({ rule: r, bg: pickColor(r.decls, "background-color", vars) ?? pickColor(r.decls, "background", vars) }))
+      .filter((x) => x.bg && x.rule.selector && !/[\\s>+~]/.test(x.rule.selector.trim())); // 仅简单选择器（单元素）作背景锚
+    for (const a of bgRules) {
+      const bg = parseColor(a.bg!);
+      if (!bg || a.bg!.toLowerCase().includes("rgba(")) continue; // 半透明背景混合未知，跳过
+      for (const b of rules) {
+        if (b.selector === a.rule.selector || !isDescendantContext(a.rule.selector.trim(), b.selector.trim())) continue;
+        const colorStr = pickColor(b.decls, "color", vars);
+        if (!colorStr) continue;
+        const fg = parseColor(colorStr);
+        if (!fg) continue;
+        // 同一文件同规则已报过则不重复（a 自身 color 配对已在上层处理）
+        paired++;
+        const ratio = wcagContrast(fg, bg);
+        if (ratio < TEXT_THRESHOLD) {
+          fails++;
+          findings.push({
+            gate: "40",
+            rule: "contrast-fail-inherited",
+            severity: "error",
+            message: `继承链对比度 ${ratio.toFixed(2)}:1 < 4.5:1（${colorStr} 渲染在 ${a.bg} 背景上）。选择器 ${b.selector.trim().slice(0, 50)} 在 ${a.rule.selector.trim()} 内。深色面板内文字需用浅色 token。`,
+            location: loc(f.path, b.line),
+          });
+        }
       }
     }
 

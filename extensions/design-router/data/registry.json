@@ -303,6 +303,16 @@
       "slug": "hallmark-genre-bans"
     },
     {
+      "name": "interfaces cheat-sheet 约束集（数值/配方级 craft：只用 woff2 / 语义 token 分层（禁按外观命名/跨角色复用）/ 按钮按压 0.95-0.98 / 图标 cross-fade / hit-area 24-44-40 / hover 包 @media (hover:hover) / text-wrap balance+pretty / 逻辑属性 / 智能标点 / 文案动词开头+每流程一词 / 对比度按实际渲染背景）",
+      "role": "C",
+      "form": "规则",
+      "level": "次",
+      "scenarios": "网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖）",
+      "fallback": "→ 官网直读（静态文档） → 人工应用",
+      "source": "官网 `https://interfaces.dev/cheat-sheet`；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`）",
+      "slug": "interfaces-cheat-sheet"
+    },
+    {
       "name": "kami 技能（WeasyPrint 排版 → HTML/PDF）",
       "role": "E",
       "form": "工具",
@@ -701,6 +711,11 @@
     ],
     "4": [
       "hallmark-slop-test"
+    ]
+  },
+  "cheatExtra": {
+    "2": [
+      "interfaces-cheat-sheet"
     ]
   }
 }

@@ -24,3 +24,12 @@
 
 - **前置**（环节 2）：hallmark anti-patterns 转译进约束集 —— 产出时就被绑住，不是产出后再打回
 - **后置**（环节 4）：slop-test 58 gates 验收 —— 机器部分走 `design_audit`，视觉部分模型自查
+
+## 细节级 craft 约束（interfaces.dev cheat-sheet 精选，环节 2 转译，机器子集 CS-* 已进 audit）
+
+- **Typography**：只用 .woff2；标题 `text-wrap: balance`、描述 `pretty`；`-webkit-font-smoothing: antialiased` 写根元素一次；自然大小写存储 + `text-transform` 控制；智能标点（弯引号/em dash/省略号，禁直引号）；`font-variant-numeric: tabular-nums` 用于变化数字/表格
+- **Colors**：**语义 token vs primitive**（用 `--color-text-secondary` 不用 `--blue-500`）；**禁按外观/首次用途命名 token**（`--color-accent-solid` 非 `--color-blue-button`）；**禁跨角色复用 token**；对比度按元素实际渲染背景算；渐变插值空间 `in oklab/oklch`
+- **Animation**：按钮按压 scale 0.95-0.98 + `transition: scale 200ms ease-out`；图标切换 cross-fade；切主题时禁用全部过渡；`will-change` 只用于 transform/opacity/filter；不动画高频交互
+- **A11y**：hit-area 24px / touch 44px / desktop 40px；hover 样式包 `@media (hover: hover)`；`prefers-reduced-motion: no-preference` 正向包裹动效；`role="status"` vs `role="alert"`；状态变化禁颜色单通道；skip-to-content；`tabindex` 只用 0/-1
+- **Layout**：组间距 ≥ 组内间距 2 倍；逻辑属性（margin-inline-start）；文本容器不设固定宽高
+- **Writing**：按钮以动词开头；确认按钮重复后果；每流程一词（Continue/Next 二选一）；链接描述目的地（"Read docs" 非 "Click here"）；sentence case 统一；toggle 用开启状态命名（"Send read receipts"）；empty state 给下一步动作；称呼用户 "you" 非 "the user"

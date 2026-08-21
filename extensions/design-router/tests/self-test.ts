@@ -14,6 +14,7 @@ import { runLayoutChecks } from "../checks/layout.ts";
 import { runA11yChecks } from "../checks/a11y.ts";
 import { runCopyChecks } from "../checks/copy.ts";
 import { runContrastChecks, wcagContrast, apcaApprox, parseColor } from "../checks/contrast.ts";
+import { runCheatChecks } from "../checks/cheat.ts";
 import { dnaSelfTest } from "../study.ts";
 import type { AuditFile } from "../checks/types.ts";
 
@@ -128,6 +129,43 @@ function testContrast() {
   console.log("✓ contrast: 黑/黑 FAIL、白/黑 PASS、var 解析正常");
 }
 
+// ============ 6b. 继承链对比度 ============
+function testInheritedContrast() {
+  const css = `
+  .card { background: #111; }
+  .card h2 { color: #111; }
+  .ok-card { background: #fff; }
+  .ok-card p { color: #111; }
+  .card-2 { background: #000; }
+  .card-2x h2 { color: #000; }
+  `;
+  const finds = runContrastChecks([f("inh.css", css, "css")]);
+  const inherited = finds.filter((x) => x.rule === "contrast-fail-inherited");
+  assert.ok(inherited.some((x) => x.message.includes(".card h2")), "应检出 .card 深底上的 .card h2 深字");
+  assert.ok(!inherited.some((x) => x.message.includes(".ok-card")), "浅底深字不应误报");
+  assert.ok(!inherited.some((x) => x.message.includes(".card-2x")), "选择器边界控制：.card-2x 不应误命中 .card-2");
+  console.log("✓ 继承链对比度: 深底深字检出、浅底不误报、选择器边界正确");
+}
+
+// ============ 6c. cheat sheet 检查器 ============
+function testCheatChecks() {
+  const html = `<div onclick="go()">Click</div><p>He said "hi" and 'bye'</p>`;
+  const css = `
+  @font-face { src: url("font.ttf"); }
+  h1 { width: 400px; }
+  button:hover { color: red; }
+  body { margin-left: 10px; margin-right: 10px; padding-left: 5px; }
+  `;
+  const finds = runCheatChecks([f("cs.html", html, "html"), f("cs.css", css, "css")]);
+  assert.ok(finds.some((x) => x.gate === "CS-1"), "CS-1 应检出 ttf");
+  assert.ok(finds.some((x) => x.gate === "CS-2"), "CS-2 应检出 div 当按钮");
+  assert.ok(finds.some((x) => x.gate === "CS-4"), "CS-4 应检出文本固定宽");
+  assert.ok(finds.some((x) => x.gate === "CS-5"), "CS-5 应检出 hover 未包裹");
+  assert.ok(finds.some((x) => x.gate === "CS-6"), "CS-6 应检出直引号");
+  assert.ok(finds.some((x) => x.gate === "CS-8"), "CS-8 应检出物理属性");
+  console.log("✓ cheat sheet: CS-1/2/4/5/6/8 检出正常");
+}
+
 // ============ 7. study 模块可加载 ============
 function testStudyLoad() {
   assert.ok(dnaSelfTest(), "study.ts 应可加载");
@@ -160,6 +198,8 @@ testLayout();
 testA11y();
 testCopy();
 testContrast();
+testInheritedContrast();
+testCheatChecks();
 testStudyLoad();
 testTriggerWords();
 console.log("\n✅ 全部自检通过");

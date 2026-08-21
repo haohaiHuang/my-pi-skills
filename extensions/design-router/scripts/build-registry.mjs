@@ -50,6 +50,7 @@ const SLUG_BY_KEYWORD = [
   ["logo-webgl-backgrounds", "logo-generator WebGL"],
   ["hallmark-anti-patterns", "hallmark anti-patterns 约束集"],
   ["hallmark-genre-bans", "hallmark genre 允许/禁止清单"],
+  ["interfaces-cheat-sheet", "interfaces cheat-sheet 约束集"],
   // E 执行工具
   ["kami-skill", "kami 技能"],
   ["huashu-design", "huashu-design（HTML 高保真原型"],
@@ -142,6 +143,9 @@ const LOGO_EXTRA = { 2: ["logo-design-patterns"], 4: ["logo-quality-floor"] };
 // hallmark 去 AI 味跨分支附加（环节 2 前置约束 / 环节 4 验收，软依赖）
 const HALLMARK_EXTRA = { 2: ["hallmark-anti-patterns", "hallmark-genre-bans"], 4: ["hallmark-slop-test"] };
 
+// interfaces cheat-sheet 细节 craft 跨分支附加（环节 2 转译）
+const CHEAT_EXTRA = { 2: ["interfaces-cheat-sheet"] };
+
 // ---------- markdown 表格解析 ----------
 function parseTableRows(lines) {
   const rows = [];
@@ -230,6 +234,7 @@ function main() {
     routes: ROUTES,
     logoExtra: LOGO_EXTRA,
     hallmarkExtra: HALLMARK_EXTRA,
+    cheatExtra: CHEAT_EXTRA,
   };
 
   const manifest = {

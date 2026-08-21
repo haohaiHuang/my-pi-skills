@@ -50,6 +50,7 @@
 | logo-generator WebGL 动态背景规格 | 规则 | 兜底 | 网页动态背景 / C2 动效 | → GitHub 直读 → 本地兜底 | 源 `https://github.com/op7418/logo-generator-skill`（`references/webgl_backgrounds.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/webgl_backgrounds.md` |
 | hallmark anti-patterns 约束集（反 AI 生成禁忌：默认字体/渐变文字/emoji 图标/编造指标/假 chrome/标题斜体/transition-all/重绘 UI chrome…） | 规则 | 次 | 网页 / 通用（去 AI 味**前置约束**，环节 2 常驻，产出前转译进约束集） | → skill 本地文件直读（软依赖，未安装则跳过，靠 Kami 骨架兜底） | `https://github.com/nutlope/hallmark`（`references/anti-patterns.md` + `typography.md`/`color.md`/`layout-and-space.md`/`motion.md`/`copy.md`） |
 | hallmark genre 允许/禁止清单（editorial / modern-minimal / atmospheric / playful 各自的允许项与禁止项） | 规则 | 次 | 网页 / 通用（按 genre 信号加载对应文件） | → skill 本地文件直读（软依赖，未安装则跳过） | `https://github.com/nutlope/hallmark`（`references/genres/*.md`） |
+| interfaces cheat-sheet 约束集（数值/配方级 craft：只用 woff2 / 语义 token 分层（禁按外观命名/跨角色复用）/ 按钮按压 0.95-0.98 / 图标 cross-fade / hit-area 24-44-40 / hover 包 @media (hover:hover) / text-wrap balance+pretty / 逻辑属性 / 智能标点 / 文案动词开头+每流程一词 / 对比度按实际渲染背景） | 规则 | 次 | 网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖） | → 官网直读（静态文档） → 人工应用 | 官网 `https://interfaces.dev/cheat-sheet`；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`） |
 
 ## E 执行工具（环节 3：能动手的技能）
 
