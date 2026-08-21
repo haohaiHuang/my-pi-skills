@@ -129,7 +129,8 @@ interface Rule {
   line: number;
 }
 
-const RULE_RE = /([^{}@][^{}]*)\{([^{}]*)\}/g;
+// 首字符排除 \n（避免 m.index 落在行首换行导致行号偏移）
+const RULE_RE = /([^{}@\n][^{}]*)\{([^{}]*)\}/g;
 const VAR_RE = /^\s*--([\w-]+)\s*:\s*(.+?)\s*;?\s*$/;
 
 function extractRules(css: string): Rule[] {

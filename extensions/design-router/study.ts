@@ -111,7 +111,7 @@ export async function fetchDna(url: string, signal?: AbortSignal): Promise<DnaDr
   const fonts = countBy(
     fontHits.map((s) => s.split(",")[0].trim().replace(/^["']|["']$/g, "")).filter((s) => s && !s.startsWith("var(")),
     (s) => s,
-  );
+  ).map(({ value, count }) => ({ family: value, count }));
 
   // ---- 色值：:root 变量 / 声明 / inline ----
   const colorHits: Array<{ value: string; role: DnaDraft["colors"][number]["role"] }> = [];
