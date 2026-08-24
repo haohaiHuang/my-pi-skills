@@ -38,6 +38,8 @@ const SLUG_BY_KEYWORD = [
   ["liquid-gooey", "Liquid Gooey"],
   ["transitions-dev", "transitions.dev"],
   ["vibeprompts", "vibeprompts.dev"],
+  ["dembrandt-extract", "dembrandt 萃取产物"],
+  ["dembrandt", "dembrandt（URL→设计 token"],
   // C 约束模板
   ["kami-skeleton", "Kami 约束骨架"],
   ["kami-spec", "Kami 完整设计规范"],
@@ -83,19 +85,19 @@ const SLUG_BY_KEYWORD = [
 // stage: 0 意图 / 1 调研 / 2 约束 / 3 产出 / 4 校验
 const ROUTES = {
   A1: {
-    1: ["refero-design", "beautiful-ui", "minimal-gallery"],
+    1: ["refero-design", "beautiful-ui", "minimal-gallery", "dembrandt"],
     2: ["kami-skeleton", "refero-design", "design-md-skill"],
     3: ["kami-skill", "huashu-design", "figma-family", "motion-lib"],
     4: ["kami-sancha", "design-qa-checklist", "huashu-5dim"],
   },
   A2: {
-    1: ["refero-design", "aceternity", "21st-dev"],
+    1: ["refero-design", "aceternity", "21st-dev", "dembrandt"],
     2: ["kami-skeleton", "refero-design", "design-md-skill"],
     3: ["huashu-design", "kami-skill", "frontend-design"],
     4: ["kami-sancha", "huashu-5dim"],
   },
   A3: {
-    1: ["refero-design", "voltagent"],
+    1: ["refero-design", "voltagent", "dembrandt"],
     2: ["kami-skeleton", "refero-design"],
     3: ["frontend-design"],
     4: ["kami-sancha", "huashu-5dim"],

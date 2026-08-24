@@ -9,6 +9,7 @@
  *   design_audit        — 合并 Hallmark 可机器化 gates + design-references 环节4 扫描
  *   design_contrast     — APCA/WCAG 对比度计算（gate 40-41）
  *   hallmark_study_fetch— URL 抓取 → DNA 草稿（字体/色值/间距/结构信号）
+ *   dembrandt（CLI 外部工具）— 候选验证升级：真浏览器渲染 → 精确 token + 规范 DESIGN.md（`dembrandt <url> --design-md --save-output`）
  *
  * 事件：before_agent_start 检测设计任务 → 注入 hallmark SKILL.md（full/slim 可配）
  * 命令：/design-router status | reload
@@ -125,6 +126,7 @@ const TOOL_NOTE = `
 · design_audit <target> — 跑 Hallmark 机器化 slop gates + 环节4 扫描，返回带 gate 号的 punch list（只读）
 · design_contrast <target> — APCA/WCAG 对比度计算
 · hallmark_study_fetch <url> — 抓取页面提取 DNA 草稿（字体/色值/间距/结构信号）
+· dembrandt <url> --design-md --save-output — 【验证升级】真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md（需精确 token 直引 / JS 重站点 / 快验失败时用）
 `;
 
 function toolNoteWithDetails(): string {

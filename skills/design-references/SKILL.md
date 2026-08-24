@@ -125,7 +125,7 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 **选择裁决**：用户显式指令 > 参考驱动（真实产品优先）> Hallmark 形态/气质库 > catalog 静默兜底（仅用户 go ahead 时）。去 AI 味是**两段式**：anti-patterns 进环节 2 约束（前置防线），slop-test 在环节 4 验收（后置闸门）。
 
-**pi 平台配套**：`design-router` extension（my-pi-skills `extensions/design-router/`）提供确定性工具——`design_lookup`（统一候选池查询）/ `design_audit`（机器层校验）/ `design_contrast`（对比度）/ `hallmark_study_fetch`（URL→DNA），并在设计任务时注入本协同说明 + hallmark 完整规则。
+**pi 平台配套**：`design-router` extension（my-pi-skills `extensions/design-router/`）提供确定性工具——`design_lookup`（统一候选池查询）/ `design_audit`（机器层校验）/ `design_contrast`（对比度）/ `hallmark_study_fetch`（URL→DNA），并在设计任务时注入本协同说明 + hallmark 完整规则。候选验证升级路径：全局 CLI `dembrandt`（npm，真浏览器渲染精确 token + 规范 DESIGN.md，见 workflow.md 环节 1 硬步骤②）。
 
 ## 数据源
 

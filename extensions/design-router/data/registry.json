@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-21",
+  "generated": "2026-08-24",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -31,6 +31,16 @@
       "fallback": "→ getdesign.md 官网",
       "source": "`https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/`",
       "slug": "voltagent"
+    },
+    {
+      "name": "dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式）",
+      "role": "R",
+      "form": "工具",
+      "level": "主",
+      "scenarios": "APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 失败时）",
+      "fallback": "→ hallmark_study_fetch（快验，零依赖）→ WebFetch / 人工核对",
+      "source": "npm 全局 `dembrandt`（v0.28.0，MIT）；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/`",
+      "slug": "dembrandt"
     },
     {
       "name": "Beautiful UI（AI-native 界面范式）",
@@ -221,6 +231,16 @@
       "fallback": "→ refero 网站网页浏览拿 / getdesign.md",
       "source": "refero 网站（见上）；`https://getdesign.md/`",
       "slug": "design-md"
+    },
+    {
+      "name": "dembrandt 萃取产物（`--design-md` → google-labs 规范 DESIGN.md；`--dtcg` → W3C DTCG tokens）",
+      "role": "C",
+      "form": "直引",
+      "level": "次",
+      "scenarios": "APP / 网页 / Mac（选定候选验证后的约束素材，等同 refero 网站 DESIGN.md，可回填参考台账）",
+      "fallback": "→ refero 网站网页浏览拿 DESIGN.md / getdesign.md",
+      "source": "本地运行 `dembrandt <url> --design-md --save-output` 落盘 `output/<domain>/`；仓库 `https://github.com/dembrandt/dembrandt`",
+      "slug": "dembrandt-extract"
     },
     {
       "name": "design-md-skill（Google spec 生成器）",
@@ -548,7 +568,8 @@
       "1": [
         "refero-design",
         "beautiful-ui",
-        "minimal-gallery"
+        "minimal-gallery",
+        "dembrandt"
       ],
       "2": [
         "kami-skeleton",
@@ -571,7 +592,8 @@
       "1": [
         "refero-design",
         "aceternity",
-        "21st-dev"
+        "21st-dev",
+        "dembrandt"
       ],
       "2": [
         "kami-skeleton",
@@ -591,7 +613,8 @@
     "A3": {
       "1": [
         "refero-design",
-        "voltagent"
+        "voltagent",
+        "dembrandt"
       ],
       "2": [
         "kami-skeleton",
