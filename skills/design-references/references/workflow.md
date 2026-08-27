@@ -9,6 +9,21 @@
 
 ---
 
+## 工具层 · OpenPencil CLI（设计文件工具箱，软依赖）
+
+**前置：需安装 CLI 才能启用本层**——`npm install -g @open-pencil/cli`（当前 v0.14.0），装完 `openpencil --version` 验证；未安装时跳过本层全部命令，流程不受影响（本层为软依赖）。职责：**操作 .fig/.pen 设计文件的事实层**——决策永远在五环节，OpenPencil 只提供文件级数据（源数据直读，证据等级最高）。只在产物/参考为设计文件时接入，不改变五环节骨架。
+
+| 环节 | 接入点 | 命令 |
+| --- | --- | --- |
+| 1 调研 | 参考为 .fig/.pen 时，替代/增强 URL 抓取，直读精确 token | `openpencil analyze colors/typography/spacing` · `openpencil variables` |
+| 2 约束 | 参考文件 token 直接导出为约束来源 | `openpencil variables --json` |
+| 3 产出 | HTML↔.fig 转换桥 + 批量建组件 | `openpencil export -f jsx --style tailwind` · `openpencil import` · `openpencil eval` |
+| 4 校验 | .fig 产物机器校验（design_audit 只管 HTML/CSS） | `openpencil lint` · `openpencil analyze colors/spacing` · `openpencil export -f png --thumbnail` |
+
+**已知 bug（v0.14.0，勿误判为用法错误）**：`import` 依赖 Bun 运行时在纯 Node 下必报 `Bun is not defined`（上游 issue #575，修复 PR #576 已合待发版）；`query` XPath 报 `evaluateXPathToNodes is not a function`。替代：import 用 `openpencil eval` 建节点或等发版；query 用 `openpencil find --type/--name` 组合替代。其余命令（info/tree/find/node/pages/lint/analyze/export png/svg/html/fig/eval/variables/formats/documents/selection）实测可用。桌面端运行时省略文件参数即连实时画布（Live 模式）。
+
+---
+
 ## 环节 0 · 意图澄清 → Brief
 
 **目标**：把一句话需求变成可执行的四要素 Brief。
@@ -62,10 +77,14 @@
    - Spacing / Radius / Shadow → 具体数值档位
    - Do / Don't → 全清单逐条记录
    缺一个 section 就不算调研完，补完才进候选展示
+4b. **参考为 .fig/.pen 文件时（源数据直读，最高证据等级）**：不用抓 URL，直接 `openpencil analyze colors/typography/spacing <file>` 取精确色板（含使用频次）/字体栈/间距档位，`openpencil variables <file>` 取已定义 token，`openpencil info` 取字体清单。结果等价于 DESIGN.md 的 Colors/Typography/Spacing 三 section 且数值精确到 hex。
 5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情
 6. **搜索失败时走决策树**（见下方「搜索失败决策框架」）
 7. 每个候选记录 token 草稿 + 理由（供环节 2 直接消费）
-8. **候选验证（pi 平台硬步骤：对选中的 2-3 个候选逐一验证，双引擎退化链——先 `hallmark_study_fetch <url>` 快验（秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）；其他平台：WebFetch 或人工核对）**：拿真实字体/色值/间距/结构信号。验证成功（任一引擎拿到精确值）→ 该候选可"直引"（萃取具体数值进约束，dembrandt 验证的可直接回填参考台账）；验证失败/抓不到 → 标注"未验证"，只能"属性级借用"（如"暗色仪表盘式"），禁止把未验证候选当直引参考。验证结果一并展示给用户。
+8. **候选验证（pi 平台硬步骤：对选中的 2-3 个候选逐一验证，三源退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）；其他平台：WebFetch 或人工核对）**：
+   - **候选是本地 .fig/.pen 文件**（用户参考库里的设计稿）→ 直接 `openpencil analyze/variables/info` 直读，**跳过 URL 抓取**（源数据比渲染推断更精确）
+   - 候选是 URL → `hallmark_study_fetch` 快验 → 失败/需精确值升级 `dembrandt`
+   验证成功（任一引擎拿到精确值）→ 该候选可"直引"（萃取具体数值进约束，dembrandt/openpencil 验证的可直接回填参考台账）；验证失败/抓不到 → 标注"未验证"，只能"属性级借用"（如"暗色仪表盘式"），禁止把未验证候选当直引参考。验证结果一并展示给用户。
 9. **展示给用户选（强制）**：用户选定方向后，才能进环节 2。禁止自行拍板。开放指令（用户未指定风格）时此步为硬门槛，候选必须来自用户参考库优先。
 
 **产物格式**：
@@ -115,7 +134,7 @@
 | B | Zine 风格库（本地） | orange-line-illustration | web_search |
 | C | 不跑本环节 | — | — |
 
-**退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ refero Styles 网站（网页浏览）→ Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
+**退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ **本地 .fig/.pen 设计稿（openpencil 直读，证据等级最高）** → refero Styles 网站（网页浏览）→ Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
 
 ---
 
@@ -141,7 +160,7 @@
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**。
+**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**。
 
 **退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 
@@ -166,7 +185,7 @@
 
 | 分支 | 执行工具 |
 | --- | --- |
-| A | kami（排版）/ huashu-design（HTML 高保真）/ Figma 家族 / motion（动效） |
+| A | kami（排版）/ huashu-design（HTML 高保真）/ Figma 家族 / motion（动效）/ **openpencil（软依赖：HTML 产物要变 .fig → `openpencil import`；.fig 产物要交前端 → `openpencil export -f jsx --style tailwind` / `-f html`；批量建组件/排 auto-layout → `openpencil eval`）** |
 | B1 海报 | gpt-image-2（图像）+ kami（排版） |
 | B2 杂志 | gpt-image-2（插图）+ kami（版式网格） |
 | B3 PPT | guizang-ppt-skill |
@@ -190,6 +209,13 @@
    - 字重扫描：grep font-weight，禁 700/600/450（除非约束允许）
    - 圆角扫描：grep border-radius，核对与约束的档位一致
    - 渐变/阴影扫描：grep gradient/box-shadow，核对约束允许范围
+1b. **产物为 .fig/.pen 时（design_audit 只管 HTML/CSS，设计文件走 openpencil）**：
+   - `openpencil lint <file>` → 命名/auto-layout/硬编码色/无障碍对比度（机器判定）
+   - `openpencil analyze colors <file> --threshold 5` → 色板一致性（偏离约束 token 的颜色逐一解释）
+   - `openpencil analyze spacing <file> --grid 8` → 间距是否对齐网格
+   - `openpencil analyze clusters <file>` → 组件化程度（该抽没抽的重复）
+   - `openpencil export <file> -f png --thumbnail` → 视觉评审截图
+   - 任一不达标 → 回环节 2 改约束，与 HTML 产物同一裁决
 2. Kami 三查：取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%
 3. 风格一致性：逐条核对约束集（色板/质感/排版）
 4. 分支 A 补 UX QA：导航/状态/反馈可用性（design-qa-checklist）
