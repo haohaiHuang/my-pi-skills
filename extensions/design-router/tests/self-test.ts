@@ -31,7 +31,13 @@ function testRegistry() {
   assert.ok(refero.fallback && refero.source, "refero-design 应有退化链+来源");
   const gaps = reg.resources.filter((r: { slug?: string }) => !r.slug);
   assert.equal(gaps.length, 0, `不应有无 slug 资源：${gaps.map((g: { name: string }) => g.name).join(",")}`);
-  console.log(`✓ registry: ${reg.resources.length} 资源, 9 分支, 无缺 slug`);
+  // 反同质化：风格桶 + 需求路由表 + 质量默认值
+  assert.ok(reg.buckets && Object.keys(reg.buckets).length === 8, "应有 8 个风格桶");
+  assert.ok(reg.routing && Object.keys(reg.routing).length >= 5, `需求路由表应 ≥5 条，实际 ${Object.keys(reg.routing || {}).length}`);
+  const bucketed = reg.resources.filter((r: { bucket?: string }) => r.bucket);
+  assert.ok(bucketed.length >= 8, `打桶资源应 ≥8，实际 ${bucketed.length}`);
+  assert.ok(reg.resources.every((r: { quality?: string }) => r.quality), "所有资源应有 quality 默认值");
+  console.log(`✓ registry: ${reg.resources.length} 资源, 9 分支, ${bucketed.length} 打桶, ${Object.keys(reg.routing).length} 路由, 无缺 slug`);
 }
 
 // ============ 2. typography ============

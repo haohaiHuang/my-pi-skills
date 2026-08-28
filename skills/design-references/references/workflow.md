@@ -60,17 +60,24 @@
 
 ## 环节 1 · 调研定位 → 2-3 风格候选
 
-**目标**：拿到 2-3 个真实风格方向候选，每个带 token 草稿（色/字/距/质感）+ 适用理由。
+**目标**：拿到 2-3 个真实风格方向候选，每个带 token 草稿（色/字/距/质感）+ 适用理由。**候选必须跨风格桶、来源互异，禁止同质化**。
 
 **动作序列**：
 
 1. **盘点已有资产**（承接环节 0）：项目已有设计系统 → 它就是主参考，外部参考只做增强；无系统才从零调研
+1b. **需求路由（反同质化第一步，必做）**：先调 `design_route <需求特征关键词>` 拿推荐风格桶组合（主桶必查 + 次桶按需）。需求特征 = 品类/气质/内容类型（如"SaaS 落地页"→ 主桶 minimal，次桶 darktech/editorial）。拿不准关键词时直接传需求原文，工具返回全部 8 桶由你挑。
 2. **硬调研步骤（pi 平台：必须调用 `design_research <branch> <query>`；其他平台：等效确定性调研）**：先跑确定性调研取候选池——本地台账 → refero 网站（网页浏览） → web 搜索，每层带**证据来源**。**禁止仅凭模型内建知识直接选风格**——候选必须来自调研输出并标注证据；所有外部层失败才允许声明"无真实参考可查"并按 Kami 骨架执行。
 3. **统一候选池（优先于一切外部搜索；真实产品 + Hallmark 形态/气质库同池）**：在 design_research 输出的真实候选基础上，补 Hallmark 组合候选：
    - **真实产品参考**：`~/resources/design-references.md`（台账）+ `references/registry.md` 按场景筛 2-3 个；用户指定风格则直引对应资源。**用户精选资产永远在外部随机搜索结果之前。**
    - **Hallmark 形态/气质库**（软依赖，已装 hallmark 时可用）：21 宏结构 = **形态**维度（页面形状：Bento/Stat-Led/Manifesto…）；4 genre + 21 theme = **气质**维度（editorial/modern-minimal/atmospheric/playful + 具体配色字体）。作为预打包的"形态+气质"实例进同池。
-   - 每个候选标注：`形态分 × 气质分 × 行业分 × 防重分`（四维见下方分级表）。
+   - 每个候选标注：`形态分 × 气质分 × 行业分 × 防重分`（四维见下方分级表）+ **来源桶 + 来源资源**（design_route 定位、design_lookup 标注）。
    - **选择优先级**：行业+形态+气质全中（真实产品）> 形态+气质（真实产品或 Hallmark 组合）> 只有气质（theme/genre）> 只有形态（macrostructure）> 兜底（catalog 静默，仅用户 go ahead 时）。
+3b. **候选多样性硬规则（反同质化核心，必守）**：
+   - **3 个候选必须来自 ≥2 个不同风格桶**（桶见 registry.md 或 design_route 输出），来源资源两两不同
+   - **refero 等真实产品库只能贡献 1 个候选**（它占"极简现代"桶）；其余候选从其他桶取（zine/kami/hallmark 主题等）
+   - 候选间**色相/字体气质/布局骨架至少两维不同**（如：极简冷色无衬线 × 暖纸衬线 × 暗色霓虹展示）
+   - 产出 3 候选后**必调 `design_diversity <c1> <c2> <c3>` 机器校验**，PASS 才展示给用户；FAIL 回炉换掉同质候选
+   - 每个候选标注「来源桶 + 来源资源 + 证据」，供用户追溯
 4. **参考萃取（必须逐 section 读出数值，禁止摘要式浏览）**：完整 DESIGN.md 的每个 section 都要读并记录：
    - Colors → 每色 hex + 角色 + 适用场景
    - Typography → 每种字体的字号/字重/字距/适用场景
@@ -78,7 +85,7 @@
    - Do / Don't → 全清单逐条记录
    缺一个 section 就不算调研完，补完才进候选展示
 4b. **参考为 .fig/.pen 文件时（源数据直读，最高证据等级）**：不用抓 URL，直接 `openpencil analyze colors/typography/spacing <file>` 取精确色板（含使用频次）/字体栈/间距档位，`openpencil variables <file>` 取已定义 token，`openpencil info` 取字体清单。结果等价于 DESIGN.md 的 Colors/Typography/Spacing 三 section 且数值精确到 hex。
-5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情
+5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情，**再按内容量×情绪查 `references/poster-compositions.md` 速查表选构图**（主构图 1 个 + 辅助关系 1 条）
 6. **搜索失败时走决策树**（见下方「搜索失败决策框架」）
 7. 每个候选记录 token 草稿 + 理由（供环节 2 直接消费）
 8. **候选验证（pi 平台硬步骤：对选中的 2-3 个候选逐一验证，三源退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）；其他平台：WebFetch 或人工核对）**：
@@ -86,12 +93,18 @@
    - 候选是 URL → `hallmark_study_fetch` 快验 → 失败/需精确值升级 `dembrandt`
    验证成功（任一引擎拿到精确值）→ 该候选可"直引"（萃取具体数值进约束，dembrandt/openpencil 验证的可直接回填参考台账）；验证失败/抓不到 → 标注"未验证"，只能"属性级借用"（如"暗色仪表盘式"），禁止把未验证候选当直引参考。验证结果一并展示给用户。
 9. **展示给用户选（强制）**：用户选定方向后，才能进环节 2。禁止自行拍板。开放指令（用户未指定风格）时此步为硬门槛，候选必须来自用户参考库优先。
+9b. **候选可视化询问（每次展示候选后必问）**：候选仅凭文字难感知差异时，主动询问用户
+    「要不要先为 2-3 个候选各做一版 HTML 快速可视化 demo（灰模/占位级，按各候选 token 草稿的
+    色/字/距呈现，几分钟内完成，只为辅助选择）？」同意 → 先做 demo 展示，看完再选；拒绝/直接选 → 跳过。
+    demo 是辅助选择的手段，不是最终交付物——选中方向后进环节 2 定约束，完整实现仍在环节 3 按约束集做。
 
 **产物格式**：
 
 ```
-候选1: {来源: 用户参考库/refero网站/Linear | 气质: 极简 | token草稿: 色#4F46E5系/Inter/间距4pt | 理由: 同品类标杆 | 与已有资产匹配度: 高/中/低}
-候选2: {...}
+候选1: {来源桶: minimal/refero | 来源: 用户参考库/refero网站/Linear | 气质: 极简 | token草稿: 色#4F46E5系/Inter/间距4pt | 理由: 同品类标杆 | 与已有资产匹配度: 高/中/低}
+候选2: {来源桶: warmpaper/kami | 来源: kami 暖纸 | 气质: 暖纸衬线 | token草稿: 色#1B365D墨蓝/衬线/暖纸底 | 理由: 书卷气排版 | 与已有资产匹配度: 高/中/低}
+候选3: {来源桶: darktech/cobalt | 来源: hallmark cobalt 主题 | 气质: 暗色科技 | token草稿: 色#0F172A底/霓虹点缀/等宽 | 理由: 工具感 | 与已有资产匹配度: 高/中/低}
+差异度: design_diversity 输出 PASS（3 桶 × 色相/字体互异）
 ```
 
 **匹配精度分级**（四维：形态 × 气质 × 行业 × 防重，决定"命中"的定义）：
@@ -131,7 +144,7 @@
 | 分支 | 主 | 次 | 兜底 |
 | --- | --- | --- | --- |
 | A | 用户参考库候选池（台账+registry）→ refero Styles 网站（网页浏览） | Beautiful UI（A1）/ Aceternity（A2） | minimal.gallery |
-| B | Zine 风格库（本地） | orange-line-illustration | web_search |
+| B | Zine 风格库（本地） | 构图词典（poster-compositions.md，内容量×情绪选主构图）+ orange-line-illustration | web_search |
 | C | 不跑本环节 | — | — |
 
 **退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ **本地 .fig/.pen 设计稿（openpencil 直读，证据等级最高）** → refero Styles 网站（网页浏览）→ Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
@@ -160,7 +173,7 @@
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**。
+**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译·B：海报/落地页构图，主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项，来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**。
 
 **退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 
@@ -217,11 +230,18 @@
    - `openpencil export <file> -f png --thumbnail` → 视觉评审截图
    - 任一不达标 → 回环节 2 改约束，与 HTML 产物同一裁决
 2. Kami 三查：取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%
-3. 风格一致性：逐条核对约束集（色板/质感/排版）
+3. 风格一致性：逐条核对约束集（色板/质感/排版）；分支 B 补构图验收（poster-compositions.md 11 项：入口/焦点/主次比例/共同边线/沟槽/留白/破格≤1/图文层级/裁切安全/响应式）
 4. 分支 A 补 UX QA：导航/状态/反馈可用性（design-qa-checklist）
 5. 成品视觉评审（huashu 5 维；无头浏览器渲染截图 + 视觉模型复核）
 6. 任一不达标 → 明确写"回环节 2：改哪条约束"，不静默打补丁
 7. **自检结果展示给用户**（扫描输出 + 对照表），让用户看到每项的依据
+8. **质量信号记录（环节 4 完成后、收尾前，必做）**：对本任务用到的参考来源逐个调 `design_quality report`，按客观信号定档：
+   - dembrandt/hallmark_study_fetch 验证成功且一次通过 → `良`（多次累积升 `优`）
+   - 提取部分失败/候选标注"未验证" → `中`
+   - 环节 4 FAIL 且回炉 2 次仍不过 → `差`
+   - 网站不可达/404 → `差`
+   - **禁止以用户审美选择定档**（偏好主观）；只依据机器可验证信号
+   - 记录后，下次环节 1 该来源自动降权（lookup 沉底 / route 排除代表）
 
 **产物格式**：
 
@@ -231,7 +251,7 @@
 FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规则}
 ```
 
-**资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ **logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次：GitHub 源优先，本地存档兜底）**。
+**资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ 构图 11 项验收（V 规则·B，poster-compositions.md）/** logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次：GitHub 源优先，本地存档兜底）**。
 
 **四段校验分层（每层管的东西不同，全跑）**：
 1. **机器层**：`design_audit`（pi 的 design-router extension）跑可机器判定的 slop gates + 色值/emoji/字重/圆角/渐变扫描（合并了环节 4 机器扫描与 hallmark 机器子集）
@@ -240,3 +260,23 @@ FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规
 4. **UX 层**：design-qa-checklist（导航/状态/反馈可用性）
 
 **退化链**：脚本检查 → 取色器 + 目测 → 三条检查规则人脑执行。
+
+---
+
+## 交付收尾与职责边界（环节 4 达标后）
+
+**环节 4 达标即视为设计完成，进入收尾**，不再向下滑入开发：
+
+- **交付物**：设计产物（HTML 原型/demo/幻灯片/信息图/动画）+ **设计规范文档 `designs/DECISION.md`**。归档到项目 designs/ 等子目录。
+- **设计规范文档（收尾必生成，硬性要求）**：每次任务收尾**必须**写 `designs/DECISION.md`，四段结构：
+  ```
+  # DECISION.md — 设计决策与页面规范
+  ## 1. Brief（环节 0）      场景分支/格式/受众/目标/硬约束
+  ## 2. 候选与选择理由（环节 1）  2-3 候选（token 草稿+理由）+ 用户选定项与理由
+  ## 3. 页面规范/约束集（环节 2） 最终确认的 ≤10 条约束，每条带来源标注
+  ## 4. 校验结果（环节 4）    design_audit 输出 + Kami 三查对照 + PASS/FAIL
+  ```
+  规范供开发交接直接用，候选理由供追溯；该文档即开发交接包的主体。
+- **默认不进入开发**：设计完成 ≠ 开始开发。除非用户**显式**要求（"开始开发/实现上线/继续做下去"），否则本流程止于设计交付——不写生产代码、不搭后端、不做工程化。
+- **转开发的条件与方式**：用户要求开发时，`designs/DECISION.md` 作为开发交接包（含设计文件清单），建议交给开发 Agent/流程执行；不默认自己动手写生产代码。
+- **收尾动作**：确认交付物齐全归档（designs/）+ DECISION.md 已生成 → 极简总结（做了什么、caveats、下一步可选方向，含"如需开发可转交"）。

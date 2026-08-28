@@ -22,6 +22,7 @@ const SLUG_BY_KEYWORD = [
   // R 调研源
   ["refero-design", "refero Styles 网站"],
   ["zine-style-library", "Zine 风格库"],
+  ["poster-compositions", "海报构图词典"],
   ["voltagent", "VoltAgent"],
   ["beautiful-ui", "Beautiful UI"],
   ["aceternity", "Aceternity UI"],
@@ -81,6 +82,73 @@ const SLUG_BY_KEYWORD = [
   ["hallmark-slop-test", "hallmark slop-test 58 gates"],
 ];
 
+// ---------- 风格桶：资源名称关键词 → 桶（反同质化索引，只给"可作风格候选"的资源打桶；工具/素材类资源无桶） ----------
+// 桶定义见 BUCKETS；需求路由见 ROUTING；空桶查询指引见 BUCKET_NOTES。
+const BUCKET_BY_KEYWORD = [
+  // minimal 极简现代
+  ["minimal", "refero Styles 网站"],
+  ["minimal", "VoltAgent"],
+  ["minimal", "Beautiful UI"],
+  ["minimal", "Aceternity UI"],
+  ["minimal", "21st.dev"],
+  ["minimal", "minimal.gallery"],
+  ["minimal", "vibeprompts.dev"],
+  // editorial 编辑杂志
+  ["editorial", "orange-line-illustration"],
+  // warmpaper 暖纸人文
+  ["warmpaper", "Kami 约束骨架"],
+  ["warmpaper", "Kami 完整设计规范"],
+  // liquid 液态动效
+  ["liquid", "Liquid Gooey"],
+  ["liquid", "transitions.dev"],
+  // bold 撞色大胆
+  ["bold", "Uiverse Galaxy"],
+  // retro 复古档案
+  ["retro", "Zine 风格库"],
+  ["retro", "Zine 风格族配方"],
+];
+
+const BUCKETS = {
+  minimal: "极简现代：干净留白/几何/现代无衬线（refero 同品类主池）",
+  editorial: "编辑杂志：网格/衬线/印刷感/克制（kami/zine 编辑向/纽约客插画）",
+  darktech: "暗色科技：深底/霓虹/终端/仪表盘（cobalt/terminal 系）",
+  bold: "撞色大胆：高饱和/波普/趣味（carnival/playful 系）",
+  warmpaper: "暖纸人文：暖底/书卷气/克制排版（kami 暖纸/lumen/atmospheric 系）",
+  liquid: "液态动效：流体/粘性/微交互（gooey/transitions 系）",
+  dataviz: "数据可视化：图表/规格表/信息密度（stat-led/spec-sheet 系）",
+  retro: "复古档案：像素/拼贴/档案感（zine retro/pixel 系）",
+};
+
+// 需求特征关键词（| 分隔）→ 主桶（必查）+ 次桶（按需）+ extra（专项资源，如 logo）
+const ROUTING = {
+  "logo|app icon|图标|icon|商标|brandmark|logo 设计|logo设计": { primary: ["bold"], secondary: ["minimal", "retro"], extra: "logo" },
+  "saas|落地页|landing|工具|product|startup": { primary: ["minimal"], secondary: ["darktech", "editorial"] },
+  "ai|agent|chat|对话|智能|copilot": { primary: ["minimal"], secondary: ["liquid", "darktech"] },
+  "数据|dashboard|仪表盘|analytics|监控|报表": { primary: ["dataviz"], secondary: ["minimal", "darktech"] },
+  "文档|docs|内容|article|博客|blog|阅读": { primary: ["editorial"], secondary: ["warmpaper", "minimal"] },
+  "海报|poster|品牌|brand|营销|campaign|视觉": { primary: ["bold"], secondary: ["retro", "editorial"] },
+  "电商|ecommerce|商城|shop|零售": { primary: ["minimal"], secondary: ["bold", "warmpaper"] },
+  "演示|ppt|slides|deck|提案": { primary: ["editorial"], secondary: ["minimal", "bold"] },
+  "移动|mobile|app|ios|android": { primary: ["minimal"], secondary: ["liquid", "darktech"] },
+};
+
+// 空桶/弱桶查询指引（桶内无 registry 资源时怎么找候选）
+const BUCKET_NOTES = {
+  darktech: "hallmark 主题 cobalt/terminal（~/.pi/agent/skills/hallmark/references/themes/ 或 SKILL.md 主题清单）；refero 搜暗色仪表盘/开发工具类产品（Vercel/Raycast 暗色系）",
+  dataviz: "hallmark 宏结构 stat-led/spec-sheet（SKILL.md 宏结构索引）；refero 搜数据分析类产品；diagram-design 工具产图表",
+  warmpaper: "kami 暖纸底（本地 ~/Desktop/Design/kami-design-principles/）；hallmark 主题 lumen/atmospheric",
+  retro: "zine 复古族（本地 ~/Desktop/Design/zine-style-references/）；hallmark 复古/档案类主题",
+  bold: "hallmark 主题 carnival/playful（~/.pi/agent/skills/hallmark/）；uiverse 组件",
+};
+
+// 质量档位（客观信号定档，非审美）
+const QUALITY_LEVELS = {
+  优: "验证成功且多次一次通过",
+  良: "验证成功",
+  中: "提取部分失败/未验证",
+  差: "多次回炉或不可达",
+};
+
 // ---------- 分支 × 环节 → 资源 slug 路由表（来自 SKILL.md 分支表 + workflow.md 环节调用表） ----------
 // stage: 0 意图 / 1 调研 / 2 约束 / 3 产出 / 4 校验
 const ROUTES = {
@@ -103,10 +171,10 @@ const ROUTES = {
     4: ["kami-sancha", "huashu-5dim"],
   },
   B1: {
-    1: ["zine-style-library", "orange-line-illustration"],
-    2: ["zine-family-recipes", "logo-background-styles"],
+    1: ["zine-style-library", "poster-compositions", "orange-line-illustration"],
+    2: ["zine-family-recipes", "poster-compositions", "logo-background-styles"],
     3: ["gpt-image-2", "kami-skill"],
-    4: ["zine-consistency", "kami-sancha"],
+    4: ["zine-consistency", "poster-compositions", "kami-sancha"],
   },
   B2: {
     1: ["zine-style-library", "orange-line-illustration"],
@@ -213,6 +281,16 @@ function main() {
             break;
           }
         }
+        // 找风格桶（R 调研源 + 可作风格候选的 C 模板资源打桶；工具/素材类资源无桶字段）
+        let bucket = null;
+        if (currentRole === "R" || currentRole === "C") {
+          for (const [b, kw] of BUCKET_BY_KEYWORD) {
+            if (name.includes(kw)) {
+              bucket = b;
+              break;
+            }
+          }
+        }
         const res = {
           name,
           role: currentRole,
@@ -224,6 +302,8 @@ function main() {
         };
         if (slug) res.slug = slug;
         else skipped.push(name);
+        if (bucket) res.bucket = bucket;
+        res.quality = "未评估";
         resources.push(res);
       }
     }
@@ -238,6 +318,10 @@ function main() {
     logoExtra: LOGO_EXTRA,
     hallmarkExtra: HALLMARK_EXTRA,
     cheatExtra: CHEAT_EXTRA,
+    buckets: BUCKETS,
+    routing: ROUTING,
+    bucketNotes: BUCKET_NOTES,
+    qualityLevels: QUALITY_LEVELS,
   };
 
   // design-references 源 commit：优先 git 读取，失败回退写死值
@@ -249,7 +333,7 @@ function main() {
   }
 
   const manifest = {
-    extensionVersion: "1.1.0",
+    extensionVersion: "1.2.0",
     // 转译自的 hallmark 版本（checks/ 的 gate 号语义跟随此版本；上游更新需复核 checks）
     hallmarkRuleVersion: "1.1.0",
     designReferencesSource: `skills/design-references @ ${drCommit}`,

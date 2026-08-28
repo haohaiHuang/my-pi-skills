@@ -1,5 +1,7 @@
 # 资源注册表 — 三维索引
 
+> **个人路径声明**：本文件（及 workflow.md / 台账）中的 `~/Desktop/Design/...`、`~/resources/design-references.md` 等路径为**个人参考资产引用**（精确来源可复现设计），公开仓库会暴露目录结构但**不含资产内容**；clone 使用需自备对应目录，缺失时按各条退化链兜底。
+
 **维度**：`角色`（R调研源 / C约束模板 / E执行工具 / V校验标准）× `形态`（直引 / 转译 / 规则 / 工具）× `层级`（主 / 次 / 兜底）+ 适用场景 + **退化链** + **精确来源**。
 
 **查法**：`[分支] × [环节] → 找对应格子`。主层级必查，次按需，兜底无匹配才查。
@@ -11,12 +13,60 @@
 
 ---
 
+## 风格桶（反同质化索引，环节 1 必用）
+
+`design_route <需求特征>` 按需求返回推荐桶组合（主桶必查 + 次桶按需）；3 候选必须来自 ≥2 个不同桶，refero 等真实产品库每桶只算 1 个候选；候选产出后调 `design_diversity` 机器校验差异度（色相/字体/来源），PASS 才展示，FAIL 回炉。
+
+| 桶 | 视觉特征 | 代表资源 | 查询指引（桶内无 registry 资源时） |
+| --- | --- | --- | --- |
+| **minimal** 极简现代 | 干净留白/几何/现代无衬线 | refero、VoltAgent、Beautiful UI、Aceternity、21st.dev、minimal.gallery、vibeprompts | — |
+| **editorial** 编辑杂志 | 网格/衬线/印刷感/克制 | orange-line-illustration | kami 编辑向；zine 编辑族 |
+| **darktech** 暗色科技 | 深底/霓虹/终端/仪表盘 | —（hallmark 主题） | hallmark cobalt/terminal 主题；refero 搜暗色工具类产品 |
+| **bold** 撞色大胆 | 高饱和/波普/趣味 | Uiverse | hallmark carnival/playful 主题 |
+| **warmpaper** 暖纸人文 | 暖底/书卷气/克制排版 | kami-skeleton、kami-spec | hallmark lumen/atmospheric 主题；本地 kami-design-principles |
+| **liquid** 液态动效 | 流体/粘性/微交互 | liquid-gooey、transitions-dev | — |
+| **dataviz** 数据可视化 | 图表/规格表/信息密度 | —（hallmark 宏结构） | hallmark stat-led/spec-sheet 宏结构；refero 搜数据分析产品 |
+| **retro** 复古档案 | 像素/拼贴/档案感 | zine-style-library、zine-family-recipes | zine 复古族（本地） |
+
+**需求路由表**（`design_route` 内建，需求特征关键词 → 主/次桶）：
+
+| 需求特征 | 主桶（必查） | 次桶（按需） |
+| --- | --- | --- |
+| logo / app icon / 品牌图形 | bold | minimal、retro |
+| SaaS / 落地页 / 工具 / product | minimal | darktech、editorial |
+| AI / agent / chat / 对话 | minimal | liquid、darktech |
+| 数据 / dashboard / 仪表盘 | dataviz | minimal、darktech |
+| 文档 / docs / 博客 / 阅读 | editorial | warmpaper、minimal |
+| 海报 / 品牌 / 营销 / campaign | bold | retro、editorial |
+| 电商 / 商城 / 零售 | minimal | bold、warmpaper |
+| 演示 / PPT / deck / 提案 | editorial | minimal、bold |
+| 移动 / app / ios / android | minimal | liquid、darktech |
+
+**空桶/弱桶规则**：`design_route` 输出自动标注桶健康（🟢 健康≥2 源 / 🟡 弱桶=1 源 / 🔴 空桶=0 源）。空桶不报错，改用 `bucketNotes` 查询指引兜底（hallmark 主题/本地资产/相邻桶）；路由表保留空桶条目（可能补回），标注 🔴 提醒。**弱桶优先补源**：新增参考网站时先补弱桶/空桶，再考虑健康桶。
+
+## 质量规则（后验降权，非审美）
+
+资源 `quality` 字段（优/良/中/差/未评估）由**客观信号**决定——dembrandt/hallmark_study_fetch 提取是否成功、候选是否"未验证"、环节 4 回炉次数、网站可达性。**禁止以用户选择打分**（审美主观）。质量由 `design_quality` 工具记录（本地 `~/.pi/design-router-quality.json`，不入 git），任务收尾（环节 4 后）写入；环节 1 由 `design_lookup`（质量排序、差质沉底标注）与 `design_route`（桶代表排除差质源）消费。
+
+## 维护协议（增删改必走）
+
+| 动作 | 步骤 | 必做校验 |
+| --- | --- | --- |
+| **增** | 六栏登记 + 打风格桶（仅风格候选资源）+ 挂 routes + 同步台账 | 跑 `design_route` 确认路由命中新桶 |
+| **删** | 移除资源 + 清 routes/logoExtra/quality 引用 + 台账 | **跑 `design_route` 查桶健康**——该桶变空/变弱时按空桶规则处理 |
+| **改** | 改来源/层级/桶归属 + 更新台账 | 桶归属变了 → 重跑 `design_route` 确认路由；来源变了 → 重置 quality 为未评估 |
+
+改 registry.md 后重跑 `node scripts/build-registry.mjs`（或 `/design-router reload`）同步 registry.json；禁止手改 registry.json。
+
+---
+
 ## R 调研源（环节 1：真实产品/作品，回答"别人怎么做的"）
 
 | 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
 | --- | --- | --- | --- | --- | --- |
 | refero Styles 网站（真实产品设计系统，150K+ 屏幕，网页浏览） | 转译 | 主 | APP / 网页 / Mac | → 用户参考库候选池（台账+registry）→ web_search | 网站 `https://styles.refero.design/`（SPA，需浏览器浏览——pi 平台用 ego-browser / 其他平台 WebFetch 或人工） |
 | Zine 风格库（52 个 AI 海报技能风格配方） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） | 本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary` |
+| 海报构图词典（32 种构图：焦点/平衡/几何骨架/动势/分割/网格/图文关系/破格节奏；每条含视线路径/适合/避坑/提示词标签/双渲染；+ 11 项验收清单） | 转译 | 次 | 海报（构图候选池：按内容量×情绪选主构图；A 分支落地页可借用） | → 本地文件直读（无退化） | 本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书 |
 | VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → getdesign.md 官网 | `https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/` |
 | dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式） | 工具 | 主 | APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 失败时） | → hallmark_study_fetch（快验，零依赖）→ WebFetch / 人工核对 | npm 全局 `dembrandt`（v0.28.0，MIT）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/` |
 | Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://www.beautifului.ai/` |

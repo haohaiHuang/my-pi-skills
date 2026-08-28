@@ -1,6 +1,6 @@
 {
-  "extensionVersion": "1.1.0",
+  "extensionVersion": "1.2.0",
   "hallmarkRuleVersion": "1.1.0",
-  "designReferencesSource": "skills/design-references @ bc0bee0",
-  "registryGenerated": "2026-08-24"
+  "designReferencesSource": "skills/design-references @ aad5ef3",
+  "registryGenerated": "2026-08-28"
 }

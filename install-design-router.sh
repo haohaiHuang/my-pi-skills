@@ -7,7 +7,7 @@
 #   ./install-design-router.sh --all-platforms    design-references 分发到全部已登记平台
 #
 # 依赖策略（讨论结论）：
-#   - extension：必装（4 工具独立工作，不依赖任何 skill）
+#   - extension：必装（8 工具独立工作，不依赖任何 skill）
 #   - design-references skill：自己的资产，缺则自动补装
 #   - hallmark skill：第三方上游（nutlope/hallmark），默认只检测提示，装需 --with-hallmark
 set -euo pipefail
@@ -65,7 +65,7 @@ elif [ "$WITH_HALLMARK" = "1" ]; then
   echo "   ✓ hallmark 已安装（v$(grep -m1 '^version:' "$HALLMARK_SKILL" | awk '{print $2}')）"
 else
   echo "   ⚠️ 未安装（第三方上游，不默认装）。"
-  echo "     影响：注入只含归位映射（inject-map.md），跳过 hallmark 规则；4 个工具不受影响。"
+  echo "     影响：注入只含归位映射（inject-map.md），跳过 hallmark 规则；8 个工具不受影响。"
   echo "     要装：$0 --with-hallmark，或手动复制 nutlope/hallmark 的 skills/hallmark/ 到 ~/.pi/agent/skills/hallmark/"
 fi
 

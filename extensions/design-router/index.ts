@@ -16,7 +16,7 @@
  */
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFile } from "node:child_process";
@@ -62,6 +62,8 @@ interface RegistryResource {
   fallback: string;
   source: string;
   slug?: string;
+  bucket?: string;
+  quality?: string;
 }
 interface Registry {
   resources: RegistryResource[];
@@ -69,6 +71,10 @@ interface Registry {
   logoExtra: Record<string, string[]>;
   hallmarkExtra?: Record<string, string[]>;
   cheatExtra?: Record<string, string[]>;
+  buckets?: Record<string, string>;
+  routing?: Record<string, { primary: string[]; secondary: string[]; extra?: string }>;
+  bucketNotes?: Record<string, string>;
+  qualityLevels?: Record<string, string>;
 }
 function loadRegistry(): Registry {
   try {
@@ -76,6 +82,37 @@ function loadRegistry(): Registry {
   } catch {
     return { resources: [], routes: {}, logoExtra: {} };
   }
+}
+
+// ---------- 来源质量（客观信号，后验降权；日志本地不入 git） ----------
+const QUALITY_RANK: Record<string, number> = { 优: 3, 良: 2, 中: 1, 差: 0 };
+const QUALITY_LOG = join(process.env.HOME || "", ".pi/design-router-quality.json");
+interface QualityEntry {
+  quality: string;
+  reason: string;
+  at: string;
+  count: number;
+}
+function loadQualityLog(): { entries: Record<string, QualityEntry> } {
+  try {
+    return JSON.parse(readFileSync(QUALITY_LOG, "utf8"));
+  } catch {
+    return { entries: {} };
+  }
+}
+function saveQualityLog(log: { entries: Record<string, QualityEntry> }): boolean {
+  try {
+    mkdirSync(dirname(QUALITY_LOG), { recursive: true });
+    writeFileSync(QUALITY_LOG, JSON.stringify(log, null, 2) + "\n");
+    return true;
+  } catch {
+    return false;
+  }
+}
+/** 资源有效质量（日志 > registry 默认），差质=0 用于降权 */
+function resourceQuality(slug: string, registry: Registry): string {
+  const entry = loadQualityLog().entries[slug];
+  return entry?.quality || registry.resources.find((r) => r.slug === slug)?.quality || "未评估";
 }
 
 // ---------- Hallmark 注入源 ----------
@@ -122,9 +159,12 @@ function buildInjection(config: Config): string {
 const TOOL_NOTE = `
 [design-router] 本会话可用确定性设计工具，按需调用：
 · design_research <branch> <query> — 【环节 1 必用】确定性调研：本地台账 → refero 探测 → web 搜索，返回带证据来源的真实候选池，禁止仅凭内建知识选风格
-· design_lookup <branch> <stage> — 查设计资源注册表（R/C/E/V 三维索引 + 退化链 + 来源）
+· design_route <需求特征> — 【环节 1 反同质化第一步】需求特征 → 推荐风格桶组合（主桶必查+次桶按需）+ 各桶代表资源与桶健康（🟢🟡🔴）
+· design_diversity <c1> <c2> <c3> — 【环节 1 候选展示前必调】3 候选差异度机器检查（色相族/字体气质/来源桶），PASS 才展示，FAIL 回炉
+· design_lookup <branch> <stage> — 查设计资源注册表（R/C/E/V 三维索引 + 退化链 + 来源，输出标注风格桶+质量等级，差质沉底）
 · design_audit <target> — 跑 Hallmark 机器化 slop gates + 环节4 扫描，返回带 gate 号的 punch list（只读）
 · design_contrast <target> — APCA/WCAG 对比度计算
+· design_quality report|query — 【环节 4 收尾记录】客观质量信号（提取成败/未验证/回炉/可达性），禁以用户审美打分；下次环节 1 自动降权差质源
 · hallmark_study_fetch <url> — 抓取页面提取 DNA 草稿（字体/色值/间距/结构信号）
 · dembrandt <url> --design-md --save-output — 【验证升级】真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md（需精确 token 直引 / JS 重站点 / 快验失败时用）
 `;
@@ -318,6 +358,210 @@ export default function (pi: ExtensionAPI) {
     },
   });
 
+  // ---- design_route：需求特征 → 推荐风格桶组合（环节 1 反同质化第一步） ----
+  pi.registerTool({
+    name: "design_route",
+    label: "Design Route",
+    description:
+      "按需求特征（品类/气质/内容类型关键词）返回推荐风格桶组合（主桶必查 + 次桶按需）+ 每桶代表资源与桶健康状态（🟢健康/🟡弱桶/🔴空桶，空桶自动带查询指引）。环节 1 调研前必调：先把需求特征翻译成 2-4 个关键词，再查该去哪些桶检索。关键词不在路由表时返回全部 8 桶 + 各桶代表，由你按需求挑 2-3 桶。桶内差质源自动降权排除。",
+    parameters: Type.Object({
+      query: Type.String({ description: "需求特征关键词（如：SaaS 落地页 / AI 对话界面 / 数据仪表盘 / 品牌海报 / 文档博客）。可逗号分隔多个。" }),
+    }),
+    async execute(_toolCallId, params: { query: string }, _signal, _onUpdate, _ctx) {
+      const registry = loadRegistry();
+      const q = params.query.toLowerCase();
+      const lines = [`## design_route · 需求 → 风格桶组合`, ""];
+      let matched: { pattern: string; route: { primary: string[]; secondary: string[]; extra?: string } } | null = null;
+      for (const [pattern, route] of Object.entries(registry.routing || {})) {
+        if (pattern.split("|").some((k) => q.includes(k.trim()))) {
+          matched = { pattern, route };
+          break;
+        }
+      }
+      const bucketRep = (b: string) => {
+        const allReps = registry.resources.filter((r) => r.bucket === b);
+        const reps = allReps
+          .filter((r) => (QUALITY_RANK[resourceQuality(r.slug || "", registry)] ?? 1) > 0)
+          .sort(
+            (a, b2) =>
+              (QUALITY_RANK[resourceQuality(b2.slug || "", registry)] ?? 1) -
+              (QUALITY_RANK[resourceQuality(a.slug || "", registry)] ?? 1),
+          )
+          .map((r) => r.slug);
+        const degraded = allReps.filter((r) => (QUALITY_RANK[resourceQuality(r.slug || "", registry)] ?? 1) === 0).map((r) => r.slug);
+        const note = registry.bucketNotes?.[b] ? `｜查询指引: ${registry.bucketNotes[b]}` : "";
+        const health = allReps.length === 0 ? "🔴 空桶" : allReps.length === 1 ? "🟡 弱桶" : "🟢 健康";
+        const degradedNote = degraded.length ? `（⚠️ ${degraded.length} 个差质源已降权）` : "";
+        const repNote = reps.length ? `代表: ${reps.slice(0, 4).join(", ")}` : "（无可用源，走查询指引）";
+        return `${repNote}${degradedNote}${note}｜${health}`;
+      };
+      const bucketLine = (b: string) => `- **[${b}]** ${registry.buckets?.[b] ?? ""} ${bucketRep(b)}`;
+      if (matched) {
+        const { pattern, route } = matched;
+        lines.push(`匹配模式: ${pattern}`, "");
+        lines.push("### 主桶（必查，各取 ≥1 候选源）");
+        for (const b of route.primary) lines.push(bucketLine(b));
+        lines.push("", "### 次桶（按需，增强候选多样性）");
+        for (const b of route.secondary) lines.push(bucketLine(b));
+        if (route.extra === "logo") {
+          const logoSlugs = registry.logoExtra?.["2"] || [];
+          const logoHits = logoSlugs.map((s) => registry.resources.find((r) => r.slug === s)).filter((r): r is RegistryResource => Boolean(r));
+          if (logoHits.length) {
+            lines.push("", "### 专项资源（logo 任务必查）");
+            for (const r of logoHits) lines.push(`- **${r.name}**（${r.form}·${r.level}） ${r.source}`);
+          }
+        }
+        lines.push("", "铁律：3 候选来自 ≥2 桶；refero 类真实产品库每桶只算 1 个候选。");
+      } else {
+        lines.push(`未命中路由表（关键词: ${q || "空"}）。返回全部 8 桶：`, "");
+        for (const [b, desc] of Object.entries(registry.buckets || {})) lines.push(`- **[${b}]** ${desc} ${bucketRep(b)}`);
+        lines.push("", "按需求气质挑 2-3 个桶（主）+ 1-2 个次桶，再回 design_lookup 查各桶资源。");
+      }
+      return { content: [{ type: "text", text: lines.join("\n") }], details: { query: q, matched: Boolean(matched) } };
+    },
+  });
+
+  // ---- design_quality：客观质量信号记录/查询（环节 4 收尾写，环节 1 读） ----
+  pi.registerTool({
+    name: "design_quality",
+    label: "Design Quality",
+    description:
+      "记录或查询参考来源的质量信号（客观、非审美）：dembrandt/hallmark_study_fetch 提取是否成功、候选是否'未验证'、环节 4 回炉次数、网站可达性。质量档：优（多次验证一次通过）/ 良（验证成功）/ 中（提取部分失败或未验证）/ 差（多次回炉或不可达）。动作 report 在任务收尾（环节 4 后）记录；query 在环节 1 查历史。写入边界：仅写本地 ~/.pi/design-router-quality.json（不入 git、不碰工作区），是设计质量反馈闭环的落地点。",
+    parameters: Type.Object({
+      action: Type.String({ description: "report（记录信号）或 query（查历史）" }),
+      slug: Type.String({ description: "资源 slug（如 refero-design / zine-style-library）。query 时可用 'all' 查全部" }),
+      quality: Type.Optional(Type.String({ description: "report 时必填：优 / 良 / 中 / 差" })),
+      reason: Type.Optional(Type.String({ description: "report 时可选：信号依据（提取失败/未验证/回炉次数/不可达）" })),
+    }),
+    async execute(_toolCallId, params: { action: string; slug: string; quality?: string; reason?: string }, _signal, _onUpdate, _ctx) {
+      const registry = loadRegistry();
+      const action = params.action.toLowerCase();
+      const slug = params.slug.toLowerCase();
+      const log = loadQualityLog();
+      if (action === "report") {
+        const q = params.quality || "";
+        if (!["优", "良", "中", "差"].includes(q)) return { content: [{ type: "text", text: "❌ report 需 quality ∈ {优, 良, 中, 差}" }], details: {}, isError: true };
+        const res = registry.resources.find((r) => r.slug === slug);
+        if (!res) return { content: [{ type: "text", text: `❌ 未知 slug: ${slug}（可用 design_lookup 查合法 slug）` }], details: {}, isError: true };
+        const prev = log.entries[slug];
+        const entry: QualityEntry = { quality: q, reason: params.reason || "", at: new Date().toISOString(), count: (prev?.count || 0) + 1 };
+        log.entries[slug] = entry;
+        const ok = saveQualityLog(log);
+        return {
+          content: [{ type: "text", text: `${ok ? "✅ 已记录" : "⚠️ 写入失败"}: ${slug} → ${q}（${entry.reason || "无理由"}，累计 ${entry.count} 次）\n日志: ${QUALITY_LOG}` }],
+          details: { slug, quality: q, count: entry.count },
+        };
+      }
+      if (slug === "all") {
+        const lines = [`## design_quality · 全部来源质量`, ""];
+        for (const [s, e] of Object.entries(log.entries || {})) lines.push(`- ${s}: ${e.quality}（${e.reason || "无理由"}，${e.count} 次，${e.at?.slice(0, 10) || "?"}）`);
+        lines.push("", `共 ${Object.keys(log.entries || {}).length} 个来源有记录。` + (Object.keys(log.entries || {}).length === 0 ? "尚无记录——任务收尾时用 design_quality report 写入。" : ""));
+        return { content: [{ type: "text", text: lines.join("\n") }], details: { count: Object.keys(log.entries || {}).length } };
+      }
+      const e = log.entries[slug];
+      const res = registry.resources.find((r) => r.slug === slug);
+      if (!res && !e) return { content: [{ type: "text", text: `❌ 未知 slug: ${slug}` }], details: {}, isError: true };
+      const q = e?.quality || res?.quality || "未评估";
+      return {
+        content: [
+          {
+            type: "text",
+            text: `## ${slug} 质量\n- 当前: ${q}${e ? `（${e.reason || "无理由"}，累计 ${e.count} 次，最近 ${e.at?.slice(0, 10) || "?"}）` : "（无历史记录，registry 默认）"}\n- 档位说明: ${registry.qualityLevels?.[q] || "见 registry.md"}`,
+          },
+        ],
+        details: { slug, quality: q },
+      };
+    },
+  });
+
+  // ---- design_diversity：3 候选差异度机器检查（环节 1 展示前必调） ----
+  pi.registerTool({
+    name: "design_diversity",
+    label: "Design Diversity",
+    description:
+      "对 3 个候选的 token 草稿做机器化差异度检查（反同质化）：色相族（暖/冷/中性/多色）、字体气质（衬线/无衬线/等宽/展示）、来源桶/资源。返回两两差异报告 + PASS/FAIL。用于环节 1 候选展示前必调——3 个候选色相族、字体气质、布局骨架至少两维不同，且来源桶/来源资源不同，否则 FAIL 回炉。",
+    parameters: Type.Object({
+      c1: Type.String({ description: "候选1 的 token 草稿（色/字/距/质感 + 来源桶 + 来源资源，如：色#4F46E5系/Inter/间距4pt/极简 | 桶minimal/refero）" }),
+      c2: Type.String({ description: "候选2 的 token 草稿" }),
+      c3: Type.String({ description: "候选3 的 token 草稿" }),
+    }),
+    async execute(_toolCallId, params: { c1: string; c2: string; c3: string }, _signal, _onUpdate, _ctx) {
+      const cands = [
+        { label: "c1", text: String(params.c1 || "") },
+        { label: "c2", text: String(params.c2 || "") },
+        { label: "c3", text: String(params.c3 || "") },
+      ];
+      const WARM = ["橙", "橘", "红", "褐", "暖", "焦糖", "amber", "orange", "red", "brown", "cream", "象牙", "墨蓝"];
+      const COOL = ["蓝", "青", "冷", "navy", "blue", "cyan", "teal", "石墨"];
+      const NEUTRAL = ["灰", "白", "黑", "米", "neutral", "gray", "white", "black", "beige", "暖纸"];
+      const hexToHueFamily = (hex: string) => {
+        const m = /#([0-9a-f]{6})/i.exec(hex);
+        if (!m) return null;
+        const n = parseInt(m[1], 16);
+        const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        const l = (max + min) / 2 / 255;
+        if (l < 0.15) return "中性(暗)";
+        if (l > 0.85) return "中性(亮)";
+        const d = max - min;
+        if (d === 0) return "中性";
+        let h: number;
+        if (max === r) h = ((g - b) / d) % 6;
+        else if (max === g) h = (b - r) / d + 2;
+        else h = (r - g) / d + 4;
+        h = (h * 60 + 360) % 360;
+        if (h < 20 || h >= 340) return "暖(红)";
+        if (h < 60) return "暖(橙黄)";
+        if (h < 170) return "冷(绿青)";
+        if (h < 260) return "冷(蓝紫)";
+        return "暖(紫红)";
+      };
+      const hueFamily = (t: string) => {
+        const lower = t.toLowerCase();
+        const hexMatch = /#[0-9a-f]{6}/i.exec(lower);
+        if (hexMatch) return hexToHueFamily(hexMatch[0]);
+        const score = { 暖: 0, 冷: 0, 中性: 0 };
+        for (const k of WARM) if (lower.includes(k)) score["暖"]++;
+        for (const k of COOL) if (lower.includes(k)) score["冷"]++;
+        for (const k of NEUTRAL) if (lower.includes(k)) score["中性"]++;
+        const top = Object.entries(score).sort((a, b) => b[1] - a[1])[0];
+        return top[1] > 0 ? top[0] : "未识别";
+      };
+      const fontTone = (t: string) => {
+        const lower = t.toLowerCase();
+        if (/(serif|衬线|宋体|georgia|times|noto serif)/.test(lower)) return "衬线";
+        if (/(mono|等宽|jetbrains|monospace|consolas)/.test(lower)) return "等宽";
+        if (/(display|展示|grotesk|黑体|无衬线|sans|inter|roboto|space grotesk|plus jakarta|noto sans)/.test(lower)) return "无衬线/展示";
+        return "未识别";
+      };
+      const src = (t: string) => {
+        const m = t.match(/桶\s*([a-z]+)/i) || t.match(/\[桶\s*([a-z]+)\]/i) || t.match(/(minimal|editorial|darktech|bold|warmpaper|liquid|dataviz|retro)/i);
+        return m ? m[1].toLowerCase() : "未标注";
+      };
+      const profiles = cands.map((c) => ({ ...c, hue: hueFamily(c.text), font: fontTone(c.text), src: src(c.text) }));
+      const lines = [`## design_diversity · 候选差异度检查`, ""];
+      lines.push("| 候选 | 色相族 | 字体气质 | 来源桶/资源 |", "| --- | --- | --- | --- |");
+      for (const p of profiles) lines.push(`| ${p.label} | ${p.hue} | ${p.font} | ${p.src} |`);
+      const pairs: Array<[number, number, string]> = [[0, 1, "c1↔c2"], [0, 2, "c1↔c3"], [1, 2, "c2↔c3"]];
+      const dims = ["hue", "font"] as const;
+      const issues: string[] = [];
+      lines.push("", "### 两两差异");
+      for (const [i, j, label] of pairs) {
+        const a = profiles[i], b = profiles[j];
+        const diff = dims.filter((d) => a[d] !== b[d]);
+        const srcDiff = a.src !== b.src;
+        const dimNote = diff.length === 0 ? "⚠️ 色相与字体全部相同" : `色相${diff.includes("hue") ? "异" : "同"} · 字体${diff.includes("font") ? "异" : "同"}`;
+        lines.push(`- ${label}: ${dimNote} · 来源${srcDiff ? "异" : "同⚠️"}`);
+        if (diff.length === 0 || !srcDiff) issues.push(`${label} ${diff.length === 0 ? "色相/字体全同" : "来源相同"}`);
+      }
+      const pass = issues.length === 0;
+      lines.push("", pass
+        ? "✅ PASS：3 候选在色相/字体上互有差异且来源不同，满足反同质化要求。布局骨架差异请人工核对（本工具不覆盖）。"
+        : `❌ FAIL：${issues.join("；")}。回炉——换掉同质候选，确保 ≥2 个不同风格桶且色相/字体至少两维不同。`);
+      return { content: [{ type: "text", text: lines.join("\n") }], details: { pass, issues } };
+    },
+  });
+
   // ---- design_lookup ----
   pi.registerTool({
     name: "design_lookup",
@@ -349,7 +593,12 @@ export default function (pi: ExtensionAPI) {
       ];
       const hits = slugs
         .map((slug) => registry.resources.find((r) => r.slug === slug))
-        .filter((r): r is RegistryResource => Boolean(r));
+        .filter((r): r is RegistryResource => Boolean(r))
+        .sort(
+          (a, b) =>
+            (QUALITY_RANK[resourceQuality(b.slug || "", registry)] ?? 1) -
+            (QUALITY_RANK[resourceQuality(a.slug || "", registry)] ?? 1),
+        );
       if (hits.length === 0) {
         return {
           content: [
@@ -363,9 +612,12 @@ export default function (pi: ExtensionAPI) {
       }
       const lines = [`## ${branch} · 环节 ${stage} 资源`, ""];
       for (const r of hits) {
-        lines.push(`### ${r.name}`, `- 角色: ${r.role} · 形态: ${r.form} · 层级: ${r.level}`, `- 适用: ${r.scenarios}`, `- 退化链: ${r.fallback}`, `- 来源: ${r.source}`, "");
+        const bucketTag = r.bucket ? ` · [桶 ${r.bucket}]` : "";
+        const q = resourceQuality(r.slug || "", registry);
+        const qTag = q === "差" ? ` · ⚠️ 质量差（已降权）` : q !== "未评估" ? ` · 质量: ${q}` : "";
+        lines.push(`### ${r.name}${bucketTag}${qTag}`, `- 角色: ${r.role} · 形态: ${r.form} · 层级: ${r.level}`, `- 适用: ${r.scenarios}`, `- 退化链: ${r.fallback}`, `- 来源: ${r.source}`, "");
       }
-      lines.push("铁律：参考必须转译成约束（环节2），不'看一眼'就产出。用户精选资产优先于外部参考。");
+      lines.push("铁律：参考必须转译成约束（环节2），不'看一眼'就产出。用户精选资产优先于外部参考。候选多样性：3 候选来自 ≥2 个不同风格桶（design_route 定位），产出后 design_diversity 机器校验。");
       return { content: [{ type: "text", text: lines.join("\n") }], details: { branch, stage, count: hits.length } };
     },
   });
@@ -509,6 +761,7 @@ export default function (pi: ExtensionAPI) {
         "design-router 状态",
         `· 注入模式: ${cfg.injectionMode}（config.json 可改 full/slim；注入 = 归位映射 inject-map.md + hallmark SKILL.md）`,
         `· registry: ${registry.resources.length} 条资源 / ${Object.keys(registry.routes).length} 个分支路由（data/registry.json）`,
+        `· 风格桶: ${Object.keys(registry.buckets || {}).length} 桶 · 需求路由表 ${Object.keys(registry.routing || {}).length} 条 · 质量日志 ${Object.keys(loadQualityLog().entries).length} 条（~/.pi/design-router-quality.json）`,
         `· 版本配套: extension ${manifest.extensionVersion || "?"} · 规则转译自 hallmark ${expected} · registry 生成 ${manifest.registryGenerated || "?"}`,
         `· hallmark 实际: ${hallmarkInstalled ? "已安装 " + hallmarkVer : "未安装（软依赖，注入跳过 hallmark 部分，工具照常）"}${hallmarkInstalled && !verMatch ? " ⚠️ 版本与转译源不一致（${hallmarkVer} vs ${expected}），checks 规则可能需复核" : ""}`,
         `· design-references skill: ${loadInjectMap() ? "注入映射就绪" : "inject-map.md 缺失"}`,

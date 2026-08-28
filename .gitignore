@@ -1,0 +1,9 @@
+# 本地状态（不入 git）
+.DS_Store
+node_modules/
+*.log
+
+# design-router 运行时本地状态（质量信号日志，见 extensions/design-router/index.ts QUALITY_LOG）
+# 日志实际写入 ~/.pi/design-router-quality.json（仓库外）；此处兜底防误提交
+design-router-quality.json
+.hallmark/log.json
