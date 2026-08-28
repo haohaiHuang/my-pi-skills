@@ -592,8 +592,7 @@ export default function (pi: ExtensionAPI) {
         ...(registry.cheatExtra?.[stage] || []),
       ];
       const hits = slugs
-        .map((slug) => registry.resources.find((r) => r.slug === slug))
-        .filter((r): r is RegistryResource => Boolean(r))
+        .flatMap((slug) => registry.resources.filter((r) => r.slug === slug))
         .sort(
           (a, b) =>
             (QUALITY_RANK[resourceQuality(b.slug || "", registry)] ?? 1) -
