@@ -31,7 +31,7 @@
       "role": "R",
       "form": "转译",
       "level": "次",
-      "scenarios": "海报（构图候选池：按内容量×情绪选主构图；A 分支落地页可借用）",
+      "scenarios": "海报（构图候选池：按内容量×情绪选主构图）",
       "fallback": "→ 本地文件直读（无退化）",
       "source": "本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书",
       "slug": "poster-compositions",
@@ -268,6 +268,17 @@
       "source": "本地 `~/Desktop/Design/zine-style-references/style-families.md`（⚠️ 该文件是提炼资产，可能未生成——需要时从上游 52 skill README 提炼）",
       "slug": "zine-family-recipes",
       "bucket": "retro",
+      "quality": "未评估"
+    },
+    {
+      "name": "海报构图词典 · 落地页子集（单屏构图约束：03 三分法 / 05 大留白单点 / 13 Z 型 / 16 左右分屏 / 17 上下分屏 / 25 满版主视觉 / 26 大字主导 / 27 图上叠字 / 02 非对称平衡；页面级结构仍用 Hallmark 宏结构，两层正交：宏结构管页面区块节奏，词典管单屏画面组织）",
+      "role": "C",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 落地页（hero 与首屏的单屏构图；环节 2 约束转译 + 环节 4 视觉自查）",
+      "fallback": "→ 本地文件直读（无退化）",
+      "source": "本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书",
+      "slug": "poster-compositions",
       "quality": "未评估"
     },
     {
@@ -680,7 +691,8 @@
       "2": [
         "kami-skeleton",
         "refero-design",
-        "design-md-skill"
+        "design-md-skill",
+        "poster-compositions"
       ],
       "3": [
         "huashu-design",

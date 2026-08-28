@@ -160,7 +160,7 @@ const ROUTES = {
   },
   A2: {
     1: ["refero-design", "aceternity", "21st-dev", "dembrandt"],
-    2: ["kami-skeleton", "refero-design", "design-md-skill"],
+    2: ["kami-skeleton", "refero-design", "design-md-skill", "poster-compositions"],
     3: ["huashu-design", "kami-skill", "frontend-design"],
     4: ["kami-sancha", "huashu-5dim"],
   },
