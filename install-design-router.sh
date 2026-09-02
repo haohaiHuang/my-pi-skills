@@ -32,13 +32,21 @@ rsync -a --delete --exclude 'tests/' "$SRC/extensions/design-router/" "$DEST/"
 echo "   ✓ $(find "$DEST" -name '*.ts' -o -name '*.mjs' -o -name '*.json' -o -name '*.md' | wc -l | tr -d ' ') 个文件"
 
 echo "== 2/4 design-references skill（自己的资产，自动补装）"
-if [ -d "$HOME/.pi/agent/skills/design-references" ]; then
-  echo "   ✓ pi 已有（$([ -f "$HOME/.pi/agent/skills/design-references/SKILL.md" ] && echo SKILL.md 就绪 || echo 缺 SKILL.md)）"
+# 统一布局：真身放共享层 ~/.agents/skills（pi 与 DSH 共读），pi 侧软链。
+# 禁止往 ~/.pi/agent/skills 复制第二份实体 —— 会与 DSH 在共享层的副本同名冲突（pi 启动报 collision）。
+SHARED_DR="$HOME/.agents/skills/design-references"
+PI_DR="$HOME/.pi/agent/skills/design-references"
+mkdir -p "$HOME/.agents/skills"
+if [ -d "$SHARED_DR" ] || [ -L "$PI_DR" ] || [ -f "$PI_DR/SKILL.md" ]; then
+  echo "   ✓ 已装，收敛到统一布局（真身共享层 + pi 软链）"
+  rm -rf "$PI_DR"   # 旧实体/旧软链一并清除（实体只存在于共享层）
 else
-  echo "   → pi 未装，自动补装（源码 $SRC/skills/design-references/）"
-  rsync -a --delete "$SRC/skills/design-references/" "$HOME/.pi/agent/skills/design-references/"
-  echo "   ✓ 已补装"
+  echo "   → 未装，安装到共享层（源码 $SRC/skills/design-references/）"
 fi
+rsync -a --delete "$SRC/skills/design-references/" "$SHARED_DR/"
+ln -sfn ../../../.agents/skills/design-references "$PI_DR"
+echo "   ✓ 共享层：$SHARED_DR"
+echo "   ✓ pi 软链：$PI_DR -> ~/.agents/skills/design-references"
 if [ "$ALL_PLATFORMS" = "1" ]; then
   for p in workbuddy codex claude trae-ide trae-work; do
     dst="$HOME/.$([ "$p" = "trae-ide" ] && echo trae-cn || echo $p)/skills"
@@ -51,22 +59,27 @@ if [ "$ALL_PLATFORMS" = "1" ]; then
 fi
 
 echo "== 3/4 hallmark skill（第三方软依赖）"
-HALLMARK_SKILL="$HOME/.pi/agent/skills/hallmark/SKILL.md"
+# 同样收敛到共享层 + pi 软链，避免与 DSH 共享层副本同名冲突
+HALLMARK_SHARED="$HOME/.agents/skills/hallmark"
+HALLMARK_PI="$HOME/.pi/agent/skills/hallmark"
+HALLMARK_SKILL="$HALLMARK_PI/SKILL.md"
 if [ -f "$HALLMARK_SKILL" ]; then
   ver=$(grep -m1 '^version:' "$HALLMARK_SKILL" | awk '{print $2}' || echo "?")
   echo "   ✓ 已安装（v${ver}）——注入功能完整"
 elif [ "$WITH_HALLMARK" = "1" ]; then
-  echo "   → --with-hallmark：从 nutlope/hallmark 安装"
+  echo "   → --with-hallmark：从 nutlope/hallmark 安装（共享层 + pi 软链）"
   TMP=$(mktemp -d)
   git clone --depth 1 https://github.com/nutlope/hallmark "$TMP/hallmark" 2>/dev/null
-  mkdir -p "$HOME/.pi/agent/skills/hallmark"
-  cp -R "$TMP/hallmark/skills/hallmark/." "$HOME/.pi/agent/skills/hallmark/"
+  rm -rf "$HALLMARK_PI"
+  mkdir -p "$HOME/.agents/skills"
+  cp -R "$TMP/hallmark/skills/hallmark/." "$HALLMARK_SHARED/"
+  ln -sfn ../../../.agents/skills/hallmark "$HALLMARK_PI"
   rm -rf "$TMP"
   echo "   ✓ hallmark 已安装（v$(grep -m1 '^version:' "$HALLMARK_SKILL" | awk '{print $2}')）"
 else
   echo "   ⚠️ 未安装（第三方上游，不默认装）。"
   echo "     影响：注入只含归位映射（inject-map.md），跳过 hallmark 规则；8 个工具不受影响。"
-  echo "     要装：$0 --with-hallmark，或手动复制 nutlope/hallmark 的 skills/hallmark/ 到 ~/.pi/agent/skills/hallmark/"
+  echo "     要装：$0 --with-hallmark，或手动复制 nutlope/hallmark 的 skills/hallmark/ 到共享层 ~/.agents/skills/hallmark/ 并建 pi 软链"
 fi
 
 echo "== 4/4 自检"

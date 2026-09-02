@@ -66,8 +66,8 @@
 
 1. **盘点已有资产**（承接环节 0）：项目已有设计系统 → 它就是主参考，外部参考只做增强；无系统才从零调研
 1b. **需求路由（反同质化第一步，必做）**：先调 `design_route <需求特征关键词>` 拿推荐风格桶组合（主桶必查 + 次桶按需）。需求特征 = 品类/气质/内容类型（如"SaaS 落地页"→ 主桶 minimal，次桶 darktech/editorial）。拿不准关键词时直接传需求原文，工具返回全部 8 桶由你挑。
-2. **硬调研步骤（pi 平台：必须调用 `design_research <branch> <query>`；其他平台：等效确定性调研）**：先跑确定性调研取候选池——本地台账 → refero 网站（网页浏览） → web 搜索，每层带**证据来源**。**禁止仅凭模型内建知识直接选风格**——候选必须来自调研输出并标注证据；所有外部层失败才允许声明"无真实参考可查"并按 Kami 骨架执行。
-3. **统一候选池（优先于一切外部搜索；真实产品 + Hallmark 形态/气质库同池）**：在 design_research 输出的真实候选基础上，补 Hallmark 组合候选：
+2. **硬调研步骤（pi：必须调用 `design_research <branch> <query>`；DSH：用 `design_lookup <branch> <stage>` 查注册表 + 本地台账 grep + refero 探测 + web_search；其他平台：等效确定性调研）**：先跑确定性调研取候选池——本地台账 → refero 网站（网页浏览） → web 搜索，每层带**证据来源**。**禁止仅凭模型内建知识直接选风格**——候选必须来自调研输出并标注证据；所有外部层失败才允许声明"无真实参考可查"并按 Kami 骨架执行。
+3. **统一候选池（优先于一切外部搜索；真实产品 + Hallmark 形态/气质库同池）**：在确定性调研输出的真实候选基础上，补 Hallmark 组合候选：
    - **真实产品参考**：`~/resources/design-references.md`（台账）+ `references/registry.md` 按场景筛 2-3 个；用户指定风格则直引对应资源。**用户精选资产永远在外部随机搜索结果之前。**
    - **Hallmark 形态/气质库**（软依赖，已装 hallmark 时可用）：21 宏结构 = **形态**维度（页面形状：Bento/Stat-Led/Manifesto…）；4 genre + 21 theme = **气质**维度（editorial/modern-minimal/atmospheric/playful + 具体配色字体）。作为预打包的"形态+气质"实例进同池。
    - 每个候选标注：`形态分 × 气质分 × 行业分 × 防重分`（四维见下方分级表）+ **来源桶 + 来源资源**（design_route 定位、design_lookup 标注）。
@@ -84,11 +84,11 @@
    - Spacing / Radius / Shadow → 具体数值档位
    - Do / Don't → 全清单逐条记录
    缺一个 section 就不算调研完，补完才进候选展示
-4b. **参考为 .fig/.pen 文件时（源数据直读，最高证据等级）**：不用抓 URL，直接 `openpencil analyze colors/typography/spacing <file>` 取精确色板（含使用频次）/字体栈/间距档位，`openpencil variables <file>` 取已定义 token，`openpencil info` 取字体清单。结果等价于 DESIGN.md 的 Colors/Typography/Spacing 三 section 且数值精确到 hex。
-5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情，**再按内容量×情绪查 `references/poster-compositions.md` 速查表选构图**（主构图 1 个 + 辅助关系 1 条）
+4b. **参考为 .fig/.pen 文件时（源数据直读，最高证据等级）**：不用抓 URL，直接 `openpencil analyze colors/typography/spacing <file>` 取精确色板（含使用频次）/字体栈/间距档位，`openpencil variables <file>` 取已定义 token，`openpencil info` 取字体清单。结果等价于 DESIGN.md 的 Colors/Typography/Spacing 三 section 且数值精确到 hex。未装 openpencil → Figma 家族技能或人工核对。
+5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser / DSH 用 web_search 探测或 dembrandt 验证升级；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情，**再按内容量×情绪查 `references/poster-compositions.md` 速查表选构图**（主构图 1 个 + 辅助关系 1 条）
 6. **搜索失败时走决策树**（见下方「搜索失败决策框架」）
 7. 每个候选记录 token 草稿 + 理由（供环节 2 直接消费）
-8. **候选验证（pi 平台硬步骤：对选中的 2-3 个候选逐一验证，三源退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）；其他平台：WebFetch 或人工核对）**：
+8. **候选验证（硬步骤：对选中的 2-3 个候选逐一验证，退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（pi，秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）；DSH：dembrandt（首选）→ `defuddle parse <url> --md` 文本抽取 → web_search → 人工核对；其他平台：WebFetch 或人工核对）**：
    - **候选是本地 .fig/.pen 文件**（用户参考库里的设计稿）→ 直接 `openpencil analyze/variables/info` 直读，**跳过 URL 抓取**（源数据比渲染推断更精确）
    - 候选是 URL → `hallmark_study_fetch` 快验 → 失败/需精确值升级 `dembrandt`
    验证成功（任一引擎拿到精确值）→ 该候选可"直引"（萃取具体数值进约束，dembrandt/openpencil 验证的可直接回填参考台账）；验证失败/抓不到 → 标注"未验证"，只能"属性级借用"（如"暗色仪表盘式"），禁止把未验证候选当直引参考。验证结果一并展示给用户。
@@ -147,7 +147,7 @@
 | B | Zine 风格库（本地） | 构图词典（poster-compositions.md，内容量×情绪选主构图）+ orange-line-illustration | web_search |
 | C | 不跑本环节 | — | — |
 
-**退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ **本地 .fig/.pen 设计稿（openpencil 直读，证据等级最高）** → refero Styles 网站（网页浏览）→ Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
+**退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ **本地 .fig/.pen 设计稿（openpencil 直读，证据等级最高）** → refero Styles 网站（网页浏览——pi / web_search 探测——DSH）→ Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
 
 ---
 
@@ -173,7 +173,7 @@
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译：B 海报 = 主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项；A 网页 = hero/首屏单屏构图用落地页子集 03/05/13/16/17/25/26/27/02，页面级结构仍用 Hallmark 宏结构——两层正交：宏结构管页面区块节奏，词典管单屏画面组织；来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**。
+**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖，未装走 Figma 家族/人工核对）** → **参考为 URL 时 `dembrandt <url> --design-md` 萃取产物可直接作约束来源（C 数据·次·已装 v0.30.0）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译：B 海报 = 主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项；A 网页 = hero/首屏单屏构图用落地页子集 03/05/13/16/17/25/26/27/02，页面级结构仍用 Hallmark 宏结构——两层正交：宏结构管页面区块节奏，词典管单屏画面组织；来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**→ **动效约束（产物含交互/动效时必转译，来源 emilkowalski/skills 动效原则——频率分级/缓动决策序/时长表/物理感，见 inject-map.md craft 约束 Animation 条目；机器子集 EM-* 已进环节 4 audit）**。
 
 **退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 
@@ -198,7 +198,7 @@
 
 | 分支 | 执行工具 |
 | --- | --- |
-| A | kami（排版）/ huashu-design（HTML 高保真）/ Figma 家族 / motion（动效）/ **openpencil（软依赖：HTML 产物要变 .fig → `openpencil import`；.fig 产物要交前端 → `openpencil export -f jsx --style tailwind` / `-f html`；批量建组件/排 auto-layout → `openpencil eval`）** |
+| A | kami（排版）/ huashu-design（HTML 高保真）/ Figma 家族 / motion（动效）/ **openpencil（软依赖，已装时：HTML 产物要变 .fig → `openpencil import`；.fig 产物要交前端 → `openpencil export -f jsx --style tailwind` / `-f html`；批量建组件/排 auto-layout → `openpencil eval`；未装跳过）** |
 | B1 海报 | gpt-image-2（图像）+ kami（排版） |
 | B2 杂志 | gpt-image-2（插图）+ kami（版式网格） |
 | B3 PPT | guizang-ppt-skill |
@@ -229,6 +229,7 @@
    - `openpencil analyze clusters <file>` → 组件化程度（该抽没抽的重复）
    - `openpencil export <file> -f png --thumbnail` → 视觉评审截图
    - 任一不达标 → 回环节 2 改约束，与 HTML 产物同一裁决
+   - **未装 openpencil → 导出 PNG + Figma 家族技能或人工核对**
 2. Kami 三查：取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%
 3. 风格一致性：逐条核对约束集（色板/质感/排版）；分支 B 补构图验收（poster-compositions.md 11 项：入口/焦点/主次比例/共同边线/沟槽/留白/破格≤1/图文层级/裁切安全/响应式）
 4. 分支 A 补 UX QA：导航/状态/反馈可用性（design-qa-checklist）
@@ -236,7 +237,7 @@
 6. 任一不达标 → 明确写"回环节 2：改哪条约束"，不静默打补丁
 7. **自检结果展示给用户**（扫描输出 + 对照表），让用户看到每项的依据
 8. **质量信号记录（环节 4 完成后、收尾前，必做）**：对本任务用到的参考来源逐个调 `design_quality report`，按客观信号定档：
-   - dembrandt/hallmark_study_fetch 验证成功且一次通过 → `良`（多次累积升 `优`）
+   - dembrandt / hallmark_study_fetch（pi）/ defuddle（DSH）验证成功且一次通过 → `良`（多次累积升 `优`）
    - 提取部分失败/候选标注"未验证" → `中`
    - 环节 4 FAIL 且回炉 2 次仍不过 → `差`
    - 网站不可达/404 → `差`
@@ -254,9 +255,9 @@ FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规
 **资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ 构图 11 项验收（V 规则·B，poster-compositions.md）/** logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次：GitHub 源优先，本地存档兜底）**。
 
 **四段校验分层（每层管的东西不同，全跑）**：
-1. **机器层**：`design_audit`（pi 的 design-router extension）跑可机器判定的 slop gates + 色值/emoji/字重/圆角/渐变扫描（合并了环节 4 机器扫描与 hallmark 机器子集）
+1. **机器层**：`design_audit`（pi 的 design-router extension / DSH 的 my-agent 预设插件，同源工具）跑可机器判定的 slop gates + 色值/emoji/字重/圆角/渐变扫描（合并了环节 4 机器扫描与 hallmark 机器子集）+ **动效 EM-* 子集**（grep 可查：EM-1 `transition: all` / EM-2 入场 `scale(0)` / EM-3 UI 上 `ease-in` / EM-4 刻意动画用内置 `ease-out` / EM-5 UI 时长 >300ms 无理由 / EM-6 keyframes 用于 toast/toggle 等快速触发 / EM-7 动 width/height/margin/padding/top/left / EM-8 缺 `prefers-reduced-motion` / EM-9 hover 无 `(hover:hover) and (pointer:fine)` 门控 / EM-10 锚定弹层 `transform-origin: center`；来源 emilkowalski/skills STANDARDS.md，需精确值直引时读 ~/Desktop/DSH/Chat/Design-Agent/… 或 github.com/emilkowalski/skills）。**机器实现映射**：EM-2/EM-3/EM-5 为 design_audit 独立 gate；EM-1 由 gate 10 覆盖、EM-7 由 gate 14 覆盖、EM-8 由 gate 27 覆盖（同语义不重复输出）；EM-4/6/9/10 为 grep 自查
 2. **品牌层**：Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%）
-3. **视觉层**：hallmark slop-test 58 gates 全量（V 规则·次·软依赖——机器子集已由第 1 层跑，视觉/上下文类由模型按 slop-test.md 自查：gate 6/8/28/29/31/32/35/36/44/45/52-54/56/57）；A 分支 hero/首屏可加构图 11 项自查（poster-compositions.md，与 gates 去重：焦点/主次比例/留白帮助阅读）
+3. **视觉层**：hallmark slop-test 58 gates 全量（V 规则·次·软依赖——机器子集已由第 1 层跑，视觉/上下文类由模型按 slop-test.md 自查：gate 6/8/28/29/31/32/35/36/44/45/52-54/56/57）+ **动效视觉自查**（EM-11 频率档匹配——高频区是否仍有动画 / EM-12 目的能否命名——说不出目的即删 / EM-13 crossfade 是否干净（脏则 blur(2px)<20px 遮盖）/ EM-14 stagger 30–80ms 节奏 / EM-15 退出路径与进入对称 / EM-16 慢放验证——2–5× 或 DevTools 动画检查器看缓动/原点/同步）；A 分支 hero/首屏可加构图 11 项自查（poster-compositions.md，与 gates 去重：焦点/主次比例/留白帮助阅读）
 4. **UX 层**：design-qa-checklist（导航/状态/反馈可用性）
 
 **退化链**：脚本检查 → 取色器 + 目测 → 三条检查规则人脑执行。

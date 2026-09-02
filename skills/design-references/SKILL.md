@@ -104,7 +104,7 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 **反同质化规则（铁律 8）**：环节 1 的 2-3 个候选**必须来自 ≥2 个不同风格桶**（minimal 极简现代 / editorial 编辑杂志 / darktech 暗色科技 / bold 撞色大胆 / warmpaper 暖纸人文 / liquid 液态动效 / dataviz 数据可视化 / retro 复古档案，桶定义见 registry.md），来源资源两两不同；refero 等真实产品库只能贡献 1 个候选。候选产出后必调 `design_diversity` 机器校验差异度（色相/字体/来源），PASS 才展示；FAIL 回炉。桶定位用 `design_route`（需求特征 → 推荐桶组合，含桶健康状态与差质降权标注），查资源用 `design_lookup`（输出标注 [桶 X] 与质量等级）。
 
-**质量与维护规则（铁律 9）**：参考来源质量由**客观信号**后验决定（提取成功率/未验证比例/回炉率/可达性），**禁止以用户审美选择打分**。任务收尾调 `design_quality report` 记录（本地 `~/.pi/design-router-quality.json`，不入 git）；环节 1 消费降权（lookup 差质沉底 / route 代表排除差质源）。参考网站增删改走 registry.md 维护协议，删站后查桶健康（🔴 空桶自动走查询指引兜底）。
+**质量与维护规则（铁律 9）**：参考来源质量由**客观信号**后验决定（提取成功率/未验证比例/回炉率/可达性），**禁止以用户审美选择打分**。任务收尾调 `design_quality report` 记录（本地 `~/.pi/design-router-quality.json`（pi）/ `~/.dsh/design-router-quality.json`（DSH），不入 git）；环节 1 消费降权（lookup 差质沉底 / route 代表排除差质源）。参考网站增删改走 registry.md 维护协议，删站后查桶健康（🔴 空桶自动走查询指引兜底）。
 
 **加载预算（铁律 10，防上下文烧穿）**：参考文件预算**分层**——各层独立计数，不是单一总账：
 - **本 skill（design-references）自己的 references/：每环节 ≤3 个文件**（主层级 1-2 个 + 当前需要的 1 个；禁止一次读完全部 references/）
@@ -139,9 +139,12 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 **pi 平台配套**：`design-router` extension（my-pi-skills `extensions/design-router/`）提供确定性工具——`design_research`（环节 1 确定性调研退化链）/ `design_route`（需求特征 → 风格桶组合，环节 1 反同质化第一步）/ `design_lookup`（统一候选池查询，差质沉底）/ `design_diversity`（3 候选差异度机器校验）/ `design_quality`（质量信号记录/查询，环节 4 收尾写）/ `design_audit`（机器层校验）/ `design_contrast`（对比度）/ `hallmark_study_fetch`（URL→DNA），并在设计任务时注入本协同说明 + hallmark 完整规则。候选验证升级路径：全局 CLI `dembrandt`（npm，真浏览器渲染精确 token + 规范 DESIGN.md，见 workflow.md 环节 1 硬步骤②）。
 
+**DSH 平台配套**：`design-router` 插件（my-agent 预设挂载，源码在本仓库 `plugins/design-router/`）提供确定性工具——`design_lookup`（registry 三维索引查询，输出标注风格桶+质量等级，差质沉底）/ `design_route`（需求特征 → 推荐风格桶组合，含桶健康与差质降权，环节 1 反同质化）/ `design_diversity`（3 候选差异度机器校验）/ `design_quality`（质量信号记录/查询，任务收尾写，环节 1 读）/ `design_audit`（机器层校验，环节 4 必用）/ `design_contrast`（对比度）。原 pi 版另有 `design_research`（确定性调研）与 `hallmark_study_fetch`（URL→DNA 快验）未移植——DSH 分别用「本地台账 grep + refero 探测 + web_search」与「dembrandt / defuddle」退化链替代。候选验证升级路径：全局 CLI `dembrandt`（URL→设计 token，真浏览器渲染精确 token + 规范 DESIGN.md，见 workflow.md 环节 1 步骤 8）。
+
 ## 数据源
 
 - 资源明细台账：`~/resources/design-references.md`（A-G 浏览视图 + 每条三维标注）
 - 资源三维索引：`references/registry.md`（角色 × 形态 × 层级 + 退化链）
 - 环节操作手册：`references/workflow.md`
-- 深度方法论：`refero Styles 网站`（https://styles.refero.design/，网页浏览取真实产品设计系统；SPA 需浏览器——pi 平台用 ego-browser）
+- 构图词典：`references/poster-compositions.md`（32 构图词条 × 内容量/情绪速查，B 海报写提示词、A 网页转 CSS 约束）
+- 深度方法论：`refero Styles 网站`（https://styles.refero.design/，取真实产品设计系统；SPA 需浏览器——pi 平台用 ego-browser，DSH 用 web_search 探测或 dembrandt 验证升级）

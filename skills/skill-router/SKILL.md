@@ -24,7 +24,7 @@ description: 本机技能咨询台与台账管理器。当用户困惑"用什么
 | **sync** | `/skill:skill-router sync` | "更新台账""登记技能""同步台账" | 生成矩阵 → diff → 确认 → 写 `~/Documents/skill-inventory.md` |
 | **help** | `/skill:skill-router help` | "怎么用" | 输出本表 |
 
-平台参数：`pi` / `workbuddy` / `codex` / `claude` / `trae-ide` / `trae-work`，或自动发现平台名（`platforms` 查看）。
+平台参数：`pi` / `dsh` / `workbuddy` / `codex` / `claude` / `trae-ide` / `trae-work`，或自动发现平台名（`platforms` 查看）。
 
 ---
 
@@ -50,7 +50,7 @@ description: 本机技能咨询台与台账管理器。当用户困惑"用什么
 1. 单平台：跑 `catalog.sh <平台> --check`；全机：跑 `catalog.sh all`（或逐平台 `--check`）
 2. 整理为结构化报告：
    - **平台概况**：技能总数、实体/软链/死链、平台对比表
-   - **同名检测**：列出重复（注明软链假重复 vs 真冲突）
+   - **同名检测**：列出重复（已按 realpath 去重——软链对同一物理文件只计一次；只有不同物理文件同名才报真冲突）
    - **同类分布**：>1 的类别 + 成员，标注需确认的区分
    - **⚠️ 风险提示**：死链、版本漂移（可对照矩阵）、异常分类
 3. 报告末尾可附"台账同步建议"：与矩阵对比，列出新增/消失/漂移项（提示用户跑 `sync` 更新）
@@ -114,6 +114,7 @@ description: 本机技能咨询台与台账管理器。当用户困惑"用什么
 | 平台 | 目录 |
 | --- | --- |
 | pi | `~/.pi/agent/skills` + `~/.agents/skills`（直读共享层） |
+| dsh | `~/.dsh/skills` + `~/.agents/skills`（共享层：DSH 的 design agent 预设与 picgen 导入都写这里，与 pi 共读；同名单文件 = 软链/同源，非冲突） |
 | workbuddy | `~/.workbuddy/skills` |
 | trae-ide | `~/.trae-cn/skills` |
 | trae-work | `~/.trae/skills`（存在时）或 `~/Library/Application Support/TRAE SOLO CN/ModularData/ai-agent/skills`（自动探测） |

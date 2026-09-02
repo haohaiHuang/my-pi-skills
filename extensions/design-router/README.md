@@ -22,8 +22,8 @@
 | 依赖 | 性质 | 安装行为 |
 | --- | --- | --- |
 | extension 本体 | 必装 | 无条件分发；4 工具独立工作，不依赖任何 skill |
-| design-references skill | 自己的资产（共通层） | 缺则**自动补装** |
-| hallmark skill | 第三方上游（nutlope/hallmark） | **只检测提示**，装需 `--with-hallmark` |
+| design-references skill | 自己的资产（共通层） | 缺则**自动补装**（真身装共享层 `~/.agents/skills/` + pi 软链，与 DSH 共读，避免同名冲突） |
+| hallmark skill | 第三方上游（nutlope/hallmark） | **只检测提示**，装需 `--with-hallmark`（同样装共享层 + pi 软链） |
 
 版本配套：`data/manifest.json` 记录 extension 版本 / 转译自的 hallmark 规则版本 / design-references 源 / registry 生成日期；`/design-router status` 显示实际 hallmark 版本与转译源是否一致（不一致提示复核 checks）。
 

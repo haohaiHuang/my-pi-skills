@@ -8,13 +8,14 @@
 #   catalog.sh all               列出所有平台技能数概览（已登记 + 自动发现）
 #
 # 平台：
-#   已登记：pi / workbuddy / codex / claude / trae-ide / trae-work
+#   已登记：pi / dsh / workbuddy / codex / claude / trae-ide / trae-work
 #   自动发现：catalog.sh 每次运行先扫描 $HOME 下所有含 SKILL.md 的隐藏 skills 目录
 #   （.qwen / .roo / .tabnine/agent 等），发现的平台名均可直接查询
 #
 # 设计原则（见 SKILL.md）：
 #   - 运行时现扫，不缓存 —— 清单永远与磁盘一致
 #   - 软链跟随（[ -f ] 穿透），共享层技能自动出现在各平台清单
+#   - realpath 去重：同一物理文件（软链对）只计一次，同名检测不报假重复
 #   - 分类用 name 规则 + description 关键词，新技能自动归类
 # ============================================================
 
@@ -27,6 +28,11 @@ platform_dirs() {
 	case "$1" in
 	pi)
 		echo "$H/.pi/agent/skills"
+		echo "$H/.agents/skills"
+		;;
+	dsh)
+		# DSH 技能面 = 自带 skill store + 共享层 ~/.agents/skills（DSH 的 design agent 预设与 picgen 导入都写这里，与 pi 共享）
+		echo "$H/.dsh/skills"
 		echo "$H/.agents/skills"
 		;;
 	workbuddy) echo "$H/.workbuddy/skills" ;;
@@ -51,7 +57,7 @@ platform_dirs() {
 # 输出: 平台名<TAB>目录（已排除已登记平台与噪音路径）
 discover_platforms() {
 	local known
-	known=$(platform_dirs pi; platform_dirs workbuddy; platform_dirs codex; platform_dirs claude; platform_dirs trae-ide; platform_dirs trae-work)
+	known=$(platform_dirs pi; platform_dirs dsh; platform_dirs workbuddy; platform_dirs codex; platform_dirs claude; platform_dirs trae-ide; platform_dirs trae-work)
 	{
 		local d
 		for d in "$H"/.[a-zA-Z0-9_-]*/skills; do
@@ -186,10 +192,13 @@ scan_platform() {
 	local dirs
 	dirs=$(resolve_dirs "$plat")
 	if [ -z "$dirs" ]; then
-		echo "未知平台: ${plat}（已登记: pi/workbuddy/codex/claude/trae-ide/trae-work；或跑 catalog.sh all 看自动发现平台）" >&2
+		echo "未知平台: ${plat}（已登记: pi/dsh/workbuddy/codex/claude/trae-ide/trae-work；或跑 catalog.sh all 看自动发现平台）" >&2
 		return 1
 	fi
 	local found=0
+	local seen
+	# realpath 去重：软链对（如 pi→agents 共享层）同一物理文件只计一次，避免同名假重复
+	seen=$(mktemp)
 	local d
 	while IFS= read -r d; do
 		[ -z "$d" ] && continue
@@ -197,7 +206,10 @@ scan_platform() {
 		local f
 		for f in "$d"/*/SKILL.md; do
 			[ -f "$f" ] || continue
-			local name desc cat
+			local rp name desc cat
+			rp=$(realpath "$f" 2>/dev/null || printf '%s' "$f")
+			grep -qxF "$rp" "$seen" && continue
+			printf '%s\n' "$rp" >>"$seen"
 			name=$(basename "$(dirname "$f")")
 			desc=$(get_frontmatter "$f" description)
 			cat=$(classify "$name" "$desc")
@@ -210,7 +222,10 @@ scan_platform() {
 		local f
 		for f in "$H/.pi/agent/git/github.com"/*/*/skills/*/SKILL.md; do
 			[ -f "$f" ] || continue
-			local name desc cat
+			local rp name desc cat
+			rp=$(realpath "$f" 2>/dev/null || printf '%s' "$f")
+			grep -qxF "$rp" "$seen" && continue
+			printf '%s\n' "$rp" >>"$seen"
 			name=$(basename "$(dirname "$f")")
 			desc=$(get_frontmatter "$f" description)
 			cat=$(classify "$name" "$desc")
@@ -218,6 +233,7 @@ scan_platform() {
 			found=$((found + 1))
 		done
 	fi
+	rm -f "$seen"
 	return 0
 }
 
@@ -256,6 +272,21 @@ platform_skill_version() {
 		fi
 		return
 	done <<< "$dirs"
+	# pi install 安装的技能在 ~/.pi/agent/git/github.com/<owner>/<repo>/skills/（多级结构）
+	if [ "$plat" = "pi" ] && [ -d "$H/.pi/agent/git/github.com" ]; then
+		local f2
+		for f2 in "$H/.pi/agent/git/github.com"/*/*/skills/$name/SKILL.md; do
+			[ -f "$f2" ] || continue
+			local v2
+			v2=$(get_frontmatter "$f2" version)
+			if [ -n "$v2" ]; then
+				echo "$v2"
+			else
+				md5 -q "$f2" 2>/dev/null | cut -c1-6
+			fi
+			return
+		done
+	fi
 	echo ""
 }
 
@@ -298,7 +329,7 @@ scan_external() {
 build_matrix() {
 	# 真实平台：已登记 + 自动发现（去重）
 	local platlist
-	platlist=$(printf '%s\n' pi workbuddy codex claude trae-ide trae-work)
+	platlist=$(printf '%s\n' pi dsh workbuddy codex claude trae-ide trae-work)
 	if [ -n "$DISCOVERED" ]; then
 		platlist=$(printf '%s\n%s\n' "$platlist" "$(printf '%s\n' "$DISCOVERED" | cut -f1)")
 	fi
@@ -392,12 +423,12 @@ DISCOVERED="$(discover_platforms)"
 case "${PLAT:-}" in
 "")
 	echo "用法: catalog.sh <平台> [--check] | all"
-	echo "平台: 已登记(pi workbuddy codex claude trae-ide trae-work) + 自动发现平台; all 列出全部"
+	echo "平台: 已登记(pi dsh workbuddy codex claude trae-ide trae-work) + 自动发现平台; all 列出全部"
 	exit 1
 	;;
 "all")
 	echo "== 已登记平台 =="
-	for p in pi workbuddy codex claude trae-ide trae-work; do
+	for p in pi dsh workbuddy codex claude trae-ide trae-work; do
 		n=$(scan_platform "$p" 2>/dev/null | wc -l | tr -d ' ')
 		printf '  %-12s %s\n' "$p:" "$n 技能"
 	done
