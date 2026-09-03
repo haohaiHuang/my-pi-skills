@@ -17,7 +17,7 @@ skills/                    Original skills (each with SKILL.md)
   design-references/       Design reference index
   skill-router/            Skill advisor + inventory (scripts/catalog.sh)
   vision/                  Image-to-text
-extensions/                Pi-only capability layer (确定性工具壳，pi 专属)
+extensions/                Pi-only capability layer (deterministic tool shells, pi-specific)
   design-router/           design-references 确定性工具化 + hallmark 注入（5 工具，见其 README）
 resources/                 External assets / companion tools
   design-references.md     Asset catalog for design-references (SKILL.md is just the entry)
@@ -29,8 +29,8 @@ docs/                      Generic docs
 
 ## 安装
 
-- 技能分发到各平台：`./install.sh [目标 skills 目录]`（默认 `~/.pi/agent/skills`）
-- pi 专属 extension：`./install-design-router.sh`（含 design-references 自动补装；hallmark 需 `--with-hallmark` 显式确认）
+- Distribute skills to platforms: `./install.sh [target skills dir]` (default `~/.pi/agent/skills`)
+- Pi-only extension: `./install-design-router.sh` (auto-installs design-references; hallmark requires explicit `--with-hallmark`)
 
 > Skills with a GitHub upstream (mattpocock, lark-*, etc.) install from their own upstream, not this repo.
 
@@ -110,23 +110,23 @@ git clone https://github.com/haohaiHuang/my-pi-skills && cd my-pi-skills
 
 **New skills in this repo** (maintainers): put new original skill dirs in `skills/`, external deps in `resources/`, commit & push.
 
-## Credits — 借鉴与归位
+## Credits
 
-`design-references` 是编排器/路由器，不是原创方法论合集。它把多家方法论**归位为执行细节**（各归各环节、按需 read），并注明借鉴来源：
+`design-references` is an **orchestrator/router**, not an original methodology collection. It takes methodologies from other projects, **maps each into a stage detail** (read on demand), and credits the sources:
 
-| 借鉴自 | 归位为 | 环节 |
+| Borrowed from | Mapped into | Stage |
 | --- | --- | --- |
-| [nutlope/hallmark](https://github.com/nutlope/hallmark) | 执行层：21 宏结构/21 theme/4 genre/58 slop gates + pre-emit 六轴自评 | 形态库/气质库/环节 4 |
-| [tw93/Kami](https://github.com/tw93/Kami) | 排版骨架不变量 + Kami 三查（取色/品牌色面积/页面密度） | 环节 2 约束 / 环节 4 品牌层 |
-| [tw93/Waza](https://github.com/tw93/Waza) → `/ui` | 视觉迭代快速通道：方向锁五维 + grep sibling 复用 + native exception + 中文 gut-feel 路由 | 环节 4 视觉迭代（`references/ui-quickfix.md`） |
-| [huashu-design](https://github.com/alchaincyf/huashu-design) | 事实验证门（涉具体产品先搜证）+ 品牌资产门（logo/产品图 > 品牌色）+ 候选"看得见" | 环节 0 5b / 环节 1 1a / 环节 1 9a |
-| [baoyu-design](https://github.com/JimLiu/baoyu-design) | 候选同页并排展示（artboard 对比优于散文件） | 环节 1 9a |
-| [emilkowalski/skills](https://github.com/emilkowalski/skills) | 动效原则（频率分级/缓动决策序/时长表/物理感，EM-*） | 环节 2 动效约束 / 环节 4 |
-| interfaces.dev cheat-sheet | craft 约束（typography/colors/layout/a11y/writing，CS-*） | 环节 2 |
-| refero Styles / beautifului / zine 族 | 真实产品参考候选池（风格桶） | 环节 1 调研 |
-| dembrandt / openpencil | 候选验证引擎（URL→精确 token / .fig 直读） | 环节 1 验证 / 环节 4 |
+| [nutlope/hallmark](https://github.com/nutlope/hallmark) | Execution layer: 21 macrostructures / 21 themes / 4 genres / 58 slop gates + pre-emit 6-axis self-review | Shape library / mood library / Stage 4 |
+| [tw93/Kami](https://github.com/tw93/Kami) | Typesetting skeleton invariants + Kami triple-check (palette extraction / brand-color area / page density) | Stage 2 constraints / Stage 4 brand layer |
+| [tw93/Waza](https://github.com/tw93/Waza) → `/ui` | Visual iteration fast path: 5-dimension direction lock + grep-sibling reuse + native-app exception + Chinese gut-feel routing | Stage 4 visual iteration (`references/ui-quickfix.md`) |
+| [huashu-design](https://github.com/alchaincyf/huashu-design) | Fact-verification gate (search before asserting on specific products) + brand-asset gate (logo/product image > brand color) + visible candidates | Stage 0 5b / Stage 1 1a / Stage 1 9a |
+| [baoyu-design](https://github.com/JimLiu/baoyu-design) | Side-by-side candidate display (artboard comparison over loose files) | Stage 1 9a |
+| [emilkowalski/skills](https://github.com/emilkowalski/skills) | Motion principles (frequency tiers / easing decision order / duration table / physics, EM-*) | Stage 2 motion constraints / Stage 4 |
+| interfaces.dev cheat-sheet | Craft constraints (typography / colors / layout / a11y / writing, CS-*) | Stage 2 |
+| refero Styles / beautifului / zine family | Real-product reference candidate pool (style buckets) | Stage 1 research |
+| dembrandt / openpencil | Candidate verification engine (URL → precise tokens / direct .fig read) | Stage 1 verification / Stage 4 |
 
-> 归位原则：**触发重叠才归位**（如 hallmark、/ui 与设计任务重叠→并入环节）；**触发独立则独立存在**（如 /write /health /think 是独立 skill，不在本 repo）。具体各 skill 的深入借鉴在对应文件内标注。
+> Mapping principle: **borrow when triggers overlap** (hallmark, `/ui` overlap design tasks → merged into stages); **keep independent when triggers are separate** (`/write`, `/health`, `/think` are standalone skills, not in this repo). Deeper borrowings per skill are noted inside the files.
 
 ## Notes
 
