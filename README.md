@@ -18,7 +18,7 @@ skills/                    Original skills (each with SKILL.md)
   skill-router/            Skill advisor + inventory (scripts/catalog.sh)
   vision/                  Image-to-text
 extensions/                Pi-only capability layer (deterministic tool shells, pi-specific)
-  design-router/           design-references 确定性工具化 + hallmark 注入（5 工具，见其 README）
+  design-router/           design-references deterministic tools + hallmark injection (5 tools, see its README)
 resources/                 External assets / companion tools
   design-references.md     Asset catalog for design-references (SKILL.md is just the entry)
   vision-cli               Cross-platform CLI for vision (put on PATH, e.g. ~/.local/bin)
@@ -27,7 +27,6 @@ docs/                      Generic docs
   inventory.example.md     Per-machine inventory template (actual inventories live in a private repo)
 ```
 
-## 安装
 
 - Distribute skills to platforms: `./install.sh [target skills dir]` (default `~/.pi/agent/skills`)
 - Pi-only extension: `./install-design-router.sh` (auto-installs design-references; hallmark requires explicit `--with-hallmark`)
@@ -46,13 +45,13 @@ docs/                      Generic docs
 | --- | --- |
 | From scratch (no direction/artifact) | Full flow 0→4 |
 | Has direction/brief | Enter at stage 2/3 |
-| Artifact exists → audit/iterate ("很丑/很怪/不协调") | Stage 4 quick channel (`references/ui-quickfix.md`) |
+| Artifact exists → audit/iterate ("looks ugly / AI-ish / inconsistent") | Stage 4 quick channel (`references/ui-quickfix.md`) |
 | Has reference object ("look at this site/style") | hallmark study / extraction |
 | Component tweak | Light: grep sibling + reuse tokens |
 
 pi platform adds deterministic tools via `extensions/design-router` (design_route / design_research / design_diversity / design_lookup / design_audit / design_contrast / design_quality / hallmark_study_fetch) + slim hallmark skeleton injection (stage-routing, not full 19K SKILL.md).
 
-Keywords: design reference, style library, "in the style of X", landing page, AI panel, 很丑/不好看/不协调, audit this page.
+Keywords: design reference, style library, "in the style of X", landing page, AI panel, "looks ugly / inconsistent", audit this page.
 
 ### skill-router — Skill advisor + inventory
 
@@ -89,6 +88,11 @@ vision-cli <image> "..." --context "prev"  # follow-up on the same image (multi-
 Keywords: look at image, recognize image, extract image text, analyze screenshot, what's in this image.
 
 ## Install
+
+- Distribute skills to platforms: `./install.sh [target skills dir]` (default `~/.pi/agent/skills`)
+- Pi-only extension: `./install-design-router.sh` (auto-installs design-references; hallmark requires explicit `--with-hallmark`)
+
+> Skills with a GitHub upstream (mattpocock, lark-*, etc.) install from their own upstream, not this repo.
 
 **Let your agent install it (recommended)** — give the repo URL to your current agent:
 
