@@ -6,7 +6,7 @@ A collection of original **Agent Skills** (following the [Agent Skills standard]
 
 | Skill | Description |
 | --- | --- |
-| `design-references` | Design reference index: consult `~/resources/design-references.md` before design work (design systems / AI UI patterns / components / motion / icons-fonts-textures) |
+| `design-references` | Design workflow router: stage-first routing (new build / has direction / audit existing artifact / extract reference / component tweak) → scenario branch (A product / B content / C generic) → single needed stage of 0-intent/1-research/2-constraints/3-produce/4-verify. Uses real resources over improvisation |
 | `skill-router` | Skill advisor + inventory manager: scans local skills across platforms at runtime; subcommands scan / report / check / platforms / drift / sync |
 | `vision` | Image-to-text: when the current model has no vision, automatically discovers local vision models (preferredModels order, fallback on failure) to read images |
 
@@ -36,13 +36,23 @@ docs/                      Generic docs
 
 ## Usage
 
-### design-references — Design references
+### design-references — Design workflow router
 
-**When**: UI / visual / style / motion tasks (landing pages, AI panels, PPT, components, styling).
+**When**: UI / visual / style / motion tasks (landing pages, AI panels, PPT, components, styling), or auditing an existing artifact ("this page looks ugly / AI-ish").
 
-**How**: say "build a landing page in the style of X" / "reference beautifului's AI panel patterns" — the agent first consults `~/resources/design-references.md` and reuses real resources instead of improvising; deep design tasks also leverage refero Styles 网站（网页浏览）/ hallmark / motion-dev-animations 等。pi 平台由 `extensions/design-router` 提供确定性工具（design_research/design_lookup/design_audit/design_contrast/hallmark_study_fetch）。
+**How**: stage-first routing, not full-pipeline-by-default:
 
-Keywords: design reference, style library, "in the style of X", landing page, AI panel.
+| Stage signal | Route |
+| --- | --- |
+| From scratch (no direction/artifact) | Full flow 0→4 |
+| Has direction/brief | Enter at stage 2/3 |
+| Artifact exists → audit/iterate ("很丑/很怪/不协调") | Stage 4 quick channel (`references/ui-quickfix.md`) |
+| Has reference object ("look at this site/style") | hallmark study / extraction |
+| Component tweak | Light: grep sibling + reuse tokens |
+
+pi platform adds deterministic tools via `extensions/design-router` (design_route / design_research / design_diversity / design_lookup / design_audit / design_contrast / design_quality / hallmark_study_fetch) + slim hallmark skeleton injection (stage-routing, not full 19K SKILL.md).
+
+Keywords: design reference, style library, "in the style of X", landing page, AI panel, 很丑/不好看/不协调, audit this page.
 
 ### skill-router — Skill advisor + inventory
 
@@ -99,6 +109,24 @@ git clone https://github.com/haohaiHuang/my-pi-skills && cd my-pi-skills
 **Just installed a new skill?** No manual registration needed — skill-router scans the disk at runtime, so the skill is visible on next query; run `sync` to persist it into the routing matrix (`/skill:skill-router sync`, or just ask "update skill inventory").
 
 **New skills in this repo** (maintainers): put new original skill dirs in `skills/`, external deps in `resources/`, commit & push.
+
+## Credits — 借鉴与归位
+
+`design-references` 是编排器/路由器，不是原创方法论合集。它把多家方法论**归位为执行细节**（各归各环节、按需 read），并注明借鉴来源：
+
+| 借鉴自 | 归位为 | 环节 |
+| --- | --- | --- |
+| [nutlope/hallmark](https://github.com/nutlope/hallmark) | 执行层：21 宏结构/21 theme/4 genre/58 slop gates + pre-emit 六轴自评 | 形态库/气质库/环节 4 |
+| [tw93/Kami](https://github.com/tw93/Kami) | 排版骨架不变量 + Kami 三查（取色/品牌色面积/页面密度） | 环节 2 约束 / 环节 4 品牌层 |
+| [tw93/Waza](https://github.com/tw93/Waza) → `/ui` | 视觉迭代快速通道：方向锁五维 + grep sibling 复用 + native exception + 中文 gut-feel 路由 | 环节 4 视觉迭代（`references/ui-quickfix.md`） |
+| [huashu-design](https://github.com/alchaincyf/huashu-design) | 事实验证门（涉具体产品先搜证）+ 品牌资产门（logo/产品图 > 品牌色）+ 候选"看得见" | 环节 0 5b / 环节 1 1a / 环节 1 9a |
+| [baoyu-design](https://github.com/JimLiu/baoyu-design) | 候选同页并排展示（artboard 对比优于散文件） | 环节 1 9a |
+| [emilkowalski/skills](https://github.com/emilkowalski/skills) | 动效原则（频率分级/缓动决策序/时长表/物理感，EM-*） | 环节 2 动效约束 / 环节 4 |
+| interfaces.dev cheat-sheet | craft 约束（typography/colors/layout/a11y/writing，CS-*） | 环节 2 |
+| refero Styles / beautifului / zine 族 | 真实产品参考候选池（风格桶） | 环节 1 调研 |
+| dembrandt / openpencil | 候选验证引擎（URL→精确 token / .fig 直读） | 环节 1 验证 / 环节 4 |
+
+> 归位原则：**触发重叠才归位**（如 hallmark、/ui 与设计任务重叠→并入环节）；**触发独立则独立存在**（如 /write /health /think 是独立 skill，不在本 repo）。具体各 skill 的深入借鉴在对应文件内标注。
 
 ## Notes
 

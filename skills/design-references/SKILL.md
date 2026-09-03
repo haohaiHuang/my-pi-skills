@@ -1,15 +1,29 @@
 ---
 name: design-references
-description: 设计任务路由技能。第一层识别场景分支（A产品类：APP/网页/Mac应用 → 可嵌入产品开发流程；B内容类：海报/杂志封面插图/PPT → 一次性交付；C通用类：组件素材/动效/文档排版 → 轻量即查即走），第二层在分支内走五环节（0意图/1调研/2约束/3产出/4校验），按分支调用不同技能与参考。不跑全流程——只执行当前环节动作，信息不全先问询（≤3问），产出环节交付物并给下一步。核心原则：能引用真实资源就不凭空发挥。触发词：设计参考、风格库、design reference、用 XX 的风格、做个 APP/网页/海报/落地页、UI 设计、排版、配色、参考 beautifului/refero/uiverse。
+description: 设计任务路由技能。第一层判定任务所处阶段（从零新建 / 有方向要落地 / 产物已存在要审计迭代 / 有参考对象要萃取 / 组件级微调），第二层再落场景分支（A产品：APP/网页/Mac；B内容：海报/杂志/PPT；C通用：组件/动效/排版），第三层路由到五环节中当前阶段需要的那一个环节（0意图/1调研/2约束/3产出/4校验），禁止无谓前滚全流程。产物已存在时的视觉审计/迭代（"这页面很丑/很怪/不协调"）直接路由环节 4 快速通道（读 references/ui-quickfix.md），不从环节 0 重走。核心原则：能引用真实资源就不凭空发挥。触发词：设计参考、风格库、design reference、用 XX 的风格、做个 APP/网页/海报/落地页、UI 设计、排版、配色、参考 beautifului/refero/uiverse、这页面很丑/不好看/不协调/很怪、帮我检查下这页面设计、截图迭代。
 ---
 
-# Design References — 场景分支路由
+# Design References — 阶段/场景路由
 
-**调用顺序：场景识别 → 分支判定（A/B/C）→ 分支内环节执行。**
+**调用顺序：阶段判定（任务在流程哪个点）→ 场景分支（A/B/C）→ 路由到需要的那一个环节。**
 
 > 资源明细见 `~/resources/design-references.md`（台账，每条带三维标注）；三维索引见 `references/registry.md`；环节操作细节见 `references/workflow.md`。
 
-## 第一层：场景分支
+## 第一层：阶段判定（先判任务在流程哪个点，不无谓前滚）
+
+```
+设计需求
+├─ 从零新建（无方向/无产物/要重样）→ 完整流程 0→4（如无明确风格需求，重调研）
+├─ 有方向要落地（指定了风格/参考/已有 brief）→ 从环节 2/3 切入
+├─ 产物已存在要审计迭代（"这页面很丑/很怪/不协调/帮我看看"）→ 环节 4 快速通道 ★
+│     └─ 视觉迭代直接走 references/ui-quickfix.md（方向锁+grep sibling），不走 0/1/2/3
+├─ 有参考对象（"看看这个网站/截图风格"）→ hallmark study / 萃取，不进设计流程
+└─ 组件级微调（单按钮/单卡片/顺手改个色）→ 轻量：grep sibling + 复用 token，不触发流程
+```
+
+**判不出阶段 → 按产物是否已存在兜底：已有产物→环节 4；无产物→完整流程。** 性质不明问一次（≤3 问）。
+
+## 第二层：场景分支（决定产出形态与工具链）
 
 ```
 设计任务
@@ -146,5 +160,6 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 - 资源明细台账：`~/resources/design-references.md`（A-G 浏览视图 + 每条三维标注）
 - 资源三维索引：`references/registry.md`（角色 × 形态 × 层级 + 退化链）
 - 环节操作手册：`references/workflow.md`
+- 视觉迭代/审计快速通道：`references/ui-quickfix.md`（环节 4 用；方向锁五维 + grep sibling 复用 + native exception + 中文 gut-feel 路由，源自 Waza /ui 方法论归位）
 - 构图词典：`references/poster-compositions.md`（32 构图词条 × 内容量/情绪速查，B 海报写提示词、A 网页转 CSS 约束）
 - 深度方法论：`refero Styles 网站`（https://styles.refero.design/，取真实产品设计系统；SPA 需浏览器——pi 平台用 ego-browser，DSH 用 web_search 探测或 dembrandt 验证升级）
