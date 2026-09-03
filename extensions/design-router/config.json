@@ -1,4 +1,4 @@
 {
-  "injectionMode": "full",
+  "injectionMode": "slim",
   "_comment": "injectionMode: full = 设计任务时注入完整 hallmark SKILL.md；slim = 只注入四动词表+六条纪律（约 2K tokens）。改后重启 pi 或 /reload 生效。"
 }

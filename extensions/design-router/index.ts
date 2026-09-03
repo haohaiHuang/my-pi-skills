@@ -162,7 +162,7 @@ const TOOL_NOTE = `
 · design_route <需求特征> — 【环节 1 反同质化第一步】需求特征 → 推荐风格桶组合（主桶必查+次桶按需）+ 各桶代表资源与桶健康（🟢🟡🔴）
 · design_diversity <c1> <c2> <c3> — 【环节 1 候选展示前必调】3 候选差异度机器检查（色相族/字体气质/来源桶），PASS 才展示，FAIL 回炉
 · design_lookup <branch> <stage> — 查设计资源注册表（R/C/E/V 三维索引 + 退化链 + 来源，输出标注风格桶+质量等级，差质沉底）
-· design_audit <target> — 跑 Hallmark 机器化 slop gates + 环节4 扫描，返回带 gate 号的 punch list（只读）
+· design_audit <target> — 跑 Hallmark 机器化 slop gates + 环节4 扫描（只读）。产物已存在要审计/"这页面丑"时直接调用（独立入口，不需先走调研/约束）
 · design_contrast <target> — APCA/WCAG 对比度计算
 · design_quality report|query — 【环节 4 收尾记录】客观质量信号（提取成败/未验证/回炉/可达性），禁以用户审美打分；下次环节 1 自动降权差质源
 · hallmark_study_fetch <url> — 抓取页面提取 DNA 草稿（字体/色值/间距/结构信号）
@@ -182,13 +182,15 @@ const STRONG_HINTS = [
   "设计", "落地页", "landing", "海报", "hallmark", "redesign", "官网", "封面", "banner",
   "首页", "登录页", "设计系统", "配色", "排版", "界面", "做个小程序", "做个app", "做个 app",
   "幻灯片", "ppt", "slides", "deck", "原型", "mockup", "wireframe", "组件库", "改版",
+  // 产物已存在的视觉审计/迭代信号（→ 环节 4 快速通道，读 ui-quickfix）
+  "很丑", "好丑", "太丑", "丑死", "不好看", "不协调", "很怪", "突兀", "不和谐", "难看", "帮我看看这页面", "帮我看看这个页面", "截图迭代", "页面丑", "UI 丑", "改下这个界面",
 ];
 const WEAK_HINTS = ["audit", "study", "页面", "风格", "参考", "美化", "升级", "ui"];
 
 function isDesignTask(prompt: string): boolean {
   const p = prompt.toLowerCase();
   if (STRONG_HINTS.some((h) => p.includes(h.toLowerCase()))) return true;
-  if (/\bapp\b|\bui\b|\bdesign\b/i.test(p)) return true;
+  if (/\bui\b|\bdesign\b/i.test(p)) return true;
   const weakHits = WEAK_HINTS.filter((h) => p.includes(h.toLowerCase()));
   return weakHits.length >= 2;
 }
@@ -626,7 +628,7 @@ export default function (pi: ExtensionAPI) {
     name: "design_audit",
     label: "Design Audit",
     description:
-      "对目标文件/目录跑设计反模式机器检查（只读不改）：Hallmark 可机器化 slop gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/46/47/50/51 + 40/41 对比度）+ design-references 环节4 扫描（字重/圆角/渐变/emoji）。返回带 gate 号的 punch list。用于 hallmark audit 或环节4 校验。",
+      "对目标文件/目录跑设计反模式机器检查（只读不改）：Hallmark 可机器化 slop gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/46/47/50/51 + 40/41 对比度）+ design-references 环节4 扫描（字重/圆角/渐变/emoji）。返回带 gate 号的 punch list。用于 hallmark audit 或环节4 校验。当用户说页面很丑/不好看/产物已存在要检查时，可直接调用本工具（独立入口，不需先走调研/约束流程）。",
     parameters: Type.Object({
       target: Type.String({ description: "文件或目录路径（目录会递归收集 html/css/js/tsx/vue 等）" }),
     }),
