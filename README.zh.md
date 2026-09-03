@@ -6,7 +6,7 @@
 
 | 技能 | 说明 |
 | --- | --- |
-| `design-references` | 设计参考索引：动手前先查 `~/resources/design-references.md` 素材台账（设计系统 / AI 范式 / 组件 / 动效 / 图标字体纹理） |
+| `design-references` | 设计工作流路由：阶段优先判定（从零新建 / 有方向要落地 / 产物已存在审计 / 参考萃取 / 组件微调）→ 场景分支（A 产品 / B 内容 / C 通用）→ 路由到需要的单环节（0 意图/1 调研/2 约束/3 产出/4 校验）。能引用真实资源就不凭空发挥 |
 | `skill-router` | 技能咨询台 + 台账管理器：运行时扫描本机各平台技能，支持 scan / report / check / platforms / drift / sync 子命令 |
 | `vision` | 读图转文字：当前模型无视觉能力时，自动发现本机视觉模型（preferredModels 顺序，失败回退）读取图片 |
 
@@ -29,13 +29,23 @@ docs/                      通用文档
 
 ## 使用
 
-### design-references — 设计参考
+### design-references — 设计工作流路由
 
-**何时用**：做 UI / 界面 / 视觉 / 风格 / 动效任务（落地页、AI 面板、PPT、组件、风格化）。
+**何时用**：做 UI / 界面 / 视觉 / 风格 / 动效任务（落地页、AI 面板、PPT、组件、风格化），或审计已有产物（“这页面很丑/很 AI”）。
 
-**怎么用**：对 agent 说“用 XX 的风格做落地页”“参考 beautifului 的 AI 面板范式”等，agent 会先查 `~/resources/design-references.md` 素材台账（设计系统 / AI 范式 / 组件 / 动效 / 图标字体纹理），能引用真实资源就不凭空发挥；深度设计任务自动配合 `refero-design`、`motion-dev-animations` 等技能。
+**怎么用**：阶段优先路由，不默认全流程：
 
-触发词：设计参考、风格库、用 XX 的风格、做落地页、做 AI 面板。
+| 阶段信号 | 路由 |
+| --- | --- |
+| 从零新建（无方向/无产物） | 完整流程 0→4 |
+| 有方向/brief | 从环节 2/3 切入 |
+| 产物已存在 → 审计/迭代（“很丑/很怪/不协调”） | 环节 4 快速通道（`references/ui-quickfix.md`） |
+| 有参考对象（“看这网站/风格”） | hallmark study / 萃取 |
+| 组件级微调 | 轻量：grep sibling + 复用 token |
+
+pi 平台由 `extensions/design-router` 提供确定性工具（design_route / design_research / design_diversity / design_lookup / design_audit / design_contrast / design_quality / hallmark_study_fetch）+ slim 骨架注入（阶段路由，非完整 19K SKILL.md）。
+
+触发词：设计参考、风格库、用 XX 的风格、做落地页、AI 面板、很丑/不好看/不协调、审计这个页面。
 
 ### skill-router — 技能咨询台 + 台账
 
@@ -84,6 +94,24 @@ git clone https://github.com/haohaiHuang/my-pi-skills && cd my-pi-skills
 **新装了一个技能？** 无需手动登记——skill-router 运行时扫描磁盘，下次查询自动可见；跑一次 `sync` 把新技能固化进路由矩阵台账（`/skill:skill-router sync`，或问 agent “更新技能台账”）。
 
 **本仓库的新技能**（维护者）：新自研 skill 目录放进 `skills/`，外部依赖放 `resources/`，commit push 即可。
+
+## 借鉴与归位（Credits）
+
+`design-references` 是编排器/路由器，不是原创方法论合集。它把多家方法论**归位为执行细节**（各归各环节、按需 read），并注明借鉴来源：
+
+| 借鉴自 | 归位为 | 环节 |
+| --- | --- | --- |
+| [nutlope/hallmark](https://github.com/nutlope/hallmark) | 执行层：21 宏结构/21 theme/4 genre/58 slop gates + pre-emit 六轴自评 | 形态库/气质库/环节 4 |
+| [tw93/Kami](https://github.com/tw93/Kami) | 排版骨架不变量 + Kami 三查（取色/品牌色面积/页面密度） | 环节 2 约束 / 环节 4 品牌层 |
+| [tw93/Waza](https://github.com/tw93/Waza) → `/ui` | 视觉迭代快速通道：方向锁五维 + grep sibling 复用 + native exception + 中文 gut-feel 路由 | 环节 4 视觉迭代（`references/ui-quickfix.md`） |
+| [huashu-design](https://github.com/alchaincyf/huashu-design) | 事实验证门（涉具体产品先搜证）+ 品牌资产门（logo/产品图 > 品牌色）+ 候选“看得见” | 环节 0 5b / 环节 1 1a / 环节 1 9a |
+| [baoyu-design](https://github.com/JimLiu/baoyu-design) | 候选同页并排展示（artboard 对比优于散文件） | 环节 1 9a |
+| [emilkowalski/skills](https://github.com/emilkowalski/skills) | 动效原则（频率分级/缓动决策序/时长表/物理感，EM-*） | 环节 2 动效约束 / 环节 4 |
+| interfaces.dev cheat-sheet | craft 约束（typography/colors/layout/a11y/writing，CS-*） | 环节 2 |
+| refero Styles / beautifului / zine 族 | 真实产品参考候选池（风格桶） | 环节 1 调研 |
+| dembrandt / openpencil | 候选验证引擎（URL→精确 token / .fig 直读） | 环节 1 验证 / 环节 4 |
+
+> 归位原则：**触发重叠才归位**（如 hallmark、/ui 与设计任务重叠→并入环节）；**触发独立则独立存在**（如 /write /health /think 是独立 skill，不在本仓库）。具体各 skill 的深入借鉴在对应文件内标注。
 
 ## 注意
 
