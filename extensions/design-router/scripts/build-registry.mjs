@@ -63,6 +63,7 @@ const SLUG_BY_KEYWORD = [
   ["loadmore", "loadmo.re"],
   ["uipedia", "UiPedia"],
   ["dribbble", "Dribbble 案例"],
+  ["kill-ai-slop", "kill-ai-slop 反 AI slop"],
   ["dembrandt-extract", "dembrandt 萃取产物"],
   ["dembrandt", "dembrandt（URL→设计 token"],
   // C 约束模板

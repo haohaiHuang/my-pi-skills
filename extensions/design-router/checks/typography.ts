@@ -3,11 +3,13 @@
  *
  * 覆盖 hallmark gate 1 / 37 / 38a + design-references 环节4 字重扫描。
  * 全部为文本可判定；视觉/上下文类判定不在本模块。
+ * gate 1 字体黑名单含 kill-ai-slop tell 33 的 AI 时代默认栈（Space Grotesk/Manrope 等）。
  */
 import type { AuditFile, Finding } from "./types.ts";
 import { loc, grepLines } from "./types.ts";
 
-const DEFAULT_FONTS = /\b(Inter|Roboto|Open Sans|Poppins|Lato|Arial|Helvetica|Times New Roman)\b/i;
+const DEFAULT_FONTS =
+  /\b(Inter|Roboto|Open Sans|Poppins|Lato|Arial|Helvetica|Times New Roman|Space Grotesk|Manrope|Plus Jakarta Sans|Geist|Sora|DM Sans)\b/i;
 
 export function runTypographyChecks(files: AuditFile[]): Finding[] {
   const findings: Finding[] = [];
@@ -29,7 +31,6 @@ export function runTypographyChecks(files: AuditFile[]): Finding[] {
         });
       }
     }
-
     // ---- gate 37: 字体家族数 > 3 ----
     const families = new Set<string>();
     for (const ln of grepLines(c, /font-family\s*:/i)) {

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-02",
+  "generated": "2026-09-04",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -906,6 +906,17 @@
       "fallback": "→ skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底）",
       "source": "`https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`）",
       "slug": "hallmark-slop-test",
+      "quality": "未评估"
+    },
+    {
+      "name": "kill-ai-slop 反 AI slop 检测 patterns 转译（KS-* 子集：cozy 暖洗色 / 默认语义彩虹 / 单色状态框 / 衬线乱入 UI / AI 文案腔（含中文词组）；补 hallmark 58 gates 未机器化/未覆盖的 tells；与 gates 重合部分（渐变/卡中卡/编造指标等）不转译）",
+      "role": "V",
+      "form": "规则",
+      "level": "次",
+      "scenarios": "网页 / 通用（产出后校验；机器子集 KS-* 已由 pi 版 design_audit 合并执行，DSH 版未移植——命中为 warn 级疑似，需人工 Triage；品牌/编辑语境可豁免）",
+      "fallback": "→ 无（机器直接执行）→ 模型按环节 4 Triage 确认",
+      "source": "`https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释）",
+      "slug": "kill-ai-slop",
       "quality": "未评估"
     }
   ],

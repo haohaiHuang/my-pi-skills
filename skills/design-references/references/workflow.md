@@ -228,6 +228,7 @@
    - 字重扫描：grep font-weight，禁 700/600/450（除非约束允许）
    - 圆角扫描：grep border-radius，核对与约束的档位一致
    - 渐变/阴影扫描：grep gradient/box-shadow，核对约束允许范围
+   - design_audit 已合并 kill-ai-slop 转译子集 **KS-***（cozy 暖洗色 / 默认语义彩虹 / 单色状态框 / 衬线乱入 UI / AI 文案腔含中文）——warn 级命中 = 疑似，需人工 Triage：品牌/编辑语境合法则豁免（源码标注 deslop-ignore 思路），真 slop 则回环节 2 改约束
 1b. **产物为 .fig/.pen 时（design_audit 只管 HTML/CSS，设计文件走 openpencil）**：
    - `openpencil lint <file>` → 命名/auto-layout/硬编码色/无障碍对比度（机器判定）
    - `openpencil analyze colors <file> --threshold 5` → 色板一致性（偏离约束 token 的颜色逐一解释）
